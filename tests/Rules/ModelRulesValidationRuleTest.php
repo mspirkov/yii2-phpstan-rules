@@ -38,6 +38,7 @@ final class ModelRulesValidationRuleTest extends RuleTestCase
                 ['Unknown option "lenght" for Yii validator yii\validators\StringValidator.', 60],
                 ['Yii validator option "on" must contain only scenario names as strings.', 61],
                 ['Invalid Yii model validation rule: each rule must be an array or an instance of yii\validators\Validator.', 62],
+                ['Yii validator option "ipv4" for yii\validators\IpValidator must be bool, int given.', 128],
                 ['Yii model validation rule must specify attribute names at index 0.', 170],
                 ['Yii model validation rule attribute names at index 0 cannot be null.', 171],
                 ['Yii model validation rule validator type at index 1 cannot be null.', 172],
@@ -48,6 +49,9 @@ final class ModelRulesValidationRuleTest extends RuleTestCase
                 ['Yii model validation rule must specify attribute names at index 0.', 177],
                 ['Yii model validation rule must specify validator type at index 1.', 177],
                 ['Yii model validation rule must specify validator type at index 1.', 187],
+                ['Yii validator option "max" for yii\validators\StringValidator must be int|null, string given.', 212],
+                ['Yii validator option "integerOnly" for yii\validators\NumberValidator must be bool, string given.', 213],
+                ['Unknown option "attributeNames" for Yii validator yii\validators\RequiredValidator.', 214],
             ],
         );
     }

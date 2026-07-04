@@ -196,3 +196,27 @@ final class DynamicRulesModel extends Model
         return parent::rules();
     }
 }
+
+final class OptionTypeValidationModel extends Model
+{
+    public function rules(): array
+    {
+        $dynamicMax = $this->dynamicValue();
+
+        return [
+            ['title', 'string', 'max' => 255],
+            ['title', 'string', 'strict' => false],
+            ['title', 'string', 'max' => $dynamicMax],
+            ['password', 'compare', 'compareValue' => new \stdClass()],
+            ['title', 'string', 'as behavior' => []],
+            ['message', 'string', 'max' => 'invalid'],
+            ['age', 'number', 'integerOnly' => 'yes'],
+            ['title', 'required', 'attributeNames' => 123],
+        ];
+    }
+
+    private function dynamicValue()
+    {
+        return mt_rand(0, 1) === 1 ? 255 : 'dynamic';
+    }
+}
