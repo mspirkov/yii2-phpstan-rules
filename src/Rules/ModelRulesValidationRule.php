@@ -222,7 +222,7 @@ final class ModelRulesValidationRule implements Rule
 
             if ($this->isDefinitelyNotArrayOrValidator($item->value, $scope)) {
                 $errors[] = $this->buildError(
-                    'Invalid Yii model validation rule: each rule must be an array or an instance of yii\validators\Validator.',
+                    'Model validation rule must be an array or a yii\validators\Validator instance.',
                     $item->value,
                 );
             }
@@ -244,9 +244,9 @@ final class ModelRulesValidationRule implements Rule
 
         if ($attributeIndex !== null) {
             if (!isset($items[$attributeIndex])) {
-                $errors[] = $this->buildError('Yii model validation rule must specify attribute names at index 0.', $rule);
+                $errors[] = $this->buildError('Model validation rule must specify attribute names at index 0.', $rule);
             } elseif ($this->isNullExpression($items[$attributeIndex]->value)) {
-                $errors[] = $this->buildError('Yii model validation rule attribute names at index 0 cannot be null.', $items[$attributeIndex]->value);
+                $errors[] = $this->buildError('Model validation rule attribute names at index 0 cannot be null.', $items[$attributeIndex]->value);
             } else {
                 foreach ($this->validateAttributeNames($items[$attributeIndex]->value, $scope) as $error) {
                     $errors[] = $error;
@@ -257,8 +257,8 @@ final class ModelRulesValidationRule implements Rule
         if (!isset($items[$validatorTypeIndex])) {
             $errors[] = $this->buildError(
                 $embedded
-                    ? 'Embedded Yii validation rule must specify validator type at index 0.'
-                    : 'Yii model validation rule must specify validator type at index 1.',
+                    ? 'Embedded validation rule must specify validator type at index 0.'
+                    : 'Model validation rule must specify validator type at index 1.',
                 $rule,
             );
 
@@ -269,8 +269,8 @@ final class ModelRulesValidationRule implements Rule
         if ($this->isNullExpression($validatorTypeExpr)) {
             $errors[] = $this->buildError(
                 $embedded
-                    ? 'Embedded Yii validation rule validator type at index 0 cannot be null.'
-                    : 'Yii model validation rule validator type at index 1 cannot be null.',
+                    ? 'Embedded validation rule validator type at index 0 cannot be null.'
+                    : 'Model validation rule validator type at index 1 cannot be null.',
                 $validatorTypeExpr,
             );
 
@@ -278,7 +278,7 @@ final class ModelRulesValidationRule implements Rule
         }
 
         if (!$this->isValidValidatorTypeExpression($validatorTypeExpr, $scope)) {
-            $errors[] = $this->buildError('Yii model validation rule validator type must be a string or Closure.', $validatorTypeExpr);
+            $errors[] = $this->buildError('Model validation rule validator type must be a string or Closure.', $validatorTypeExpr);
 
             return $errors;
         }
@@ -291,7 +291,7 @@ final class ModelRulesValidationRule implements Rule
 
         $options = $this->collectOptions($items, $firstOptionIndex);
         foreach ($options['invalidKeys'] as $invalidKey) {
-            $errors[] = $this->buildError('Yii model validation rule option keys must be strings.', $invalidKey);
+            $errors[] = $this->buildError('Model validation rule option keys must be strings.', $invalidKey);
         }
 
         foreach ($this->validateOptionNames($validatorClass, $options['items']) as $error) {
@@ -322,7 +322,7 @@ final class ModelRulesValidationRule implements Rule
     {
         if ($attributesExpr instanceof String_) {
             return $attributesExpr->value === ''
-                ? [$this->buildError('Yii model validation rule contains an empty attribute name.', $attributesExpr)]
+                ? [$this->buildError('Model validation rule contains an empty attribute name.', $attributesExpr)]
                 : [];
         }
 
@@ -335,14 +335,14 @@ final class ModelRulesValidationRule implements Rule
 
                 if ($item->value instanceof String_) {
                     if ($item->value->value === '') {
-                        $errors[] = $this->buildError('Yii model validation rule contains an empty attribute name.', $item->value);
+                        $errors[] = $this->buildError('Model validation rule contains an empty attribute name.', $item->value);
                     }
 
                     continue;
                 }
 
                 if ($this->isDefinitelyNotString($item->value, $scope)) {
-                    $errors[] = $this->buildError('Yii model validation rule attributes must be strings.', $item->value);
+                    $errors[] = $this->buildError('Model validation rule attributes must be strings.', $item->value);
                 }
             }
 
@@ -350,7 +350,7 @@ final class ModelRulesValidationRule implements Rule
         }
 
         if ($this->isDefinitelyNotString($attributesExpr, $scope)) {
-            return [$this->buildError('Yii model validation rule attribute names must be a string or an array of strings.', $attributesExpr)];
+            return [$this->buildError('Model validation rule attributes must be a string or array of strings.', $attributesExpr)];
         }
 
         return [];
@@ -377,7 +377,7 @@ final class ModelRulesValidationRule implements Rule
             }
 
             $errors[] = $this->buildError(
-                sprintf('Unknown option "%s" for Yii validator %s.', $optionName, $validatorClass),
+                sprintf('Unknown option "%s" for validator %s.', $optionName, $validatorClass),
                 $item,
             );
         }
@@ -418,7 +418,7 @@ final class ModelRulesValidationRule implements Rule
 
             $errors[] = $this->buildError(
                 sprintf(
-                    'Yii validator option "%s" for %s must be %s, %s given.',
+                    'Validator option "%s" for %s must be %s, %s given.',
                     $optionName,
                     $validatorClass,
                     $expectedType->describe(VerbosityLevel::typeOnly()),
@@ -446,7 +446,7 @@ final class ModelRulesValidationRule implements Rule
         foreach (self::REQUIRED_OPTIONS[$validatorName] as $optionName) {
             if (!isset($options[$optionName]) || $this->isNullExpression($options[$optionName]->value)) {
                 $errors[] = $this->buildError(
-                    sprintf('Yii validator "%s" requires option "%s".', $validatorName, $optionName),
+                    sprintf('Validator "%s" requires option "%s".', $validatorName, $optionName),
                     $rule,
                 );
             }
@@ -486,7 +486,7 @@ final class ModelRulesValidationRule implements Rule
             $ipv4 = $this->getConstantBoolean($options['ipv4']->value, $scope);
             $ipv6 = $this->getConstantBoolean($options['ipv6']->value, $scope);
             if ($ipv4 === false && $ipv6 === false) {
-                $errors[] = $this->buildError('Yii IP validator cannot disable both IPv4 and IPv6 checks.', $options['ipv6']);
+                $errors[] = $this->buildError('IP validator cannot disable both IPv4 and IPv6 checks.', $options['ipv6']);
             }
         }
 
@@ -529,14 +529,14 @@ final class ModelRulesValidationRule implements Rule
         $pattern = $this->getSingleStringValue($patternExpr, $scope);
         if ($pattern === null) {
             if ($this->isDefinitelyNotString($patternExpr, $scope)) {
-                return [$this->buildError('Yii match validator option "pattern" must be a string.', $patternExpr)];
+                return [$this->buildError('Match validator option "pattern" must be a string.', $patternExpr)];
             }
 
             return [];
         }
 
         if (@preg_match($pattern, '') === false) {
-            return [$this->buildError(sprintf('Yii match validator option "pattern" contains an invalid regular expression "%s".', $pattern), $patternExpr)];
+            return [$this->buildError(sprintf('Match validator option "pattern" has an invalid regular expression "%s".', $pattern), $patternExpr)];
         }
 
         return [];
@@ -561,7 +561,7 @@ final class ModelRulesValidationRule implements Rule
         }
 
         if ($rangeType->isArray()->no() && $rangeType->isObject()->no()) {
-            return [$this->buildError('Yii "in" validator option "range" must be an array, Closure, or Traversable.', $rangeExpr)];
+            return [$this->buildError('"in" validator option "range" must be an array, Closure, or Traversable.', $rangeExpr)];
         }
 
         return [];
@@ -588,7 +588,7 @@ final class ModelRulesValidationRule implements Rule
                 }
 
                 if ($this->isDefinitelyNotString($item->value, $scope)) {
-                    $errors[] = $this->buildError(sprintf('Yii validator option "%s" must contain only scenario names as strings.', $optionName), $item->value);
+                    $errors[] = $this->buildError(sprintf('Validator option "%s" must contain only scenario names as strings.', $optionName), $item->value);
                 }
             }
 
@@ -596,7 +596,7 @@ final class ModelRulesValidationRule implements Rule
         }
 
         if ($this->isDefinitelyNotString($optionExpr, $scope)) {
-            return [$this->buildError(sprintf('Yii validator option "%s" must be a string or an array of strings.', $optionName), $optionExpr)];
+            return [$this->buildError(sprintf('Validator option "%s" must be a string or array of strings.', $optionName), $optionExpr)];
         }
 
         return [];
