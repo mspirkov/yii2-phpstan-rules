@@ -69,7 +69,7 @@ parameters:
             doWhileCount: 0
             switchCount: 0
             matchCount: 0
-            ternaryCount: 0
+            ternaryCount: 1
             tryCatchCount: 1
 
         # Yii::$app properties allowed to be read anywhere (e.g. request-agnostic settings)

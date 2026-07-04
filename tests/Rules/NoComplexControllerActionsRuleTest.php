@@ -25,7 +25,6 @@ final class NoComplexControllerActionsRuleTest extends RuleTestCase
                 ['Controller action contains too much business logic: doWhileCount is 1, allowed 0. Move business logic to the service layer.', 48],
                 ['Controller action contains too much business logic: switchCount is 1, allowed 0. Move business logic to the service layer.', 51],
                 ['Controller action contains too much business logic: matchCount is 1, allowed 0. Move business logic to the service layer.', 56],
-                ['Controller action contains too much business logic: ternaryCount is 1, allowed 0. Move business logic to the service layer.', 61],
             ],
         );
     }

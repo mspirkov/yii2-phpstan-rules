@@ -11,7 +11,7 @@ parameters:
 			doWhileCount: 0
 			switchCount: 0
 			matchCount: 0
-			ternaryCount: 0
+			ternaryCount: 1
 			tryCatchCount: 1
 		noDirectSuperglobals:
 			enabled: %mspirkovYii2Rules.enableAllRules%
