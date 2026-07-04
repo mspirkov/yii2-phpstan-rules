@@ -23,7 +23,7 @@ final class ValidModel extends Model
             ['status', 'in', 'range' => ['active', 'blocked']],
             ['email', 'email'],
             ['tags', 'each', 'rule' => ['string', 'max' => 20]],
-            ['unknown', 'projectSpecificValidator', 'lenght' => 10],
+            ['unknown', 'projectSpecificValidator', 'max' => 10],
             ['closure', static function (string $attribute, array $params): void {
             }, 'params' => ['key' => 'value']],
             new RequiredValidator(['attributes' => ['external']]),
@@ -212,6 +212,7 @@ final class OptionTypeValidationModel extends Model
             ['message', 'string', 'max' => 'invalid'],
             ['age', 'number', 'integerOnly' => 'yes'],
             ['title', 'required', 'attributeNames' => 123],
+            ['title', 'missingValidatorAlias'],
         ];
     }
 
