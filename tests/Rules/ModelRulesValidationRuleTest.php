@@ -8,6 +8,7 @@ use MSpirkov\Yii2\PHPStan\Rules\ModelRulesValidationRule;
 use PHPStan\Rules\Rule;
 use PHPStan\Testing\RuleTestCase;
 use yii\validators\Validator;
+use stdClass;
 
 /**
  * @extends RuleTestCase<ModelRulesValidationRule>
@@ -68,7 +69,7 @@ final class ModelRulesValidationRuleTest extends RuleTestCase
     public function testBrokenBuiltInValidatorClassIsReportedAsUnknownValidator(): void
     {
         $originalBuiltInValidators = Validator::$builtInValidators;
-        Validator::$builtInValidators['brokenBuiltIn'] = \stdClass::class;
+        Validator::$builtInValidators['brokenBuiltIn'] = stdClass::class;
 
         try {
             $this->analyse(
