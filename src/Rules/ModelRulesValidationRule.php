@@ -125,7 +125,7 @@ final class ModelRulesValidationRule implements Rule
     private ModelRulesReturnExpressionFinder $returnExpressionFinder;
 
     /** @var array<string, string> */
-    private array $customValidatorClasses;
+    private array $customValidators;
 
     /** @var array<class-string<Validator>, array<string, true>> */
     private array $writablePropertiesByClass = [];
@@ -140,7 +140,7 @@ final class ModelRulesValidationRule implements Rule
     ) {
         $this->reflectionProvider = $reflectionProvider;
         $this->returnExpressionFinder = $returnExpressionFinder;
-        $this->customValidatorClasses = $customValidators;
+        $this->customValidators = $customValidators;
     }
 
     public function getNodeType(): string
@@ -726,8 +726,8 @@ final class ModelRulesValidationRule implements Rule
             return self::BUILT_IN_VALIDATOR_CLASSES[$validatorName];
         }
 
-        if (isset($this->customValidatorClasses[$validatorName])) {
-            $customValidatorClass = $this->customValidatorClasses[$validatorName];
+        if (isset($this->customValidators[$validatorName])) {
+            $customValidatorClass = $this->customValidators[$validatorName];
             if ($this->isValidatorClassName($customValidatorClass)) {
                 return $customValidatorClass;
             }
