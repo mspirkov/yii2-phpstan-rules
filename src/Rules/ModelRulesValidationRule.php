@@ -865,7 +865,7 @@ final class ModelRulesValidationRule implements Rule
     {
         return RuleErrorBuilder::message($message)
             ->identifier(Identifiers::MODEL_RULES_VALIDATION)
-            ->line($node->getLine())
+            ->line($node->getStartLine())
             ->build();
     }
 }
