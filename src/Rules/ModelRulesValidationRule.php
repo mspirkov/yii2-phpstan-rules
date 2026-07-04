@@ -26,7 +26,9 @@ use PHPStan\Rules\IdentifierRuleError;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleErrorBuilder;
 use PHPStan\Type\BooleanType;
+use PHPStan\Type\MixedType;
 use PHPStan\Type\ObjectType;
+use PHPStan\Type\VerbosityLevel;
 use Traversable;
 use yii\base\Model;
 use yii\captcha\CaptchaValidator;
@@ -108,6 +110,14 @@ final class ModelRulesValidationRule implements Rule
         '__class',
         'class',
         'current',
+    ];
+
+    /** @var list<string> */
+    private const TYPE_CHECK_SKIPPED_OPTIONS = [
+        'except',
+        'on',
+        'pattern',
+        'range',
     ];
 
     private ReflectionProvider $reflectionProvider;
@@ -288,6 +298,10 @@ final class ModelRulesValidationRule implements Rule
             $errors[] = $error;
         }
 
+        foreach ($this->validateOptionValueTypes($validatorClass, $options['items'], $scope) as $error) {
+            $errors[] = $error;
+        }
+
         if ($validatorName !== null) {
             foreach ($this->validateRequiredOptions($validatorName, $rule, $options['items']) as $error) {
                 $errors[] = $error;
@@ -365,6 +379,52 @@ final class ModelRulesValidationRule implements Rule
             $errors[] = $this->buildError(
                 sprintf('Unknown option "%s" for Yii validator %s.', $optionName, $validatorClass),
                 $item,
+            );
+        }
+
+        return $errors;
+    }
+
+    /**
+     * @param class-string<Validator> $validatorClass
+     * @param array<string, ArrayItem> $options
+     *
+     * @return list<IdentifierRuleError>
+     */
+    private function validateOptionValueTypes(string $validatorClass, array $options, Scope $scope): array
+    {
+        $errors = [];
+        $classReflection = $this->reflectionProvider->getClass($validatorClass);
+
+        foreach ($options as $optionName => $item) {
+            if ($this->shouldSkipOptionTypeCheck($optionName) || !$classReflection->hasInstanceProperty($optionName)) {
+                continue;
+            }
+
+            $property = $classReflection->getInstanceProperty($optionName, $scope);
+            if (!$property->isWritable()) {
+                continue;
+            }
+
+            $expectedType = $property->getWritableType();
+            $actualType = $scope->getType($item->value);
+            if ($expectedType instanceof MixedType || $actualType instanceof MixedType) {
+                continue;
+            }
+
+            if (!$expectedType->accepts($actualType, true)->no()) {
+                continue;
+            }
+
+            $errors[] = $this->buildError(
+                sprintf(
+                    'Yii validator option "%s" for %s must be %s, %s given.',
+                    $optionName,
+                    $validatorClass,
+                    $expectedType->describe(VerbosityLevel::typeOnly()),
+                    $actualType->describe(VerbosityLevel::typeOnly())
+                ),
+                $item->value,
             );
         }
 
@@ -540,6 +600,14 @@ final class ModelRulesValidationRule implements Rule
         }
 
         return [];
+    }
+
+    private function shouldSkipOptionTypeCheck(string $optionName): bool
+    {
+        return in_array($optionName, self::SPECIAL_CONFIG_KEYS, true)
+            || in_array($optionName, self::TYPE_CHECK_SKIPPED_OPTIONS, true)
+            || strncmp($optionName, 'on ', 3) === 0
+            || strncmp($optionName, 'as ', 3) === 0;
     }
 
     /**

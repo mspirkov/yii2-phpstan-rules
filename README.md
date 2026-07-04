@@ -192,6 +192,7 @@ public function rules()
         ['email', 'exist', 'targetClass' => X::class],   // ✗ 'exist' requires 'targetAttribute'
         ['code', 'match', 'pattern' => '/[/'],           // ✗ invalid regular expression
         ['ip', 'ip', 'ipv4' => false, 'ipv6' => false],  // ✗ disables both protocols
+        ['message', 'string', 'max' => 'invalid'],       // ✗ 'max' must be int|null
         ['status', 'someUnregisteredAlias'],             // — unresolved name, not checked
 
         ['name', 'string', 'max' => 255],                // ✓
