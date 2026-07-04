@@ -1,0 +1,83 @@
+name: CI
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - ".editorconfig"
+      - ".gitattributes"
+      - ".gitignore"
+      - "LICENSE.md"
+      - "README.md"
+
+  pull_request:
+    branches:
+      - main
+    paths-ignore:
+      - ".editorconfig"
+      - ".gitattributes"
+      - ".gitignore"
+      - "LICENSE.md"
+      - "README.md"
+
+jobs:
+  codestyle:
+    name: "Codestyle check"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Setup
+        uses: ./.github/composite-actions/setup
+        with:
+          php-version: "7.4"
+
+      - name: Run PHP CS Fixer
+        run: vendor/bin/php-cs-fixer check
+
+  rector:
+    name: "Rector check"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Setup
+        uses: ./.github/composite-actions/setup
+        with:
+          php-version: "7.4"
+
+      - name: Run Rector
+        run: vendor/bin/rector process --dry-run
+
+  tests:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - php-version: "7.4"
+          - php-version: "8.0"
+          - php-version: "8.1"
+          - php-version: "8.2"
+          - php-version: "8.3"
+          - php-version: "8.4"
+          - php-version: "8.5"
+
+    name: PHP ${{ matrix.php-version }} checks
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup
+        uses: ./.github/composite-actions/setup
+        with:
+          php-version: ${{ matrix.php-version }}
+
+      - name: Run tests
+        run: vendor/bin/phpunit
+
+      - name: Run PHPStan
+        run: vendor/bin/phpstan

@@ -1,0 +1,67 @@
+{
+    "name": "mspirkov/yii2-phpstan-rules",
+    "description": "A set of PHPStan rules for projects using the Yii2 framework",
+    "keywords": [
+        "phpstan",
+        "static analysis"
+    ],
+    "type": "phpstan-extension",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Maksim Sprikov",
+            "email": "spirkov.2001@mail.ru"
+        }
+    ],
+    "scripts": {
+        "lint:check": "./vendor/bin/php-cs-fixer check",
+        "lint:fix": "./vendor/bin/php-cs-fixer fix",
+        "phpstan": "./vendor/bin/phpstan",
+        "rector:check": "./vendor/bin/rector process --dry-run",
+        "rector:fix": "./vendor/bin/rector process"
+    },
+    "require": {
+        "php": ">=7.4",
+        "phpstan/phpstan": "^2.2",
+        "yiisoft/yii2": "^2.0.53"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^9.6",
+        "friendsofphp/php-cs-fixer": "^3.89",
+        "phpstan/phpstan-phpunit": "^2.0",
+        "rector/rector": "^2.2",
+        "phpstan/phpstan-strict-rules": "^2.0",
+        "shipmonk/phpstan-rules": "^4.2",
+        "spaze/phpstan-disallowed-calls": "^4.7",
+        "ergebnis/phpstan-rules": "^2.13",
+        "kubawerlos/php-cs-fixer-custom-fixers": "^3.37"
+    },
+    "repositories": [
+        {
+            "type": "composer",
+            "url": "https://asset-packagist.org"
+        }
+    ],
+    "extra": {
+        "phpstan": {
+            "includes": [
+                "rules.neon"
+            ]
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "MSpirkov\\Yii2\\PHPStan\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "MSpirkov\\Yii2\\PHPStan\\Tests\\": "tests/"
+        }
+    },
+    "config": {
+        "allow-plugins": {
+            "yiisoft/yii2-composer": true
+        }
+    }
+}

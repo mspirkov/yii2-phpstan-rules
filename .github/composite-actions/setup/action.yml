@@ -1,0 +1,20 @@
+name: "Setup"
+description: "Setup PHP, Composer and dependencies"
+
+inputs:
+  php-version:
+    description: "PHP version"
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: ${{ inputs.php-version }}
+        extensions: mbstring
+
+    - name: Install dependencies
+      shell: "sh"
+      run: composer install

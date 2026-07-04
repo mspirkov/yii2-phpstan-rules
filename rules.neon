@@ -1,0 +1,165 @@
+parameters:
+	mspirkovYii2Rules:
+		enableAllRules: true
+		yiiAppDbProperties:
+			- db
+		actionComplexity:
+			ifCount: 3
+			foreachCount: 0
+			forCount: 0
+			whileCount: 0
+			doWhileCount: 0
+			switchCount: 0
+			matchCount: 0
+			ternaryCount: 0
+			tryCatchCount: 1
+		noDirectSuperglobals:
+			enabled: %mspirkovYii2Rules.enableAllRules%
+		noComplexActionClasses:
+			enabled: %mspirkovYii2Rules.enableAllRules%
+		noComplexControllerActions:
+			enabled: %mspirkovYii2Rules.enableAllRules%
+		noControllerActionCallsViaThis:
+			enabled: %mspirkovYii2Rules.enableAllRules%
+		noDbQueriesInActions:
+			enabled: %mspirkovYii2Rules.enableAllRules%
+		noDbQueriesInControllers:
+			enabled: %mspirkovYii2Rules.enableAllRules%
+		noDbQueriesInViews:
+			enabled: %mspirkovYii2Rules.enableAllRules%
+		noDynamicQueryWhere:
+			enabled: %mspirkovYii2Rules.enableAllRules%
+		noForbiddenYiiAppProperties:
+			enabled: %mspirkovYii2Rules.enableAllRules%
+			allowedProperties:
+				- id
+				- name
+				- charset
+				- language
+				- timeZone
+		noYiiAppPropertyMutation:
+			enabled: %mspirkovYii2Rules.enableAllRules%
+		modelRulesValidation:
+			enabled: %mspirkovYii2Rules.enableAllRules%
+
+parametersSchema:
+	mspirkovYii2Rules: structure([
+		enableAllRules: bool()
+		yiiAppDbProperties: arrayOf(string())
+		actionComplexity: structure([
+			ifCount: int()
+			foreachCount: int()
+			forCount: int()
+			whileCount: int()
+			doWhileCount: int()
+			switchCount: int()
+			matchCount: int()
+			ternaryCount: int()
+			tryCatchCount: int()
+		])
+		noDirectSuperglobals: structure([
+			enabled: bool()
+		])
+		noComplexActionClasses: structure([
+			enabled: bool()
+		])
+		noComplexControllerActions: structure([
+			enabled: bool()
+		])
+		noControllerActionCallsViaThis: structure([
+			enabled: bool()
+		])
+		noDbQueriesInActions: structure([
+			enabled: bool()
+		])
+		noDbQueriesInControllers: structure([
+			enabled: bool()
+		])
+		noDbQueriesInViews: structure([
+			enabled: bool()
+		])
+		noDynamicQueryWhere: structure([
+			enabled: bool()
+		])
+		noForbiddenYiiAppProperties: structure([
+			enabled: bool()
+			allowedProperties: arrayOf(string())
+		])
+		noYiiAppPropertyMutation: structure([
+			enabled: bool()
+		])
+		modelRulesValidation: structure([
+			enabled: bool()
+		])
+	])
+
+conditionalTags:
+	MSpirkov\Yii2\PHPStan\Rules\NoDirectSuperglobalsRule:
+		phpstan.rules.rule: %mspirkovYii2Rules.noDirectSuperglobals.enabled%
+	MSpirkov\Yii2\PHPStan\Rules\NoComplexActionClassesRule:
+		phpstan.rules.rule: %mspirkovYii2Rules.noComplexActionClasses.enabled%
+	MSpirkov\Yii2\PHPStan\Rules\NoComplexControllerActionsRule:
+		phpstan.rules.rule: %mspirkovYii2Rules.noComplexControllerActions.enabled%
+	MSpirkov\Yii2\PHPStan\Rules\NoControllerActionCallsViaThisRule:
+		phpstan.rules.rule: %mspirkovYii2Rules.noControllerActionCallsViaThis.enabled%
+	MSpirkov\Yii2\PHPStan\Rules\NoDbQueriesInActionsRule:
+		phpstan.rules.rule: %mspirkovYii2Rules.noDbQueriesInActions.enabled%
+	MSpirkov\Yii2\PHPStan\Rules\NoDbQueriesInControllersRule:
+		phpstan.rules.rule: %mspirkovYii2Rules.noDbQueriesInControllers.enabled%
+	MSpirkov\Yii2\PHPStan\Rules\NoDbQueriesInViewsRule:
+		phpstan.rules.rule: %mspirkovYii2Rules.noDbQueriesInViews.enabled%
+	MSpirkov\Yii2\PHPStan\Rules\NoDynamicQueryWhereRule:
+		phpstan.rules.rule: %mspirkovYii2Rules.noDynamicQueryWhere.enabled%
+	MSpirkov\Yii2\PHPStan\Rules\NoForbiddenYiiAppPropertiesRule:
+		phpstan.rules.rule: %mspirkovYii2Rules.noForbiddenYiiAppProperties.enabled%
+	MSpirkov\Yii2\PHPStan\Rules\NoYiiAppPropertyMutationRule:
+		phpstan.rules.rule: %mspirkovYii2Rules.noYiiAppPropertyMutation.enabled%
+	MSpirkov\Yii2\PHPStan\Rules\ModelRulesValidationRule:
+		phpstan.rules.rule: %mspirkovYii2Rules.modelRulesValidation.enabled%
+
+services:
+	-
+		class: MSpirkov\Yii2\PHPStan\Rules\NoDirectSuperglobalsRule
+	-
+		class: MSpirkov\Yii2\PHPStan\Rules\NoComplexActionClassesRule
+	-
+		class: MSpirkov\Yii2\PHPStan\Rules\NoComplexControllerActionsRule
+	-
+		class: MSpirkov\Yii2\PHPStan\Rules\NoControllerActionCallsViaThisRule
+	-
+		class: MSpirkov\Yii2\PHPStan\Rules\NoDbQueriesInActionsRule
+	-
+		class: MSpirkov\Yii2\PHPStan\Rules\NoDbQueriesInControllersRule
+	-
+		class: MSpirkov\Yii2\PHPStan\Rules\NoDbQueriesInViewsRule
+	-
+		class: MSpirkov\Yii2\PHPStan\Rules\NoDynamicQueryWhereRule
+	-
+		class: MSpirkov\Yii2\PHPStan\Rules\NoForbiddenYiiAppPropertiesRule
+		arguments:
+			allowedProperties: %mspirkovYii2Rules.noForbiddenYiiAppProperties.allowedProperties%
+	-
+		class: MSpirkov\Yii2\PHPStan\Rules\NoYiiAppPropertyMutationRule
+	-
+		class: MSpirkov\Yii2\PHPStan\Rules\ModelRulesValidationRule
+
+	-
+		class: MSpirkov\Yii2\PHPStan\Services\ActionComplexityAnalyzer
+		arguments:
+			ifCount: %mspirkovYii2Rules.actionComplexity.ifCount%
+			foreachCount: %mspirkovYii2Rules.actionComplexity.foreachCount%
+			forCount: %mspirkovYii2Rules.actionComplexity.forCount%
+			whileCount: %mspirkovYii2Rules.actionComplexity.whileCount%
+			doWhileCount: %mspirkovYii2Rules.actionComplexity.doWhileCount%
+			switchCount: %mspirkovYii2Rules.actionComplexity.switchCount%
+			matchCount: %mspirkovYii2Rules.actionComplexity.matchCount%
+			ternaryCount: %mspirkovYii2Rules.actionComplexity.ternaryCount%
+			tryCatchCount: %mspirkovYii2Rules.actionComplexity.tryCatchCount%
+	-
+		class: MSpirkov\Yii2\PHPStan\Services\DatabaseAccessAnalyzer
+		arguments:
+			yiiAppDbProperties: %mspirkovYii2Rules.yiiAppDbProperties%
+	-
+		class: MSpirkov\Yii2\PHPStan\Services\YiiAppAnalyzer
+	-
+		class: MSpirkov\Yii2\PHPStan\Finders\ModelRulesReturnExpressionFinder

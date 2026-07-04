@@ -1,0 +1,10 @@
+includes:
+	- ../../../../rules.neon
+
+parameters:
+	scanFiles:
+		- ../../data/NoComplexActions/custom-config.php
+	mspirkovYii2Rules:
+		actionComplexity:
+			ifCount: 4
+			foreachCount: 1

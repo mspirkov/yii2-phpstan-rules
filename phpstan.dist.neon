@@ -1,0 +1,51 @@
+includes:
+    - vendor/phpstan/phpstan-strict-rules/rules.neon
+    - vendor/phpstan/phpstan-phpunit/extension.neon
+    - vendor/shipmonk/phpstan-rules/rules.neon
+    - vendor/ergebnis/phpstan-rules/rules.neon
+    - vendor/spaze/phpstan-disallowed-calls/extension.neon
+    - vendor/spaze/phpstan-disallowed-calls/disallowed-dangerous-calls.neon
+    - vendor/spaze/phpstan-disallowed-calls/disallowed-execution-calls.neon
+
+parameters:
+    level: max
+
+    paths:
+        - src
+        - tests
+
+    excludePaths:
+        analyseAndScan:
+            - tests/*/data/*
+
+    checkBenevolentUnionTypes: true
+    checkMissingCallableSignature: true
+    checkTooWideReturnTypesInProtectedAndPublicMethods: true
+    reportIgnoresWithoutComments: true
+    reportPossiblyNonexistentConstantArrayOffset: true
+    reportMaybesInPropertyPhpDocTypes: false
+
+    shipmonkRules:
+        classSuffixNaming:
+            superclassToSuffixMapping!:
+                \PHPStan\Testing\RuleTestCase: Test
+
+    ergebnis:
+        allRules: false
+        final:
+            enabled: true
+
+    ignoreErrors:
+        -
+            message: '#^Missing native return typehint int\|string\|null$#'
+            count: 1
+            identifier: shipmonk.missingNativeReturnTypehint
+            reportUnmatched: false # fails only for PHP > 7.4
+            path: src/Rules/ModelRulesValidationRule.php
+
+        -
+            message: '#^Missing native return typehint int\|string$#'
+            count: 1
+            identifier: shipmonk.missingNativeReturnTypehint
+            reportUnmatched: false # fails only for PHP > 7.4
+            path: src/Rules/ModelRulesValidationRule.php

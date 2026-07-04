@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit
+    colors="true"
+    bootstrap="tests/bootstrap.php"
+    beStrictAboutChangesToGlobalState="true"
+    beStrictAboutOutputDuringTests="true"
+    failOnRisky="true"
+    failOnWarning="true"
+    executionOrder="random"
+>
+    <testsuites>
+        <testsuite name="Tests">
+            <directory suffix="Test.php">tests</directory>
+        </testsuite>
+    </testsuites>
+    <php>
+        <ini name="memory_limit" value="512M" />
+    </php>
+    <coverage>
+        <include>
+            <directory>./src</directory>
+        </include>
+        <report>
+            <html outputDirectory="tests/coverage" />
+        </report>
+    </coverage>
+</phpunit>

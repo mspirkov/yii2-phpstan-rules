@@ -1,0 +1,7 @@
+includes:
+	- ../../../../rules.neon
+
+parameters:
+	mspirkovYii2Rules:
+		yiiAppDbProperties!:
+			- reportingDb

@@ -1,0 +1,15 @@
+.vscode
+
+.php-cs-fixer.php
+phpstan.neon
+phpunit.xml
+
+.php-cs-fixer.cache
+.phpunit.result.cache
+
+composer.phar
+composer.lock
+
+/tests/coverage
+/tests/.env
+/vendor

@@ -1,0 +1,12 @@
+includes:
+	- ../../../../rules.neon
+
+parameters:
+	mspirkovYii2Rules:
+		noForbiddenYiiAppProperties:
+			allowedProperties:
+				- id
+				- name
+				- charset
+				- language
+				- db

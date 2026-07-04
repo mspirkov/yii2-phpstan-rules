@@ -1,0 +1,10 @@
+name: yii2-phpstan-rules-tests
+services:
+  app:
+    container_name: yii2-phpstan-rules-tests-app
+    user: "${UID:-1000}:${GID:-1000}"
+    build: .
+    volumes:
+      - ../:/app
+    command: tail -f /dev/null
+    working_dir: /app
