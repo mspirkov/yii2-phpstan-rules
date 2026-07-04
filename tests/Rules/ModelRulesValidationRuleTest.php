@@ -7,6 +7,8 @@ namespace MSpirkov\Yii2\PHPStan\Tests\Rules;
 use MSpirkov\Yii2\PHPStan\Rules\ModelRulesValidationRule;
 use PHPStan\Rules\Rule;
 use PHPStan\Testing\RuleTestCase;
+use yii\validators\Validator;
+use stdClass;
 
 /**
  * @extends RuleTestCase<ModelRulesValidationRule>
@@ -56,6 +58,29 @@ final class ModelRulesValidationRuleTest extends RuleTestCase
                 ['Unknown validator "missingValidatorAlias".', 215],
             ],
         );
+    }
+
+    /**
+     * Covers the defensive fallback in resolveKnownValidatorClass() for a built-in
+     * validator alias whose configured class is not a valid yii\validators\Validator,
+     * which cannot happen with Yii's own Validator::$builtInValidators map but is
+     * guarded against since that map is a mutable public static property.
+     */
+    public function testBrokenBuiltInValidatorClassIsReportedAsUnknownValidator(): void
+    {
+        $originalBuiltInValidators = Validator::$builtInValidators;
+        Validator::$builtInValidators['brokenBuiltIn'] = stdClass::class;
+
+        try {
+            $this->analyse(
+                [__DIR__ . '/data/ModelRulesValidation/brokenBuiltInValidator.php'],
+                [
+                    ['Unknown validator "brokenBuiltIn".', 14],
+                ],
+            );
+        } finally {
+            Validator::$builtInValidators = $originalBuiltInValidators;
+        }
     }
 
     /**
