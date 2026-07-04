@@ -31,28 +31,7 @@ use PHPStan\Type\ObjectType;
 use PHPStan\Type\VerbosityLevel;
 use Traversable;
 use yii\base\Model;
-use yii\captcha\CaptchaValidator;
-use yii\validators\BooleanValidator;
-use yii\validators\CompareValidator;
-use yii\validators\DateValidator;
-use yii\validators\DefaultValueValidator;
-use yii\validators\EachValidator;
-use yii\validators\EmailValidator;
-use yii\validators\ExistValidator;
-use yii\validators\FileValidator;
-use yii\validators\FilterValidator;
-use yii\validators\ImageValidator;
 use yii\validators\InlineValidator;
-use yii\validators\IpValidator;
-use yii\validators\NumberValidator;
-use yii\validators\RangeValidator;
-use yii\validators\RegularExpressionValidator;
-use yii\validators\RequiredValidator;
-use yii\validators\SafeValidator;
-use yii\validators\StringValidator;
-use yii\validators\TrimValidator;
-use yii\validators\UniqueValidator;
-use yii\validators\UrlValidator;
 use yii\validators\Validator;
 
 /**
@@ -61,35 +40,6 @@ use yii\validators\Validator;
 final class ModelRulesValidationRule implements Rule
 {
     private const VALIDATOR_TYPE_INDEX = 1;
-
-    /** @var array<string, class-string<Validator>> */
-    private const BUILT_IN_VALIDATOR_CLASSES = [
-        'boolean' => BooleanValidator::class,
-        'captcha' => CaptchaValidator::class,
-        'compare' => CompareValidator::class,
-        'date' => DateValidator::class,
-        'datetime' => DateValidator::class,
-        'time' => DateValidator::class,
-        'default' => DefaultValueValidator::class,
-        'double' => NumberValidator::class,
-        'each' => EachValidator::class,
-        'email' => EmailValidator::class,
-        'exist' => ExistValidator::class,
-        'file' => FileValidator::class,
-        'filter' => FilterValidator::class,
-        'image' => ImageValidator::class,
-        'in' => RangeValidator::class,
-        'integer' => NumberValidator::class,
-        'match' => RegularExpressionValidator::class,
-        'number' => NumberValidator::class,
-        'required' => RequiredValidator::class,
-        'safe' => SafeValidator::class,
-        'string' => StringValidator::class,
-        'trim' => TrimValidator::class,
-        'unique' => UniqueValidator::class,
-        'url' => UrlValidator::class,
-        'ip' => IpValidator::class,
-    ];
 
     /** @var array<string, list<string>> */
     private const REQUIRED_OPTIONS = [
@@ -722,8 +672,17 @@ final class ModelRulesValidationRule implements Rule
             return null;
         }
 
-        if (isset(self::BUILT_IN_VALIDATOR_CLASSES[$validatorName])) {
-            return self::BUILT_IN_VALIDATOR_CLASSES[$validatorName];
+        $builtInValidator = Validator::$builtInValidators[$validatorName] ?? null;
+        if ($builtInValidator !== null) {
+            $builtInValidatorClass = is_array($builtInValidator) && array_key_exists('class', $builtInValidator)
+                ? $builtInValidator['class']
+                : $builtInValidator;
+
+            if (is_string($builtInValidatorClass) && $this->isValidatorClassName($builtInValidatorClass)) {
+                return $builtInValidatorClass;
+            }
+
+            return null;
         }
 
         if (isset($this->customValidators[$validatorName])) {
