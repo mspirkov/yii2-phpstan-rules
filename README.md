@@ -181,7 +181,7 @@ A short allowlist (`id`, `name`, `charset`, `language`, `timeZone` by default) s
 $id = $_GET['id'];
 
 // ✓
-$id = Yii::$app->request->getQueryParam('id');
+$id = Yii::$app->request->get('id');
 ```
 
 Covers `$_GET`, `$_POST`, `$_REQUEST`, `$_SESSION`, `$_COOKIE`, `$_FILES`, and `$_SERVER`, each pointing at the matching `yii\web\Request` / `Session` / `UploadedFile` API.
