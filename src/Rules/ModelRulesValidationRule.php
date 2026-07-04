@@ -124,15 +124,23 @@ final class ModelRulesValidationRule implements Rule
 
     private ModelRulesReturnExpressionFinder $returnExpressionFinder;
 
+    /** @var array<string, string> */
+    private array $customValidators;
+
     /** @var array<class-string<Validator>, array<string, true>> */
     private array $writablePropertiesByClass = [];
 
+    /**
+     * @param array<string, string> $customValidators
+     */
     public function __construct(
         ReflectionProvider $reflectionProvider,
-        ModelRulesReturnExpressionFinder $returnExpressionFinder
+        ModelRulesReturnExpressionFinder $returnExpressionFinder,
+        array $customValidators = []
     ) {
         $this->reflectionProvider = $reflectionProvider;
         $this->returnExpressionFinder = $returnExpressionFinder;
+        $this->customValidators = $customValidators;
     }
 
     public function getNodeType(): string
@@ -286,6 +294,10 @@ final class ModelRulesValidationRule implements Rule
         $validatorName = $this->getSingleStringValue($validatorTypeExpr, $scope);
         $validatorClass = $this->resolveKnownValidatorClass($validatorTypeExpr, $validatorName, $scope);
         if ($validatorClass === null) {
+            if ($validatorName !== null) {
+                $errors[] = $this->buildError(sprintf('Unknown validator "%s".', $validatorName), $validatorTypeExpr);
+            }
+
             return $errors;
         }
 
@@ -712,6 +724,13 @@ final class ModelRulesValidationRule implements Rule
 
         if (isset(self::BUILT_IN_VALIDATOR_CLASSES[$validatorName])) {
             return self::BUILT_IN_VALIDATOR_CLASSES[$validatorName];
+        }
+
+        if (isset($this->customValidators[$validatorName])) {
+            $customValidatorClass = $this->customValidators[$validatorName];
+            if ($this->isValidatorClassName($customValidatorClass)) {
+                return $customValidatorClass;
+            }
         }
 
         if ($this->isValidatorClassName($validatorName)) {

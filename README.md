@@ -81,6 +81,11 @@ parameters:
                 - language
                 - timeZone
 
+        # Project-specific model validator aliases
+        modelRulesValidation:
+            customValidators:
+                slug: app\validators\SlugValidator
+
         # Disable a single rule without touching the rest
         noDynamicQueryWhere:
             enabled: false
@@ -183,7 +188,7 @@ Covers `$_GET`, `$_POST`, `$_REQUEST`, `$_SESSION`, `$_COOKIE`, `$_FILES`, and `
 
 ### Model validation rules that lie
 
-`Model::rules()` is just a plain array — PHP will never tell you that you forgot a validator's required option, wrote an invalid regex, or misconfigured one of its options. For every rule entry the validator type resolves to (a built-in alias like `required`/`string`/`number`/`compare`/`date`/`match`/`in`/`unique`/`exist`/`file`/`image`/`ip`/`url`, a custom `Validator` subclass, or an inline closure/method), this rule statically checks the option array against what that validator actually accepts and requires. A validator name it can't resolve at all — a typo, or an alias registered elsewhere — is left alone rather than guessed at:
+`Model::rules()` is just a plain array — PHP will never tell you that you forgot a validator's required option, wrote an invalid regex, or misconfigured one of its options. For every rule entry the validator type resolves to (a built-in alias like `required`/`string`/`number`/`compare`/`date`/`match`/`in`/`unique`/`exist`/`file`/`image`/`ip`/`url`, a custom `Validator` subclass, a configured project alias, or an inline closure/method), this rule statically checks the option array against what that validator actually accepts and requires. A validator name it can't resolve is reported as an error; add project-specific aliases under `modelRulesValidation.customValidators`:
 
 ```php
 public function rules()
@@ -193,7 +198,7 @@ public function rules()
         ['code', 'match', 'pattern' => '/[/'],           // ✗ invalid regular expression
         ['ip', 'ip', 'ipv4' => false, 'ipv6' => false],  // ✗ disables both protocols
         ['message', 'string', 'max' => 'invalid'],       // ✗ 'max' must be int|null
-        ['status', 'someUnregisteredAlias'],             // — unresolved name, not checked
+        ['status', 'someUnregisteredAlias'],             // ✗ unknown validator
 
         ['name', 'string', 'max' => 255],                // ✓
     ];
