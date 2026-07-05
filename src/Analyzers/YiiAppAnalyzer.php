@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace MSpirkov\Yii2\PHPStan\Services;
+namespace MSpirkov\Yii2\PHPStan\Analyzers;
 
 use PhpParser\Node;
 use PhpParser\Node\Expr\StaticPropertyFetch;

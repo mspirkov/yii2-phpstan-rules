@@ -148,7 +148,7 @@ services:
 			customValidators: %mspirkovYii2Rules.modelRulesValidation.customValidators%
 
 	-
-		class: MSpirkov\Yii2\PHPStan\Services\ActionComplexityAnalyzer
+		class: MSpirkov\Yii2\PHPStan\Analyzers\ActionComplexityAnalyzer
 		arguments:
 			ifCount: %mspirkovYii2Rules.actionComplexity.ifCount%
 			foreachCount: %mspirkovYii2Rules.actionComplexity.foreachCount%
@@ -160,10 +160,10 @@ services:
 			ternaryCount: %mspirkovYii2Rules.actionComplexity.ternaryCount%
 			tryCatchCount: %mspirkovYii2Rules.actionComplexity.tryCatchCount%
 	-
-		class: MSpirkov\Yii2\PHPStan\Services\DatabaseAccessAnalyzer
+		class: MSpirkov\Yii2\PHPStan\Analyzers\DatabaseAccessAnalyzer
 		arguments:
 			yiiAppDbProperties: %mspirkovYii2Rules.yiiAppDbProperties%
 	-
-		class: MSpirkov\Yii2\PHPStan\Services\YiiAppAnalyzer
+		class: MSpirkov\Yii2\PHPStan\Analyzers\YiiAppAnalyzer
 	-
 		class: MSpirkov\Yii2\PHPStan\Finders\ModelRulesReturnExpressionFinder
