@@ -2,8 +2,12 @@
     "name": "mspirkov/yii2-phpstan-rules",
     "description": "A set of PHPStan rules for projects using the Yii2 framework",
     "keywords": [
+        "yii",
+        "yii2",
         "phpstan",
-        "static analysis"
+        "static analysis",
+        "code analysis",
+        "code analyse"
     ],
     "type": "phpstan-extension",
     "license": "MIT",
