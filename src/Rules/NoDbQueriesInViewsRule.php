@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace MSpirkov\Yii2\PHPStan\Rules;
 
-use MSpirkov\Yii2\PHPStan\Services\DatabaseAccessAnalyzer;
+use MSpirkov\Yii2\PHPStan\Analyzers\DatabaseAccessAnalyzer;
 use PhpParser\Node;
 use PHPStan\Analyser\Scope;
 use PHPStan\Rules\IdentifierRuleError;

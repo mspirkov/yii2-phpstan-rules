@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace MSpirkov\Yii2\PHPStan\Rules;
 
-use MSpirkov\Yii2\PHPStan\Services\YiiAppAnalyzer;
+use MSpirkov\Yii2\PHPStan\Analyzers\YiiAppAnalyzer;
 use PhpParser\Node;
 use PhpParser\Node\Expr\ArrayDimFetch;
 use PhpParser\Node\Expr\Assign;
