@@ -25,19 +25,6 @@ use yii\db\Transaction;
 
 final class DatabaseAccessAnalyzer
 {
-    private const DEFAULT_DB_COMPONENT_ID = 'db';
-
-    /** @var list<string> */
-    private const YII_APP_DB_GETTER_METHODS = [
-        'getdb',
-    ];
-
-    /** @var list<string> */
-    private const YII_APP_COMPONENT_GETTER_METHODS = [
-        'get',
-        'getcomponent',
-    ];
-
     /** @var list<string> */
     private const ACTIVE_RECORD_STATIC_METHODS = [
         'deleteall',
@@ -86,7 +73,7 @@ final class DatabaseAccessAnalyzer
      */
     public function __construct(
         YiiAppAnalyzer $yiiAppAnalyzer,
-        array $yiiAppDbProperties = [self::DEFAULT_DB_COMPONENT_ID]
+        array $yiiAppDbProperties
     ) {
         $this->yiiAppAnalyzer = $yiiAppAnalyzer;
         $this->yiiAppDbProperties = array_values(array_unique($yiiAppDbProperties));
@@ -157,11 +144,13 @@ final class DatabaseAccessAnalyzer
             return false;
         }
 
-        if (in_array($methodName, self::YII_APP_DB_GETTER_METHODS, true)) {
-            return in_array(self::DEFAULT_DB_COMPONENT_ID, $this->yiiAppDbProperties, true);
+        foreach ($this->yiiAppDbProperties as $yiiAppDbProperty) {
+            if ($methodName === 'get' . strtolower($yiiAppDbProperty)) {
+                return true;
+            }
         }
 
-        if (!in_array($methodName, self::YII_APP_COMPONENT_GETTER_METHODS, true)) {
+        if ($methodName !== 'get') {
             return false;
         }
 
