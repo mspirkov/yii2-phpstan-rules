@@ -11,7 +11,12 @@ use PhpCsFixerCustomFixers\Fixer\PhpdocTypesCommaSpacesFixer;
 use PhpCsFixerCustomFixers\Fixer\PhpdocTypesTrimFixer;
 use PhpCsFixerCustomFixers\Fixers;
 
-$finder = (new Finder())->in(__DIR__)->exclude(['tests/Rules/data']);
+$finder = (new Finder())
+    ->in(__DIR__)
+    ->exclude([
+        'tests/Rules/Data',
+        'tests/Rules/Source'
+    ]);
 
 return (new Config())
     ->registerCustomFixers(new Fixers())
