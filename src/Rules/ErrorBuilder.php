@@ -14,8 +14,7 @@ final class ErrorBuilder
      */
     public static function build(string $message, string $identifier, ?int $line = null): IdentifierRuleError
     {
-        $builder = RuleErrorBuilder::message($message)
-            ->identifier($identifier);
+        $builder = RuleErrorBuilder::message($message)->identifier($identifier);
 
         if ($line !== null) {
             $builder = $builder->line($line);
