@@ -106,7 +106,7 @@ public function actionCheckout(): string
     if ($this->cart->hasOutOfStockItems()) { /* ... */ }
     if ($this->cart->hasExpiredCoupon()) { /* ... */ }
 
-    return $this->render('checkout', ['cart' => $cart]);
+    return $this->render('checkout', ['cart' => $this->cart]);
 }
 
 // ✓ the decision tree moves to a service, the action just orchestrates
