@@ -45,23 +45,9 @@ final class NoComplexActionClassesRule implements Rule
             return [];
         }
 
-        return $this->buildErrors($node);
-    }
-
-    private function isAction(?ClassReflection $classReflection): bool
-    {
-        return $classReflection instanceof ClassReflection
-            && ($classReflection->is(Action::class) || $classReflection->isSubclassOf(Action::class));
-    }
-
-    /**
-     * @return list<IdentifierRuleError>
-     */
-    private function buildErrors(ClassMethod $classMethod): array
-    {
         $errors = [];
 
-        foreach ($this->actionComplexityAnalyzer->getExceededLimits($classMethod) as $counterName => $violation) {
+        foreach ($this->actionComplexityAnalyzer->getExceededLimits($node) as $counterName => $violation) {
             $errors[] = ErrorBuilder::build(
                 sprintf(
                     'Action class contains too much business logic: %s is %d, allowed %d. '
@@ -76,5 +62,11 @@ final class NoComplexActionClassesRule implements Rule
         }
 
         return $errors;
+    }
+
+    private function isAction(?ClassReflection $classReflection): bool
+    {
+        return $classReflection instanceof ClassReflection
+            && ($classReflection->is(Action::class) || $classReflection->isSubclassOf(Action::class));
     }
 }

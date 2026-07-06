@@ -45,30 +45,9 @@ final class NoComplexControllerActionsRule implements Rule
             return [];
         }
 
-        return $this->buildErrors($node);
-    }
-
-    private function isController(?ClassReflection $classReflection): bool
-    {
-        return $classReflection instanceof ClassReflection
-            && ($classReflection->is(Controller::class) || $classReflection->isSubclassOf(Controller::class));
-    }
-
-    private function isActionMethod(ClassMethod $classMethod): bool
-    {
-        $methodName = $classMethod->name->name;
-
-        return $methodName !== 'actions' && strpos($methodName, 'action') === 0;
-    }
-
-    /**
-     * @return list<IdentifierRuleError>
-     */
-    private function buildErrors(ClassMethod $classMethod): array
-    {
         $errors = [];
 
-        foreach ($this->actionComplexityAnalyzer->getExceededLimits($classMethod) as $counterName => $violation) {
+        foreach ($this->actionComplexityAnalyzer->getExceededLimits($node) as $counterName => $violation) {
             $errors[] = ErrorBuilder::build(
                 sprintf(
                     'Controller action contains too much business logic: %s is %d, allowed %d. '
@@ -83,5 +62,18 @@ final class NoComplexControllerActionsRule implements Rule
         }
 
         return $errors;
+    }
+
+    private function isController(?ClassReflection $classReflection): bool
+    {
+        return $classReflection instanceof ClassReflection
+            && ($classReflection->is(Controller::class) || $classReflection->isSubclassOf(Controller::class));
+    }
+
+    private function isActionMethod(ClassMethod $classMethod): bool
+    {
+        $methodName = $classMethod->name->name;
+
+        return $methodName !== 'actions' && strpos($methodName, 'action') === 0;
     }
 }
