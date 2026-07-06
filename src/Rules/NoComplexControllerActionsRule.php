@@ -11,7 +11,6 @@ use PHPStan\Analyser\Scope;
 use PHPStan\Reflection\ClassReflection;
 use PHPStan\Rules\IdentifierRuleError;
 use PHPStan\Rules\Rule;
-use PHPStan\Rules\RuleErrorBuilder;
 use yii\base\Controller;
 
 /**
@@ -46,7 +45,23 @@ final class NoComplexControllerActionsRule implements Rule
             return [];
         }
 
-        return $this->buildErrors($node, 'Controller action', Identifiers::NO_COMPLEX_CONTROLLER_ACTIONS);
+        $errors = [];
+
+        foreach ($this->actionComplexityAnalyzer->getExceededLimits($node) as $counterName => $violation) {
+            $errors[] = ErrorBuilder::build(
+                sprintf(
+                    'Controller action contains too much business logic: %s is %d, allowed %d. '
+                        . 'Move business logic to the service layer.',
+                    $counterName,
+                    $violation['actual'],
+                    $violation['allowed']
+                ),
+                Identifiers::NO_COMPLEX_CONTROLLER_ACTIONS,
+                $violation['line']
+            );
+        }
+
+        return $errors;
     }
 
     private function isController(?ClassReflection $classReflection): bool
@@ -60,28 +75,5 @@ final class NoComplexControllerActionsRule implements Rule
         $methodName = $classMethod->name->name;
 
         return $methodName !== 'actions' && strpos($methodName, 'action') === 0;
-    }
-
-    /**
-     * @return list<IdentifierRuleError>
-     */
-    private function buildErrors(ClassMethod $classMethod, string $context, string $identifier): array
-    {
-        $errors = [];
-
-        foreach ($this->actionComplexityAnalyzer->getExceededLimits($classMethod) as $counterName => $violation) {
-            $errors[] = RuleErrorBuilder::message(sprintf(
-                '%s contains too much business logic: %s is %d, allowed %d. Move business logic to the service layer.',
-                $context,
-                $counterName,
-                $violation['actual'],
-                $violation['allowed']
-            ))
-                ->line($violation['line'])
-                ->identifier($identifier)
-                ->build();
-        }
-
-        return $errors;
     }
 }

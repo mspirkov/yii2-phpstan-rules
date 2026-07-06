@@ -12,7 +12,6 @@ use PHPStan\Analyser\Scope;
 use PHPStan\Reflection\ClassReflection;
 use PHPStan\Rules\IdentifierRuleError;
 use PHPStan\Rules\Rule;
-use PHPStan\Rules\RuleErrorBuilder;
 use yii\base\Controller;
 
 /**
@@ -50,12 +49,14 @@ final class NoControllerActionCallsViaThisRule implements Rule
         }
 
         return [
-            RuleErrorBuilder::message(sprintf(
-                'Calling controller action %s() via $this is forbidden. Move shared logic to a service or a private method, or perform a redirect.',
-                $methodName
-            ))
-                ->identifier(Identifiers::NO_CONTROLLER_ACTION_CALLS_VIA_THIS)
-                ->build(),
+            ErrorBuilder::build(
+                sprintf(
+                    'Calling controller action %s() via $this is forbidden. Move shared logic to a service '
+                        . 'or a private method, or perform a redirect.',
+                    $methodName
+                ),
+                Identifiers::NO_CONTROLLER_ACTION_CALLS_VIA_THIS,
+            ),
         ];
     }
 

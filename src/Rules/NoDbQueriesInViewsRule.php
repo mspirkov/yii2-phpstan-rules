@@ -9,7 +9,6 @@ use PhpParser\Node;
 use PHPStan\Analyser\Scope;
 use PHPStan\Rules\IdentifierRuleError;
 use PHPStan\Rules\Rule;
-use PHPStan\Rules\RuleErrorBuilder;
 
 /**
  * @implements Rule<Node>
@@ -42,9 +41,10 @@ final class NoDbQueriesInViewsRule implements Rule
         }
 
         return [
-            RuleErrorBuilder::message('Database queries in views are forbidden. Move queries to repositories.')
-                ->identifier(Identifiers::NO_DB_QUERIES_IN_VIEWS)
-                ->build(),
+            ErrorBuilder::build(
+                'Database queries in views are forbidden. Move queries to repositories.',
+                Identifiers::NO_DB_QUERIES_IN_VIEWS
+            ),
         ];
     }
 

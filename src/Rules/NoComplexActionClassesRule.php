@@ -11,7 +11,6 @@ use PHPStan\Analyser\Scope;
 use PHPStan\Reflection\ClassReflection;
 use PHPStan\Rules\IdentifierRuleError;
 use PHPStan\Rules\Rule;
-use PHPStan\Rules\RuleErrorBuilder;
 use yii\base\Action;
 
 /**
@@ -46,35 +45,28 @@ final class NoComplexActionClassesRule implements Rule
             return [];
         }
 
-        return $this->buildErrors($node, 'Action class', Identifiers::NO_COMPLEX_ACTION_CLASSES);
+        $errors = [];
+
+        foreach ($this->actionComplexityAnalyzer->getExceededLimits($node) as $counterName => $violation) {
+            $errors[] = ErrorBuilder::build(
+                sprintf(
+                    'Action class contains too much business logic: %s is %d, allowed %d. '
+                        . 'Move business logic to the service layer.',
+                    $counterName,
+                    $violation['actual'],
+                    $violation['allowed']
+                ),
+                Identifiers::NO_COMPLEX_ACTION_CLASSES,
+                $violation['line']
+            );
+        }
+
+        return $errors;
     }
 
     private function isAction(?ClassReflection $classReflection): bool
     {
         return $classReflection instanceof ClassReflection
             && ($classReflection->is(Action::class) || $classReflection->isSubclassOf(Action::class));
-    }
-
-    /**
-     * @return list<IdentifierRuleError>
-     */
-    private function buildErrors(ClassMethod $classMethod, string $context, string $identifier): array
-    {
-        $errors = [];
-
-        foreach ($this->actionComplexityAnalyzer->getExceededLimits($classMethod) as $counterName => $violation) {
-            $errors[] = RuleErrorBuilder::message(sprintf(
-                '%s contains too much business logic: %s is %d, allowed %d. Move business logic to the service layer.',
-                $context,
-                $counterName,
-                $violation['actual'],
-                $violation['allowed']
-            ))
-                ->line($violation['line'])
-                ->identifier($identifier)
-                ->build();
-        }
-
-        return $errors;
     }
 }

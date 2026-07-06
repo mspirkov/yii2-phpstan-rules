@@ -15,7 +15,6 @@ use PhpParser\Node\Scalar\String_;
 use PHPStan\Analyser\Scope;
 use PHPStan\Rules\IdentifierRuleError;
 use PHPStan\Rules\Rule;
-use PHPStan\Rules\RuleErrorBuilder;
 use PHPStan\Type\Type;
 use yii\db\ActiveQueryInterface;
 use yii\db\QueryInterface;
@@ -64,9 +63,11 @@ final class NoDynamicQueryWhereRule implements Rule
         }
 
         return [
-            RuleErrorBuilder::message('Dynamic string conditions in Query::where() are forbidden. Use array condition syntax, for example ["column" => $columnValue].')
-                ->identifier(Identifiers::NO_DYNAMIC_QUERY_WHERE)
-                ->build(),
+            ErrorBuilder::build(
+                'Dynamic string conditions in Query::where() are forbidden. Use array '
+                    . 'condition syntax, for example ["column" => $columnValue].',
+                Identifiers::NO_DYNAMIC_QUERY_WHERE
+            ),
         ];
     }
 

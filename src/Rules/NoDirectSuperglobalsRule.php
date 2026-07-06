@@ -9,7 +9,6 @@ use PhpParser\Node\Expr\Variable;
 use PHPStan\Analyser\Scope;
 use PHPStan\Rules\IdentifierRuleError;
 use PHPStan\Rules\Rule;
-use PHPStan\Rules\RuleErrorBuilder;
 
 /**
  * @implements Rule<Variable>
@@ -54,9 +53,7 @@ final class NoDirectSuperglobalsRule implements Rule
         );
 
         return [
-            RuleErrorBuilder::message($message)
-                ->identifier(Identifiers::NO_DIRECT_SUPERGLOBALS)
-                ->build(),
+            ErrorBuilder::build($message, Identifiers::NO_DIRECT_SUPERGLOBALS),
         ];
     }
 }

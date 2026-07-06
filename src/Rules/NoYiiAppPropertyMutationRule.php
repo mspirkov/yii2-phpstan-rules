@@ -21,7 +21,6 @@ use PhpParser\Node\Stmt\Unset_;
 use PHPStan\Analyser\Scope;
 use PHPStan\Rules\IdentifierRuleError;
 use PHPStan\Rules\Rule;
-use PHPStan\Rules\RuleErrorBuilder;
 
 /**
  * @implements Rule<Node>
@@ -100,16 +99,18 @@ final class NoYiiAppPropertyMutationRule implements Rule
 
         if (!$propertyFetch->name instanceof Identifier) {
             return [
-                RuleErrorBuilder::message('Modification of dynamic Yii::$app property is forbidden.')
-                    ->identifier(Identifiers::NO_YII_APP_PROPERTY_MUTATION)
-                    ->build(),
+                ErrorBuilder::build(
+                    'Modification of dynamic Yii::$app property is forbidden.',
+                    Identifiers::NO_YII_APP_PROPERTY_MUTATION
+                ),
             ];
         }
 
         return [
-            RuleErrorBuilder::message(sprintf('Modification of Yii::$app->%s is forbidden.', $propertyFetch->name->name))
-                ->identifier(Identifiers::NO_YII_APP_PROPERTY_MUTATION)
-                ->build(),
+            ErrorBuilder::build(
+                sprintf('Modification of Yii::$app->%s is forbidden.', $propertyFetch->name->name),
+                Identifiers::NO_YII_APP_PROPERTY_MUTATION
+            ),
         ];
     }
 
@@ -148,9 +149,13 @@ final class NoYiiAppPropertyMutationRule implements Rule
         }
 
         return [
-            RuleErrorBuilder::message(sprintf('Call to Yii::$app->%s() is forbidden because it modifies application properties.', $methodCall->name->name))
-                ->identifier(Identifiers::NO_YII_APP_PROPERTY_MUTATION)
-                ->build(),
+            ErrorBuilder::build(
+                sprintf(
+                    'Call to Yii::$app->%s() is forbidden because it modifies application properties.',
+                    $methodCall->name->name
+                ),
+                Identifiers::NO_YII_APP_PROPERTY_MUTATION
+            ),
         ];
     }
 }
