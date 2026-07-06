@@ -25,8 +25,6 @@ final class NoControllerActionCallsViaThisRule implements Rule
     }
 
     /**
-     * @param MethodCall $node
-     *
      * @return list<IdentifierRuleError>
      */
     public function processNode(Node $node, Scope $scope): array

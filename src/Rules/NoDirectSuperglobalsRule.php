@@ -32,8 +32,6 @@ final class NoDirectSuperglobalsRule implements Rule
     }
 
     /**
-     * @param Variable $node
-     *
      * @return list<IdentifierRuleError>
      */
     public function processNode(Node $node, Scope $scope): array
