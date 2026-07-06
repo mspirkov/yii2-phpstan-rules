@@ -5,4 +5,4 @@ parameters:
 	mspirkovYii2Rules:
 		modelRulesValidation:
 			customValidators:
-				projectSpecificValidator: MSpirkov\Yii2\PHPStan\Tests\Rules\Data\ModelRulesValidation\ProjectSpecificValidator
+				projectSpecificValidator: MSpirkov\Yii2\PHPStan\Tests\Rules\Source\ModelRulesValidation\ProjectSpecificValidator
