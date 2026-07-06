@@ -8,6 +8,7 @@ use PhpParser\Node;
 use PhpParser\Node\Arg;
 use PhpParser\Node\Expr\ArrayDimFetch;
 use PhpParser\Node\Expr\MethodCall;
+use PhpParser\Node\Expr\New_;
 use PhpParser\Node\Expr\PropertyFetch;
 use PhpParser\Node\Expr\StaticCall;
 use PhpParser\Node\Identifier;
@@ -38,44 +39,6 @@ final class DatabaseAccessAnalyzer
     ];
 
     /** @var list<string> */
-    private const CONNECTION_METHODS = [
-        'begintransaction',
-        'close',
-        'createcommand',
-        'getdrivername',
-        'getquerybuilder',
-        'getschema',
-        'open',
-        'transaction',
-    ];
-
-    /** @var list<string> */
-    private const COMMAND_EXECUTION_METHODS = [
-        'execute',
-        'query',
-        'queryall',
-        'querycolumn',
-        'queryone',
-        'queryscalar',
-    ];
-
-    /** @var list<string> */
-    private const QUERY_EXECUTION_METHODS = [
-        'all',
-        'average',
-        'batch',
-        'column',
-        'count',
-        'each',
-        'exists',
-        'max',
-        'min',
-        'one',
-        'scalar',
-        'sum',
-    ];
-
-    /** @var list<string> */
     private const ACTIVE_RECORD_STATIC_METHODS = [
         'deleteall',
         'find',
@@ -99,36 +62,18 @@ final class DatabaseAccessAnalyzer
     ];
 
     /** @var list<class-string> */
-    private const CONNECTION_CLASSES = [
-        Connection::class,
-    ];
-
-    /** @var list<class-string> */
-    private const COMMAND_CLASSES = [
-        Command::class,
-    ];
-
-    /** @var list<class-string> */
-    private const QUERY_CLASSES = [
+    private const DATABASE_OBJECT_CLASSES = [
         ActiveQueryInterface::class,
+        Command::class,
+        Connection::class,
         QueryInterface::class,
+        Transaction::class,
     ];
 
     /** @var list<class-string> */
     private const ACTIVE_RECORD_CLASSES = [
         ActiveRecord::class,
         ActiveRecordInterface::class,
-    ];
-
-    /** @var list<class-string> */
-    private const TRANSACTION_CLASSES = [
-        Transaction::class,
-    ];
-
-    /** @var list<string> */
-    private const TRANSACTION_METHODS = [
-        'commit',
-        'rollback',
     ];
 
     private YiiAppAnalyzer $yiiAppAnalyzer;
@@ -161,18 +106,20 @@ final class DatabaseAccessAnalyzer
             return $this->isActiveRecordStaticCall($node, $scope);
         }
 
+        if ($node instanceof New_) {
+            return $this->isDatabaseObjectCreation($node, $scope);
+        }
+
         return false;
     }
 
     private function isDatabaseMethodCall(MethodCall $methodCall, Scope $scope): bool
     {
-        if (!$methodCall->name instanceof Identifier) {
-            return false;
-        }
+        $methodName = $methodCall->name instanceof Identifier
+            ? strtolower($methodCall->name->name)
+            : null;
 
-        $methodName = strtolower($methodCall->name->name);
-
-        if ($this->isYiiAppDbMethodCall($methodCall, $methodName, $scope)) {
+        if ($methodName !== null && $this->isYiiAppDbMethodCall($methodCall, $methodName, $scope)) {
             return true;
         }
 
@@ -182,27 +129,13 @@ final class DatabaseAccessAnalyzer
 
         $receiverType = $scope->getType($methodCall->var);
 
-        if (in_array($methodName, self::CONNECTION_METHODS, true)) {
-            return $this->isTypeAnyOf($receiverType, self::CONNECTION_CLASSES);
+        if ($this->isTypeAnyOf($receiverType, self::DATABASE_OBJECT_CLASSES)) {
+            return true;
         }
 
-        if (in_array($methodName, self::COMMAND_EXECUTION_METHODS, true)) {
-            return $this->isTypeAnyOf($receiverType, self::COMMAND_CLASSES);
-        }
-
-        if (in_array($methodName, self::QUERY_EXECUTION_METHODS, true)) {
-            return $this->isTypeAnyOf($receiverType, self::QUERY_CLASSES);
-        }
-
-        if (in_array($methodName, self::ACTIVE_RECORD_INSTANCE_METHODS, true)) {
-            return $this->isTypeAnyOf($receiverType, self::ACTIVE_RECORD_CLASSES);
-        }
-
-        if (in_array($methodName, self::TRANSACTION_METHODS, true)) {
-            return $this->isTypeAnyOf($receiverType, self::TRANSACTION_CLASSES);
-        }
-
-        return false;
+        return $methodName !== null
+            && in_array($methodName, self::ACTIVE_RECORD_INSTANCE_METHODS, true)
+            && $this->isTypeAnyOf($receiverType, self::ACTIVE_RECORD_CLASSES);
     }
 
     private function isYiiAppDbPropertyFetch(PropertyFetch $propertyFetch, Scope $scope): bool
@@ -262,6 +195,11 @@ final class DatabaseAccessAnalyzer
         return $this->isTypeAnyOf($scope->resolveTypeByName($staticCall->class), self::ACTIVE_RECORD_CLASSES);
     }
 
+    private function isDatabaseObjectCreation(New_ $new, Scope $scope): bool
+    {
+        return $this->isTypeAnyOf($scope->getType($new), self::DATABASE_OBJECT_CLASSES);
+    }
+
     private function containsDirectDatabaseProducer(Node $node, Scope $scope): bool
     {
         if ($node instanceof PropertyFetch) {
@@ -277,11 +215,19 @@ final class DatabaseAccessAnalyzer
                 return true;
             }
 
+            if ($this->isTypeAnyOf($scope->getType($node->var), self::DATABASE_OBJECT_CLASSES)) {
+                return true;
+            }
+
             return $this->containsDirectDatabaseProducer($node->var, $scope);
         }
 
         if ($node instanceof StaticCall) {
             return $this->isActiveRecordStaticCall($node, $scope);
+        }
+
+        if ($node instanceof New_) {
+            return $this->isDatabaseObjectCreation($node, $scope);
         }
 
         if ($node instanceof ArrayDimFetch) {

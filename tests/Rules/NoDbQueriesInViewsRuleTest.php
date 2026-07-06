@@ -30,6 +30,8 @@ final class NoDbQueriesInViewsRuleTest extends RuleTestCase
                 ['Database queries in views are forbidden. Move queries to repositories.', 43],
                 ['Database queries in views are forbidden. Move queries to repositories.', 45],
                 ['Database queries in views are forbidden. Move queries to repositories.', 46],
+                ['Database queries in views are forbidden. Move queries to repositories.', 62],
+                ['Database queries in views are forbidden. Move queries to repositories.', 65],
             ],
         );
     }

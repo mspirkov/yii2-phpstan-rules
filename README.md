@@ -133,7 +133,7 @@ public function actionEdit($id)
 
 ### No database access outside repositories
 
-Fires on `ActiveRecord::find()`/`findOne()`/`save()`, `Yii::$app->db->createCommand()`, `Query::all()`/`one()`/`count()`, transactions, and friends — wherever they turn up in a controller, an `Action`, or a view file.
+Fires on `ActiveRecord::find()`/`findOne()`/`save()`, `Yii::$app->db`, `Yii::$app->db->createCommand()`, creating or configuring a `Query`, transactions, and friends — wherever they turn up in a controller, an `Action`, or a view file.
 
 ```php
 // ✗ flagged in a view
@@ -143,7 +143,7 @@ Fires on `ActiveRecord::find()`/`findOne()`/`save()`, `Yii::$app->db->createComm
 <?php foreach ($posts as $post): ?>
 ```
 
-`noDbQueriesInControllers` / `noDbQueriesInActions` push the same query building into a repository or service instead.
+`noDbQueriesInControllers` / `noDbQueriesInActions` push the same query building into a repository or service instead. Query builder setup counts too: `new Query()`, `$query->where()`, and dynamic calls on a `Query` object are all treated as direct database access in these layers.
 
 ### No dynamic SQL strings
 
