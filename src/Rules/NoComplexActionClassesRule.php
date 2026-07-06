@@ -31,8 +31,6 @@ final class NoComplexActionClassesRule implements Rule
     }
 
     /**
-     * @param ClassMethod $node
-     *
      * @return list<IdentifierRuleError>
      */
     public function processNode(Node $node, Scope $scope): array
