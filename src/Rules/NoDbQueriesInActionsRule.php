@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace MSpirkov\Yii2\PHPStan\Rules;
 
-use MSpirkov\Yii2\PHPStan\Analyzers\DatabaseAccessAnalyzer;
+use MSpirkov\Yii2\PHPStan\Analyzers\DbQueriesUsageAnalyzer;
 use PhpParser\Node;
 use PHPStan\Analyser\Scope;
 use PHPStan\Reflection\ClassReflection;
@@ -17,11 +17,11 @@ use yii\base\Action;
  */
 final class NoDbQueriesInActionsRule implements Rule
 {
-    private DatabaseAccessAnalyzer $databaseAccessAnalyzer;
+    private DbQueriesUsageAnalyzer $dbQueriesUsageAnalyzer;
 
-    public function __construct(DatabaseAccessAnalyzer $databaseAccessAnalyzer)
+    public function __construct(DbQueriesUsageAnalyzer $dbQueriesUsageAnalyzer)
     {
-        $this->databaseAccessAnalyzer = $databaseAccessAnalyzer;
+        $this->dbQueriesUsageAnalyzer = $dbQueriesUsageAnalyzer;
     }
 
     public function getNodeType(): string
@@ -42,7 +42,7 @@ final class NoDbQueriesInActionsRule implements Rule
             return [];
         }
 
-        if (!$this->databaseAccessAnalyzer->isDatabaseAccess($node, $scope)) {
+        if (!$this->dbQueriesUsageAnalyzer->isDbQueriesUsage($node, $scope)) {
             return [];
         }
 
