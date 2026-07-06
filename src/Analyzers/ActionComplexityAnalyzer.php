@@ -31,15 +31,15 @@ final class ActionComplexityAnalyzer
         self::COUNTER_NAME_TRY_CATCH,
     ];
 
-    private const COUNTER_NAME_IF = 'if';
-    private const COUNTER_NAME_FOREACH = 'foreach';
-    private const COUNTER_NAME_FOR = 'for';
-    private const COUNTER_NAME_WHILE = 'while';
-    private const COUNTER_NAME_DO_WHILE = 'doWhile';
-    private const COUNTER_NAME_SWITCH = 'switch';
-    private const COUNTER_NAME_MATCH = 'match';
-    private const COUNTER_NAME_TERNARY = 'ternary';
-    private const COUNTER_NAME_TRY_CATCH = 'tryCatch';
+    private const COUNTER_NAME_IF = 'ifCount';
+    private const COUNTER_NAME_FOREACH = 'foreachCount';
+    private const COUNTER_NAME_FOR = 'forCount';
+    private const COUNTER_NAME_WHILE = 'whileCount';
+    private const COUNTER_NAME_DO_WHILE = 'doWhileCount';
+    private const COUNTER_NAME_SWITCH = 'switchCount';
+    private const COUNTER_NAME_MATCH = 'matchCount';
+    private const COUNTER_NAME_TERNARY = 'ternaryCount';
+    private const COUNTER_NAME_TRY_CATCH = 'tryCatchCount';
 
     /** @var array<value-of<self::COUNTER_NAMES>, int> */
     private array $maxCounts;
