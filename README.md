@@ -99,7 +99,7 @@ parameters:
 
 ```php
 // ✗ flagged: 4 `if` statements against a default limit of 3
-public function actionCheckout(): Response
+public function actionCheckout(): string
 {
     if ($this->cart->isEmpty()) { /* ... */ }
     if (!$this->cart->hasPaymentMethod()) { /* ... */ }
@@ -110,7 +110,7 @@ public function actionCheckout(): Response
 }
 
 // ✓ the decision tree moves to a service, the action just orchestrates
-public function actionCheckout(): Response
+public function actionCheckout(): string
 {
     return $this->render('checkout', $this->checkoutService->process($this->cart));
 }
