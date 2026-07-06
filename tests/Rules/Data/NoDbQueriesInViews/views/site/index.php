@@ -64,3 +64,5 @@ function inspectDatabaseAccess(
     (new \ArrayObject())->count();
     $query->{$methodName}();
 }
+
+(new \ArrayObject())->getIterator()->count();
