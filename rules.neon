@@ -160,7 +160,7 @@ services:
 			ternaryCount: %mspirkovYii2Rules.actionComplexity.ternaryCount%
 			tryCatchCount: %mspirkovYii2Rules.actionComplexity.tryCatchCount%
 	-
-		class: MSpirkov\Yii2\PHPStan\Analyzers\DatabaseAccessAnalyzer
+		class: MSpirkov\Yii2\PHPStan\Analyzers\DbQueriesUsageAnalyzer
 		arguments:
 			yiiAppDbProperties: %mspirkovYii2Rules.yiiAppDbProperties%
 	-

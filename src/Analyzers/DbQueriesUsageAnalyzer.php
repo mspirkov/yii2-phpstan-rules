@@ -23,7 +23,7 @@ use yii\db\Connection;
 use yii\db\QueryInterface;
 use yii\db\Transaction;
 
-final class DatabaseAccessAnalyzer
+final class DbQueriesUsageAnalyzer
 {
     /** @var list<string> */
     private const ACTIVE_RECORD_STATIC_METHODS = [
@@ -79,7 +79,7 @@ final class DatabaseAccessAnalyzer
         $this->yiiAppDbProperties = array_values(array_unique($yiiAppDbProperties));
     }
 
-    public function isDatabaseAccess(Node $node, Scope $scope): bool
+    public function isDbQueriesUsage(Node $node, Scope $scope): bool
     {
         if ($node instanceof PropertyFetch) {
             return $this->isYiiAppDbPropertyFetch($node, $scope);

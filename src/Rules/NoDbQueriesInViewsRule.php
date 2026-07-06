@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace MSpirkov\Yii2\PHPStan\Rules;
 
-use MSpirkov\Yii2\PHPStan\Analyzers\DatabaseAccessAnalyzer;
+use MSpirkov\Yii2\PHPStan\Analyzers\DbQueriesUsageAnalyzer;
 use PhpParser\Node;
 use PHPStan\Analyser\Scope;
 use PHPStan\Rules\IdentifierRuleError;
@@ -15,11 +15,11 @@ use PHPStan\Rules\Rule;
  */
 final class NoDbQueriesInViewsRule implements Rule
 {
-    private DatabaseAccessAnalyzer $databaseAccessAnalyzer;
+    private DbQueriesUsageAnalyzer $dbQueriesUsageAnalyzer;
 
-    public function __construct(DatabaseAccessAnalyzer $databaseAccessAnalyzer)
+    public function __construct(DbQueriesUsageAnalyzer $dbQueriesUsageAnalyzer)
     {
-        $this->databaseAccessAnalyzer = $databaseAccessAnalyzer;
+        $this->dbQueriesUsageAnalyzer = $dbQueriesUsageAnalyzer;
     }
 
     public function getNodeType(): string
@@ -36,7 +36,7 @@ final class NoDbQueriesInViewsRule implements Rule
             return [];
         }
 
-        if (!$this->databaseAccessAnalyzer->isDatabaseAccess($node, $scope)) {
+        if (!$this->dbQueriesUsageAnalyzer->isDbQueriesUsage($node, $scope)) {
             return [];
         }
 
