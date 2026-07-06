@@ -1,6 +1,6 @@
 <?php
 
-namespace MSpirkov\Yii2\PHPStan\Tests\Rules\Data\ModelRulesValidation;
+namespace MSpirkov\Yii2\PHPStan\Tests\Rules\Source\ModelRulesValidation;
 
 use yii\base\Model;
 

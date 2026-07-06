@@ -26,5 +26,6 @@ return RectorConfig::configure()
         FlipNegatedTernaryInstanceofRector::class,
     ])
     ->withSkip([
-        __DIR__ . '/tests/Rules/data',
+        __DIR__ . '/tests/Rules/Data',
+        __DIR__ . '/tests/Rules/Source',
     ]);

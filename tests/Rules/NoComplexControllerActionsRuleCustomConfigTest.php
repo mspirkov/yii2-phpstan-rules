@@ -16,7 +16,7 @@ final class NoComplexControllerActionsRuleCustomConfigTest extends RuleTestCase
     public function testCustomConfiguration(): void
     {
         $this->analyse(
-            [__DIR__ . '/data/NoComplexActions/custom-config.php'],
+            [__DIR__ . '/Data/NoComplexActions/custom-config.php'],
             [],
         );
     }
@@ -27,7 +27,7 @@ final class NoComplexControllerActionsRuleCustomConfigTest extends RuleTestCase
     public static function getAdditionalConfigFiles(): array
     {
         return array_merge(parent::getAdditionalConfigFiles(), [
-            __DIR__ . '/config/NoComplexActions/config.neon',
+            __DIR__ . '/Config/NoComplexActions/config.neon',
         ]);
     }
 

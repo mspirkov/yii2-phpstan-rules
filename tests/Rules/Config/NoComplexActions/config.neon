@@ -3,7 +3,7 @@ includes:
 
 parameters:
 	scanFiles:
-		- ../../data/NoComplexActions/custom-config.php
+		- ../../Data/NoComplexActions/custom-config.php
 	mspirkovYii2Rules:
 		actionComplexity:
 			ifCount: 4

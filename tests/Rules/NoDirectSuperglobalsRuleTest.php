@@ -16,7 +16,7 @@ final class NoDirectSuperglobalsRuleTest extends RuleTestCase
     public function testRule(): void
     {
         $this->analyse(
-            [__DIR__ . '/data/NoDirectSuperglobals/code.php'],
+            [__DIR__ . '/Data/NoDirectSuperglobals/code.php'],
             [
                 ['Direct use of superglobal $_GET is forbidden. Use yii\web\Request::get() or yii\web\Request::getQueryParam() instead.', 3],
                 ['Direct use of superglobal $_POST is forbidden. Use yii\web\Request::post() or yii\web\Request::getBodyParam() instead.', 4],

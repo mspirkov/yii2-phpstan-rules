@@ -16,7 +16,7 @@ final class NoDbQueriesInViewsRuleTest extends RuleTestCase
     public function testRule(): void
     {
         $this->analyse(
-            [__DIR__ . '/data/NoDbQueriesInViews/views/site/index.php'],
+            [__DIR__ . '/Data/NoDbQueriesInViews/views/site/index.php'],
             [
                 ['Database queries in views are forbidden. Move queries to repositories.', 12],
                 ['Database queries in views are forbidden. Move queries to repositories.', 14],
@@ -37,7 +37,7 @@ final class NoDbQueriesInViewsRuleTest extends RuleTestCase
     public function testRuleSkipsNonViewFiles(): void
     {
         $this->analyse(
-            [__DIR__ . '/data/NoDbQueriesInViews/not-view.php'],
+            [__DIR__ . '/Data/NoDbQueriesInViews/not-view.php'],
             [],
         );
     }

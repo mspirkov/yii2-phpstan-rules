@@ -16,7 +16,7 @@ final class NoComplexControllerActionsRuleTest extends RuleTestCase
     public function testRule(): void
     {
         $this->analyse(
-            [__DIR__ . '/data/NoComplexActions/controller-actions.php'],
+            [__DIR__ . '/Data/NoComplexActions/controller-actions.php'],
             [
                 ['Controller action contains too much business logic: ifCount is 5, allowed 3. Move business logic to the service layer.', 30],
                 ['Controller action contains too much business logic: foreachCount is 1, allowed 0. Move business logic to the service layer.', 39],
@@ -35,7 +35,7 @@ final class NoComplexControllerActionsRuleTest extends RuleTestCase
     public static function getAdditionalConfigFiles(): array
     {
         return array_merge(parent::getAdditionalConfigFiles(), [
-            __DIR__ . '/config/NoComplexActions/default.neon',
+            __DIR__ . '/Config/NoComplexActions/default.neon',
         ]);
     }
 

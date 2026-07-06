@@ -16,7 +16,7 @@ final class NoDbQueriesInControllersRuleTest extends RuleTestCase
     public function testRule(): void
     {
         $this->analyse(
-            [__DIR__ . '/data/NoDbQueriesInApplicationClasses/code.php'],
+            [__DIR__ . '/Data/NoDbQueriesInApplicationClasses/code.php'],
             [
                 ['Database queries in controllers are forbidden. Move queries to repositories.', 14],
                 ['Database queries in controllers are forbidden. Move queries to repositories.', 16],

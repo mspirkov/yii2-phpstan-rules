@@ -16,7 +16,7 @@ final class NoYiiAppPropertyMutationRuleTest extends RuleTestCase
     public function testRule(): void
     {
         $this->analyse(
-            [__DIR__ . '/data/NoYiiAppPropertyMutation/code.php'],
+            [__DIR__ . '/Data/NoYiiAppPropertyMutation/code.php'],
             [
                 ['Modification of Yii::$app->name is forbidden.', 6],
                 ['Modification of Yii::$app->language is forbidden.', 8],

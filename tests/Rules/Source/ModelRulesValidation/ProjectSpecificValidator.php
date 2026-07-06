@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace MSpirkov\Yii2\PHPStan\Tests\Rules\Data\ModelRulesValidation;
+namespace MSpirkov\Yii2\PHPStan\Tests\Rules\Source\ModelRulesValidation;
 
 use yii\validators\Validator;
 

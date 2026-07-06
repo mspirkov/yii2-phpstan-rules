@@ -16,7 +16,8 @@ parameters:
 
     excludePaths:
         analyseAndScan:
-            - tests/*/data/*
+            - tests/*/Data/*
+            - tests/*/Source/*
 
     checkBenevolentUnionTypes: true
     checkMissingCallableSignature: true
