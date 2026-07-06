@@ -99,18 +99,20 @@ parameters:
 
 ```php
 // ✗ flagged: 4 `if` statements against a default limit of 3
-public function actionCheckout()
+public function actionCheckout(): string
 {
-    if ($cart->isEmpty()) { /* ... */ }
-    if (!$user->hasPaymentMethod()) { /* ... */ }
-    if ($stock->isLow($cart)) { /* ... */ }
-    if ($coupon->isExpired()) { /* ... */ }
+    if ($this->cart->isEmpty()) { /* ... */ }
+    if (!$this->cart->hasPaymentMethod()) { /* ... */ }
+    if ($this->cart->hasOutOfStockItems()) { /* ... */ }
+    if ($this->cart->hasExpiredCoupon()) { /* ... */ }
+
+    return $this->render('checkout', ['cart' => $this->cart]);
 }
 
 // ✓ the decision tree moves to a service, the action just orchestrates
-public function actionCheckout()
+public function actionCheckout(): string
 {
-    $this->checkoutService->process($cart, $user);
+    return $this->render('checkout', $this->checkoutService->process($this->cart));
 }
 ```
 
@@ -118,14 +120,13 @@ public function actionCheckout()
 
 ```php
 // ✗ flagged: bypasses the action-resolution pipeline (filters, events, results)
-public function actionEdit($id)
+public function actionEdit(int $id): Response
 {
-    // ...
     return $this->actionView($id);
 }
 
 // ✓ redirect, or extract the shared part into a private method / service
-public function actionEdit($id)
+public function actionEdit(int $id): Response
 {
     return $this->redirect(['view', 'id' => $id]);
 }
@@ -136,7 +137,7 @@ public function actionEdit($id)
 Fires on `ActiveRecord::find()`/`findOne()`/`save()`, `Yii::$app->db`, `Yii::$app->db->createCommand()`, creating or configuring a `Query`, transactions, and friends — wherever they turn up in a controller, an `Action`, or a view file.
 
 ```php
-// ✗ flagged in a view
+// ✗ flagged in a view: queries the database instead of just rendering data
 <?php foreach (Post::find()->where(['status' => 1])->all() as $post): ?>
 
 // ✓ the controller/action fetches the data, the view only renders it
@@ -180,8 +181,8 @@ A short allowlist (`id`, `name`, `charset`, `language`, `timeZone` by default) s
 // ✗ flagged, with the fix suggested in the error message
 $id = $_GET['id'];
 
-// ✓
-$id = Yii::$app->request->get('id');
+// ✓ read through the injected yii\web\Request instead
+$id = $this->request->get('id');
 ```
 
 Covers `$_GET`, `$_POST`, `$_REQUEST`, `$_SESSION`, `$_COOKIE`, `$_FILES`, and `$_SERVER`, each pointing at the matching `yii\web\Request` / `Session` / `UploadedFile` API.
@@ -191,16 +192,16 @@ Covers `$_GET`, `$_POST`, `$_REQUEST`, `$_SESSION`, `$_COOKIE`, `$_FILES`, and `
 `Model::rules()` is just a plain array — PHP will never tell you that you forgot a validator's required option, wrote an invalid regex, or misconfigured one of its options. For every rule entry the validator type resolves to (a built-in alias like `required`/`string`/`number`/`compare`/`date`/`match`/`in`/`unique`/`exist`/`file`/`image`/`ip`/`url`, a custom `Validator` subclass, a configured project alias, or an inline closure/method), this rule statically checks the option array against what that validator actually accepts and requires. A validator name it can't resolve is reported as an error; add project-specific aliases under `modelRulesValidation.customValidators`:
 
 ```php
-public function rules()
+public function rules(): array
 {
     return [
-        ['email', 'exist', 'targetClass' => X::class],   // ✗ 'exist' requires 'targetAttribute'
-        ['code', 'match', 'pattern' => '/[/'],           // ✗ invalid regular expression
-        ['ip', 'ip', 'ipv4' => false, 'ipv6' => false],  // ✗ disables both protocols
-        ['message', 'string', 'max' => 'invalid'],       // ✗ 'max' must be int|null
-        ['status', 'someUnregisteredAlias'],             // ✗ unknown validator
+        ['email', 'string', 'lenght' => 255],            // ✗ typo — unknown option "lenght" for StringValidator
+        ['code', 'match', 'pattern' => '/[/'],            // ✗ invalid regular expression
+        ['ip', 'ip', 'ipv4' => false, 'ipv6' => false],   // ✗ disables both protocols
+        ['message', 'string', 'max' => 'invalid'],        // ✗ 'max' must be int|null
+        ['status', 'someUnregisteredAlias'],              // ✗ unknown validator
 
-        ['name', 'string', 'max' => 255],                // ✓
+        ['name', 'string', 'max' => 255],                 // ✓
     ];
 }
 ```
