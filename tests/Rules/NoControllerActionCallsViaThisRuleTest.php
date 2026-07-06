@@ -16,7 +16,7 @@ final class NoControllerActionCallsViaThisRuleTest extends RuleTestCase
     public function testRule(): void
     {
         $this->analyse(
-            [__DIR__ . '/data/NoControllerActionCallsViaThis/code.php'],
+            [__DIR__ . '/Data/NoControllerActionCallsViaThis/code.php'],
             [
                 ['Calling controller action actionIndex() via $this is forbidden. Move shared logic to a service or a private method, or perform a redirect.', 15],
                 ['Calling controller action actionView() via $this is forbidden. Move shared logic to a service or a private method, or perform a redirect.', 26],

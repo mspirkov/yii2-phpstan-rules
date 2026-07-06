@@ -16,7 +16,7 @@ final class NoForbiddenYiiAppPropertiesRuleCustomConfigTest extends RuleTestCase
     public function testCustomConfiguration(): void
     {
         $this->analyse(
-            [__DIR__ . '/data/NoForbiddenYiiAppProperties/code.php'],
+            [__DIR__ . '/Data/NoForbiddenYiiAppProperties/code.php'],
             [
                 ['Use of Yii::$app->request is forbidden.', 9],
                 ['Use of dynamic Yii::$app property is forbidden.', 12],
@@ -31,7 +31,7 @@ final class NoForbiddenYiiAppPropertiesRuleCustomConfigTest extends RuleTestCase
     public static function getAdditionalConfigFiles(): array
     {
         return array_merge(parent::getAdditionalConfigFiles(), [
-            __DIR__ . '/config/NoForbiddenYiiAppProperties/config.neon',
+            __DIR__ . '/Config/NoForbiddenYiiAppProperties/config.neon',
         ]);
     }
 

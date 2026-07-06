@@ -16,7 +16,7 @@ final class NoDbQueriesInViewsRuleCustomDbPropertiesTest extends RuleTestCase
     public function testRuleUsesCustomYiiAppDbProperties(): void
     {
         $this->analyse(
-            [__DIR__ . '/data/NoDbQueriesInViews/views/site/custom-db-properties.php'],
+            [__DIR__ . '/Data/NoDbQueriesInViews/views/site/custom-db-properties.php'],
             [
                 ['Database queries in views are forbidden. Move queries to repositories.', 3],
                 ['Database queries in views are forbidden. Move queries to repositories.', 5],
@@ -30,7 +30,7 @@ final class NoDbQueriesInViewsRuleCustomDbPropertiesTest extends RuleTestCase
     public static function getAdditionalConfigFiles(): array
     {
         return array_merge(parent::getAdditionalConfigFiles(), [
-            __DIR__ . '/config/NoDbQueriesInViews/custom-db-properties.neon',
+            __DIR__ . '/Config/NoDbQueriesInViews/custom-db-properties.neon',
         ]);
     }
 

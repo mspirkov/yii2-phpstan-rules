@@ -18,7 +18,7 @@ final class ModelRulesValidationRuleTest extends RuleTestCase
     public function testRule(): void
     {
         $this->analyse(
-            [__DIR__ . '/data/ModelRulesValidation/code.php'],
+            [__DIR__ . '/Data/ModelRulesValidation/code.php'],
             [
                 ['Model validation rule must specify validator type at index 1.', 43],
                 ['Model validation rule attributes must be a string or array of strings.', 44],
@@ -73,7 +73,7 @@ final class ModelRulesValidationRuleTest extends RuleTestCase
 
         try {
             $this->analyse(
-                [__DIR__ . '/data/ModelRulesValidation/brokenBuiltInValidator.php'],
+                [__DIR__ . '/Data/ModelRulesValidation/brokenBuiltInValidator.php'],
                 [
                     ['Unknown validator "brokenBuiltIn".', 14],
                 ],
@@ -89,7 +89,7 @@ final class ModelRulesValidationRuleTest extends RuleTestCase
     public static function getAdditionalConfigFiles(): array
     {
         return array_merge(parent::getAdditionalConfigFiles(), [
-            __DIR__ . '/config/ModelRulesValidation/config.neon',
+            __DIR__ . '/Config/ModelRulesValidation/config.neon',
         ]);
     }
 
