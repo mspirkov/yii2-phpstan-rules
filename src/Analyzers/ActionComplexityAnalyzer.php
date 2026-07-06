@@ -19,7 +19,29 @@ use PhpParser\Node\Stmt\While_;
 
 final class ActionComplexityAnalyzer
 {
-    /** @var array<string, int> */
+    public const COUNTER_NAMES = [
+        self::COUNTER_NAME_IF,
+        self::COUNTER_NAME_FOREACH,
+        self::COUNTER_NAME_FOR,
+        self::COUNTER_NAME_WHILE,
+        self::COUNTER_NAME_DO_WHILE,
+        self::COUNTER_NAME_SWITCH,
+        self::COUNTER_NAME_MATCH,
+        self::COUNTER_NAME_TERNARY,
+        self::COUNTER_NAME_TRY_CATCH,
+    ];
+
+    private const COUNTER_NAME_IF = 'if';
+    private const COUNTER_NAME_FOREACH = 'foreach';
+    private const COUNTER_NAME_FOR = 'for';
+    private const COUNTER_NAME_WHILE = 'while';
+    private const COUNTER_NAME_DO_WHILE = 'doWhile';
+    private const COUNTER_NAME_SWITCH = 'switch';
+    private const COUNTER_NAME_MATCH = 'match';
+    private const COUNTER_NAME_TERNARY = 'ternary';
+    private const COUNTER_NAME_TRY_CATCH = 'tryCatch';
+
+    /** @var array<value-of<self::COUNTER_NAMES>, int> */
     private array $maxCounts;
 
     public function __construct(
@@ -34,15 +56,15 @@ final class ActionComplexityAnalyzer
         int $tryCatchCount = 0
     ) {
         $this->maxCounts = [
-            'ifCount' => $ifCount,
-            'foreachCount' => $foreachCount,
-            'forCount' => $forCount,
-            'whileCount' => $whileCount,
-            'doWhileCount' => $doWhileCount,
-            'switchCount' => $switchCount,
-            'matchCount' => $matchCount,
-            'ternaryCount' => $ternaryCount,
-            'tryCatchCount' => $tryCatchCount,
+            self::COUNTER_NAME_IF => $ifCount,
+            self::COUNTER_NAME_FOREACH => $foreachCount,
+            self::COUNTER_NAME_FOR => $forCount,
+            self::COUNTER_NAME_WHILE => $whileCount,
+            self::COUNTER_NAME_DO_WHILE => $doWhileCount,
+            self::COUNTER_NAME_SWITCH => $switchCount,
+            self::COUNTER_NAME_MATCH => $matchCount,
+            self::COUNTER_NAME_TERNARY => $ternaryCount,
+            self::COUNTER_NAME_TRY_CATCH => $tryCatchCount,
         ];
     }
 
@@ -66,7 +88,7 @@ final class ActionComplexityAnalyzer
             $violations[$counterName] = [
                 'actual' => $counts[$counterName],
                 'allowed' => $allowedCount,
-                'line' => $firstExceededLines[$counterName] ?? $classMethod->getLine(),
+                'line' => $firstExceededLines[$counterName] ?? $classMethod->getStartLine(),
             ];
         }
 
@@ -75,7 +97,7 @@ final class ActionComplexityAnalyzer
 
     /**
      * @param array<mixed> $nodes
-     * @param array<string, int> $counts
+     * @param array<value-of<self::COUNTER_NAMES>, int> $counts
      * @param array<string, int> $firstExceededLines
      */
     private function countNodes(array $nodes, array &$counts, array &$firstExceededLines): void
@@ -100,13 +122,12 @@ final class ActionComplexityAnalyzer
     }
 
     /**
-     * @param array<string, int> $counts
+     * @param array<value-of<self::COUNTER_NAMES>, int> $counts
      * @param array<string, int> $firstExceededLines
      */
     private function countNode(Node $node, array &$counts, array &$firstExceededLines): void
     {
         $counterName = $this->getCounterName($node);
-
         if ($counterName === null) {
             return;
         }
@@ -121,45 +142,48 @@ final class ActionComplexityAnalyzer
             return;
         }
 
-        $firstExceededLines[$counterName] = $node->getLine();
+        $firstExceededLines[$counterName] = $node->getStartLine();
     }
 
+    /**
+     * @return value-of<self::COUNTER_NAMES>|null
+     */
     private function getCounterName(Node $node): ?string
     {
         if ($node instanceof If_ || $node instanceof ElseIf_) {
-            return 'ifCount';
+            return self::COUNTER_NAME_IF;
         }
 
         if ($node instanceof Foreach_) {
-            return 'foreachCount';
+            return self::COUNTER_NAME_FOREACH;
         }
 
         if ($node instanceof For_) {
-            return 'forCount';
+            return self::COUNTER_NAME_FOR;
         }
 
         if ($node instanceof While_) {
-            return 'whileCount';
+            return self::COUNTER_NAME_WHILE;
         }
 
         if ($node instanceof Do_) {
-            return 'doWhileCount';
+            return self::COUNTER_NAME_DO_WHILE;
         }
 
         if ($node instanceof Switch_) {
-            return 'switchCount';
+            return self::COUNTER_NAME_SWITCH;
         }
 
         if ($node instanceof Match_) {
-            return 'matchCount';
+            return self::COUNTER_NAME_MATCH;
         }
 
         if ($node instanceof Ternary) {
-            return 'ternaryCount';
+            return self::COUNTER_NAME_TERNARY;
         }
 
         if ($node instanceof TryCatch) {
-            return 'tryCatchCount';
+            return self::COUNTER_NAME_TRY_CATCH;
         }
 
         return null;
