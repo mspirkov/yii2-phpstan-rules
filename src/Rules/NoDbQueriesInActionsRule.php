@@ -10,7 +10,6 @@ use PHPStan\Analyser\Scope;
 use PHPStan\Reflection\ClassReflection;
 use PHPStan\Rules\IdentifierRuleError;
 use PHPStan\Rules\Rule;
-use PHPStan\Rules\RuleErrorBuilder;
 use yii\base\Action;
 
 /**
@@ -48,9 +47,10 @@ final class NoDbQueriesInActionsRule implements Rule
         }
 
         return [
-            RuleErrorBuilder::message('Database queries in actions are forbidden. Move queries to repositories.')
-                ->identifier(Identifiers::NO_DB_QUERIES_IN_ACTIONS)
-                ->build(),
+            ErrorBuilder::build(
+                'Database queries in actions are forbidden. Move queries to repositories.',
+                Identifiers::NO_DB_QUERIES_IN_ACTIONS
+            ),
         ];
     }
 

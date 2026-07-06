@@ -24,7 +24,6 @@ use PHPStan\Analyser\Scope;
 use PHPStan\Reflection\ReflectionProvider;
 use PHPStan\Rules\IdentifierRuleError;
 use PHPStan\Rules\Rule;
-use PHPStan\Rules\RuleErrorBuilder;
 use PHPStan\Type\BooleanType;
 use PHPStan\Type\MixedType;
 use PHPStan\Type\ObjectType;
@@ -204,7 +203,10 @@ final class ModelRulesValidationRule implements Rule
             if (!isset($items[$attributeIndex])) {
                 $errors[] = $this->buildError('Model validation rule must specify attribute names at index 0.', $rule);
             } elseif ($this->isNullExpression($items[$attributeIndex]->value)) {
-                $errors[] = $this->buildError('Model validation rule attribute names at index 0 cannot be null.', $items[$attributeIndex]->value);
+                $errors[] = $this->buildError(
+                    'Model validation rule attribute names at index 0 cannot be null.',
+                    $items[$attributeIndex]->value
+                );
             } else {
                 foreach ($this->validateAttributeNames($items[$attributeIndex]->value, $scope) as $error) {
                     $errors[] = $error;
@@ -236,7 +238,10 @@ final class ModelRulesValidationRule implements Rule
         }
 
         if (!$this->isValidValidatorTypeExpression($validatorTypeExpr, $scope)) {
-            $errors[] = $this->buildError('Model validation rule validator type must be a string or Closure.', $validatorTypeExpr);
+            $errors[] = $this->buildError(
+                'Model validation rule validator type must be a string or Closure.',
+                $validatorTypeExpr
+            );
 
             return $errors;
         }
@@ -245,7 +250,10 @@ final class ModelRulesValidationRule implements Rule
         $validatorClass = $this->resolveKnownValidatorClass($validatorTypeExpr, $validatorName, $scope);
         if ($validatorClass === null) {
             if ($validatorName !== null) {
-                $errors[] = $this->buildError(sprintf('Unknown validator "%s".', $validatorName), $validatorTypeExpr);
+                $errors[] = $this->buildError(
+                    sprintf('Unknown validator "%s".', $validatorName),
+                    $validatorTypeExpr
+                );
             }
 
             return $errors;
@@ -297,14 +305,20 @@ final class ModelRulesValidationRule implements Rule
 
                 if ($item->value instanceof String_) {
                     if ($item->value->value === '') {
-                        $errors[] = $this->buildError('Model validation rule contains an empty attribute name.', $item->value);
+                        $errors[] = $this->buildError(
+                            'Model validation rule contains an empty attribute name.',
+                            $item->value
+                        );
                     }
 
                     continue;
                 }
 
                 if ($this->isDefinitelyNotString($item->value, $scope)) {
-                    $errors[] = $this->buildError('Model validation rule attributes must be strings.', $item->value);
+                    $errors[] = $this->buildError(
+                        'Model validation rule attributes must be strings.',
+                        $item->value
+                    );
                 }
             }
 
@@ -312,7 +326,12 @@ final class ModelRulesValidationRule implements Rule
         }
 
         if ($this->isDefinitelyNotString($attributesExpr, $scope)) {
-            return [$this->buildError('Model validation rule attributes must be a string or array of strings.', $attributesExpr)];
+            return [
+                $this->buildError(
+                    'Model validation rule attributes must be a string or array of strings.',
+                    $attributesExpr
+                ),
+            ];
         }
 
         return [];
@@ -433,14 +452,20 @@ final class ModelRulesValidationRule implements Rule
         if ($validatorName === 'compare' && isset($options['operator'])) {
             $operator = $this->getSingleStringValue($options['operator']->value, $scope);
             if ($operator !== null && !in_array($operator, self::COMPARE_OPERATORS, true)) {
-                $errors[] = $this->buildError(sprintf('Unknown compare validator operator "%s".', $operator), $options['operator']);
+                $errors[] = $this->buildError(
+                    sprintf('Unknown compare validator operator "%s".', $operator),
+                    $options['operator']
+                );
             }
         }
 
         if (in_array($validatorName, ['date', 'datetime', 'time'], true) && isset($options['type'])) {
             $dateType = $this->getSingleStringValue($options['type']->value, $scope);
             if ($dateType !== null && !in_array($dateType, self::DATE_TYPES, true)) {
-                $errors[] = $this->buildError(sprintf('Unknown date validator type "%s".', $dateType), $options['type']);
+                $errors[] = $this->buildError(
+                    sprintf('Unknown date validator type "%s".', $dateType),
+                    $options['type']
+                );
             }
         }
 
@@ -448,7 +473,10 @@ final class ModelRulesValidationRule implements Rule
             $ipv4 = $this->getConstantBoolean($options['ipv4']->value, $scope);
             $ipv6 = $this->getConstantBoolean($options['ipv6']->value, $scope);
             if ($ipv4 === false && $ipv6 === false) {
-                $errors[] = $this->buildError('IP validator cannot disable both IPv4 and IPv6 checks.', $options['ipv6']);
+                $errors[] = $this->buildError(
+                    'IP validator cannot disable both IPv4 and IPv6 checks.',
+                    $options['ipv6']
+                );
             }
         }
 
@@ -498,7 +526,12 @@ final class ModelRulesValidationRule implements Rule
         }
 
         if (@preg_match($pattern, '') === false) {
-            return [$this->buildError(sprintf('Match validator option "pattern" has an invalid regular expression "%s".', $pattern), $patternExpr)];
+            return [
+                $this->buildError(
+                    sprintf('Match validator option "pattern" has an invalid regular expression "%s".', $pattern),
+                    $patternExpr
+                ),
+            ];
         }
 
         return [];
@@ -523,7 +556,12 @@ final class ModelRulesValidationRule implements Rule
         }
 
         if ($rangeType->isArray()->no() && $rangeType->isObject()->no()) {
-            return [$this->buildError('"in" validator option "range" must be an array, Closure, or Traversable.', $rangeExpr)];
+            return [
+                $this->buildError(
+                    '"in" validator option "range" must be an array, Closure, or Traversable.',
+                    $rangeExpr
+                ),
+            ];
         }
 
         return [];
@@ -550,7 +588,10 @@ final class ModelRulesValidationRule implements Rule
                 }
 
                 if ($this->isDefinitelyNotString($item->value, $scope)) {
-                    $errors[] = $this->buildError(sprintf('Validator option "%s" must contain only scenario names as strings.', $optionName), $item->value);
+                    $errors[] = $this->buildError(
+                        sprintf('Validator option "%s" must contain only scenario names as strings.', $optionName),
+                        $item->value
+                    );
                 }
             }
 
@@ -558,7 +599,12 @@ final class ModelRulesValidationRule implements Rule
         }
 
         if ($this->isDefinitelyNotString($optionExpr, $scope)) {
-            return [$this->buildError(sprintf('Validator option "%s" must be a string or array of strings.', $optionName), $optionExpr)];
+            return [
+                $this->buildError(
+                    sprintf('Validator option "%s" must be a string or array of strings.', $optionName),
+                    $optionExpr
+                ),
+            ];
         }
 
         return [];
@@ -841,9 +887,6 @@ final class ModelRulesValidationRule implements Rule
 
     private function buildError(string $message, Node $node): IdentifierRuleError
     {
-        return RuleErrorBuilder::message($message)
-            ->identifier(Identifiers::MODEL_RULES_VALIDATION)
-            ->line($node->getStartLine())
-            ->build();
+        return ErrorBuilder::build($message, Identifiers::MODEL_RULES_VALIDATION, $node->getStartLine());
     }
 }

@@ -18,5 +18,19 @@ final class Identifiers
     public const NO_YII_APP_PROPERTY_MUTATION = self::PREFIX . 'noYiiAppPropertyMutation';
     public const MODEL_RULES_VALIDATION = self::PREFIX . 'modelRulesValidation';
 
+    public const LIST = [
+        self::NO_DIRECT_SUPERGLOBALS,
+        self::NO_COMPLEX_ACTION_CLASSES,
+        self::NO_COMPLEX_CONTROLLER_ACTIONS,
+        self::NO_CONTROLLER_ACTION_CALLS_VIA_THIS,
+        self::NO_DB_QUERIES_IN_ACTIONS,
+        self::NO_DB_QUERIES_IN_CONTROLLERS,
+        self::NO_DB_QUERIES_IN_VIEWS,
+        self::NO_DYNAMIC_QUERY_WHERE,
+        self::NO_FORBIDDEN_YII_APP_PROPERTIES,
+        self::NO_YII_APP_PROPERTY_MUTATION,
+        self::MODEL_RULES_VALIDATION,
+    ];
+
     private const PREFIX = 'mspirkovYii2Rules.';
 }

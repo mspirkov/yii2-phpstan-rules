@@ -11,7 +11,6 @@ use PHPStan\Analyser\Scope;
 use PHPStan\Reflection\ClassReflection;
 use PHPStan\Rules\IdentifierRuleError;
 use PHPStan\Rules\Rule;
-use PHPStan\Rules\RuleErrorBuilder;
 use yii\base\Controller;
 
 /**
@@ -46,7 +45,7 @@ final class NoComplexControllerActionsRule implements Rule
             return [];
         }
 
-        return $this->buildErrors($node, 'Controller action', Identifiers::NO_COMPLEX_CONTROLLER_ACTIONS);
+        return $this->buildErrors($node);
     }
 
     private function isController(?ClassReflection $classReflection): bool
@@ -65,21 +64,22 @@ final class NoComplexControllerActionsRule implements Rule
     /**
      * @return list<IdentifierRuleError>
      */
-    private function buildErrors(ClassMethod $classMethod, string $context, string $identifier): array
+    private function buildErrors(ClassMethod $classMethod): array
     {
         $errors = [];
 
         foreach ($this->actionComplexityAnalyzer->getExceededLimits($classMethod) as $counterName => $violation) {
-            $errors[] = RuleErrorBuilder::message(sprintf(
-                '%s contains too much business logic: %s is %d, allowed %d. Move business logic to the service layer.',
-                $context,
-                $counterName,
-                $violation['actual'],
-                $violation['allowed']
-            ))
-                ->line($violation['line'])
-                ->identifier($identifier)
-                ->build();
+            $errors[] = ErrorBuilder::build(
+                sprintf(
+                    'Controller action contains too much business logic: %s is %d, allowed %d. '
+                        . 'Move business logic to the service layer.',
+                    $counterName,
+                    $violation['actual'],
+                    $violation['allowed']
+                ),
+                Identifiers::NO_COMPLEX_CONTROLLER_ACTIONS,
+                $violation['line']
+            );
         }
 
         return $errors;

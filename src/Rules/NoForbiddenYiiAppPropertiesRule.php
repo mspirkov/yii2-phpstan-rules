@@ -11,7 +11,6 @@ use PhpParser\Node\Identifier;
 use PHPStan\Analyser\Scope;
 use PHPStan\Rules\IdentifierRuleError;
 use PHPStan\Rules\Rule;
-use PHPStan\Rules\RuleErrorBuilder;
 
 /**
  * @implements Rule<Node>
@@ -54,9 +53,10 @@ final class NoForbiddenYiiAppPropertiesRule implements Rule
 
         if (!$node->name instanceof Identifier) {
             return [
-                RuleErrorBuilder::message('Use of dynamic Yii::$app property is forbidden.')
-                    ->identifier(Identifiers::NO_FORBIDDEN_YII_APP_PROPERTIES)
-                    ->build(),
+                ErrorBuilder::build(
+                    'Use of dynamic Yii::$app property is forbidden.',
+                    Identifiers::NO_FORBIDDEN_YII_APP_PROPERTIES
+                ),
             ];
         }
 
@@ -67,9 +67,10 @@ final class NoForbiddenYiiAppPropertiesRule implements Rule
         }
 
         return [
-            RuleErrorBuilder::message(sprintf('Use of Yii::$app->%s is forbidden.', $propertyName))
-                ->identifier(Identifiers::NO_FORBIDDEN_YII_APP_PROPERTIES)
-                ->build(),
+            ErrorBuilder::build(
+                sprintf('Use of Yii::$app->%s is forbidden.', $propertyName),
+                Identifiers::NO_FORBIDDEN_YII_APP_PROPERTIES
+            ),
         ];
     }
 }
