@@ -2,6 +2,7 @@
 
 namespace MSpirkov\Yii2\PHPStan\Tests\Rules\Data\NoDbQueriesInViews;
 
+use MSpirkov\Yii2\PHPStan\Tests\Rules\Source\NoDbQueriesInViews\ViewHelper;
 use yii\db\ActiveRecord;
 use yii\db\Command;
 use yii\db\Connection;
@@ -22,11 +23,7 @@ $activeQuery = ActiveRecord::find();
 
 $activeQuery->count();
 
-(new class {
-    public function loadUsers(): void
-    {
-    }
-})->loadUsers();
+(new ViewHelper())->loadUsers();
 
 function inspectDatabaseAccess(
     Connection $connection,
@@ -65,4 +62,4 @@ function inspectDatabaseAccess(
     $query->{$methodName}();
 }
 
-(new \ArrayObject())->getIterator()->count();
+(new ViewHelper())->passthrough()->render();
