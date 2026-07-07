@@ -6,7 +6,6 @@ namespace MSpirkov\Yii2\PHPStan\Analyzers;
 
 use MSpirkov\Yii2\PHPStan\Rules\ErrorBuilder;
 use MSpirkov\Yii2\PHPStan\Rules\Identifiers;
-use PhpParser\Node;
 use PhpParser\Node\ArrayItem;
 use PhpParser\Node\Expr;
 use PhpParser\Node\Expr\Array_;
@@ -112,10 +111,10 @@ final class BaseObjectConfigAnalyzer
                 continue;
             }
 
-            $errors[] = $this->buildError(
+            $errors[] = ErrorBuilder::build(
                 sprintf('Unknown option "%s" for %s %s.', $optionName, $objectLabel, $className),
-                $item,
-                $identifier
+                $identifier,
+                $item->getStartLine()
             );
         }
 
@@ -164,7 +163,7 @@ final class BaseObjectConfigAnalyzer
                 continue;
             }
 
-            $errors[] = $this->buildError(
+            $errors[] = ErrorBuilder::build(
                 sprintf(
                     '%s option "%s" for %s must be %s, %s given.',
                     $optionLabel,
@@ -173,20 +172,12 @@ final class BaseObjectConfigAnalyzer
                     $expectedType->describe(VerbosityLevel::typeOnly()),
                     $actualType->describe(VerbosityLevel::typeOnly())
                 ),
-                $item->value,
-                $identifier
+                $identifier,
+                $item->value->getStartLine(),
             );
         }
 
         return $errors;
-    }
-
-    /**
-     * @param value-of<Identifiers::LIST> $identifier
-     */
-    private function buildError(string $message, Node $node, string $identifier): IdentifierRuleError
-    {
-        return ErrorBuilder::build($message, $identifier, $node->getStartLine());
     }
 
     /**
