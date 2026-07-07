@@ -6,6 +6,8 @@ namespace MSpirkov\Yii2\PHPStan\Rules;
 
 use MSpirkov\Yii2\PHPStan\Analyzers\BaseObjectConfigAnalyzer;
 use MSpirkov\Yii2\PHPStan\Analyzers\ComponentConfigMethodAnalyzer;
+use MSpirkov\Yii2\PHPStan\Analyzers\ExpressionTypeAnalyzer;
+use MSpirkov\Yii2\PHPStan\Resolvers\ExpressionValueResolver;
 use PhpParser\Node;
 use PhpParser\Node\ArrayItem;
 use PhpParser\Node\Expr;
@@ -26,12 +28,20 @@ final class ComponentBehaviorsValidationRule implements Rule
 
     private ComponentConfigMethodAnalyzer $componentConfigMethodAnalyzer;
 
+    private ExpressionTypeAnalyzer $expressionTypeAnalyzer;
+
+    private ExpressionValueResolver $expressionValueResolver;
+
     public function __construct(
         BaseObjectConfigAnalyzer $baseObjectConfigAnalyzer,
-        ComponentConfigMethodAnalyzer $componentConfigMethodAnalyzer
+        ComponentConfigMethodAnalyzer $componentConfigMethodAnalyzer,
+        ExpressionTypeAnalyzer $expressionTypeAnalyzer,
+        ExpressionValueResolver $expressionValueResolver
     ) {
         $this->baseObjectConfigAnalyzer = $baseObjectConfigAnalyzer;
         $this->componentConfigMethodAnalyzer = $componentConfigMethodAnalyzer;
+        $this->expressionTypeAnalyzer = $expressionTypeAnalyzer;
+        $this->expressionValueResolver = $expressionValueResolver;
     }
 
     public function getNodeType(): string
@@ -73,7 +83,7 @@ final class ComponentBehaviorsValidationRule implements Rule
                 continue;
             }
 
-            if ($this->baseObjectConfigAnalyzer->isObjectOf($item->value, $scope, Behavior::class)) {
+            if ($this->expressionTypeAnalyzer->isObjectOf($item->value, $scope, Behavior::class)) {
                 continue;
             }
 
@@ -106,13 +116,13 @@ final class ComponentBehaviorsValidationRule implements Rule
         }
 
         $classExpr = $classItem->value;
-        if ($this->baseObjectConfigAnalyzer->isNullExpression($classExpr)) {
+        if ($this->expressionValueResolver->isNullExpression($classExpr)) {
             $errors[] = $this->buildError('Component behavior class cannot be null.', $classExpr);
 
             return $errors;
         }
 
-        if ($this->baseObjectConfigAnalyzer->isDefinitelyNotString($classExpr, $scope)) {
+        if ($this->expressionTypeAnalyzer->isDefinitelyNotString($classExpr, $scope)) {
             $errors[] = $this->buildError('Component behavior class must be a string.', $classExpr);
 
             return $errors;
@@ -145,8 +155,8 @@ final class ComponentBehaviorsValidationRule implements Rule
      */
     private function validateBehaviorClassExpression(Expr $expr, Scope $scope): array
     {
-        if ($this->baseObjectConfigAnalyzer->isDefinitelyNotString($expr, $scope)) {
-            return $this->baseObjectConfigAnalyzer->isDefinitelyNotArrayOrObjectOf($expr, $scope, Behavior::class)
+        if ($this->expressionTypeAnalyzer->isDefinitelyNotString($expr, $scope)) {
+            return $this->expressionTypeAnalyzer->isDefinitelyNotArrayOrObjectOf($expr, $scope, Behavior::class)
                 ? [
                     $this->buildError(
                         'Component behavior must be a class string, configuration array, or yii\base\Behavior instance.',
@@ -169,18 +179,18 @@ final class ComponentBehaviorsValidationRule implements Rule
      */
     private function resolveBehaviorClass(Expr $expr, Scope $scope, array &$errors): ?string
     {
-        $className = $this->baseObjectConfigAnalyzer->getSingleStringValue($expr, $scope);
+        $className = $this->expressionValueResolver->getSingleStringValue($expr, $scope);
         if ($className === null) {
             return null;
         }
 
-        if (!$this->baseObjectConfigAnalyzer->hasClass($className)) {
+        if (!$this->expressionTypeAnalyzer->hasClass($className)) {
             $errors[] = $this->buildError(sprintf('Unknown behavior class "%s".', $className), $expr);
 
             return null;
         }
 
-        if (!$this->baseObjectConfigAnalyzer->isClassNameOf($className, Behavior::class)) {
+        if (!$this->expressionTypeAnalyzer->isClassNameOf($className, Behavior::class)) {
             $errors[] = $this->buildError(
                 sprintf('Component behavior class "%s" must be yii\base\Behavior or its subclass.', $className),
                 $expr

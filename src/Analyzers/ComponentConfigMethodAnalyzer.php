@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace MSpirkov\Yii2\PHPStan\Analyzers;
 
 use MSpirkov\Yii2\PHPStan\Finders\MethodReturnExpressionFinder;
+use MSpirkov\Yii2\PHPStan\Resolvers\ExpressionValueResolver;
 use PhpParser\Node\Arg;
 use PhpParser\Node\Expr;
 use PhpParser\Node\Expr\Array_;
@@ -16,15 +17,15 @@ use PHPStan\Rules\IdentifierRuleError;
 
 final class ComponentConfigMethodAnalyzer
 {
-    private BaseObjectConfigAnalyzer $baseObjectConfigAnalyzer;
+    private ExpressionValueResolver $expressionValueResolver;
 
     private MethodReturnExpressionFinder $returnExpressionFinder;
 
     public function __construct(
-        BaseObjectConfigAnalyzer $baseObjectConfigAnalyzer,
+        ExpressionValueResolver $expressionValueResolver,
         MethodReturnExpressionFinder $returnExpressionFinder
     ) {
-        $this->baseObjectConfigAnalyzer = $baseObjectConfigAnalyzer;
+        $this->expressionValueResolver = $expressionValueResolver;
         $this->returnExpressionFinder = $returnExpressionFinder;
     }
 
@@ -81,7 +82,7 @@ final class ComponentConfigMethodAnalyzer
             return $validateArray($expr, $scope);
         }
 
-        if (!$expr instanceof FuncCall || !$this->baseObjectConfigAnalyzer->isFunctionCallNamed($expr, 'array_merge')) {
+        if (!$expr instanceof FuncCall || !$this->expressionValueResolver->isFunctionCallNamed($expr, 'array_merge')) {
             return [];
         }
 

@@ -7,6 +7,9 @@ namespace MSpirkov\Yii2\PHPStan\Rules;
 use Closure;
 use MSpirkov\Yii2\PHPStan\Analyzers\BaseObjectConfigAnalyzer;
 use MSpirkov\Yii2\PHPStan\Analyzers\ComponentConfigMethodAnalyzer;
+use MSpirkov\Yii2\PHPStan\Analyzers\ComponentObjectConfigAnalyzer;
+use MSpirkov\Yii2\PHPStan\Analyzers\ExpressionTypeAnalyzer;
+use MSpirkov\Yii2\PHPStan\Resolvers\ExpressionValueResolver;
 use PhpParser\Node;
 use PhpParser\Node\ArrayItem;
 use PhpParser\Node\Expr;
@@ -57,6 +60,12 @@ final class ModelRulesValidationRule implements Rule
 
     private ComponentConfigMethodAnalyzer $componentConfigMethodAnalyzer;
 
+    private ComponentObjectConfigAnalyzer $componentObjectConfigAnalyzer;
+
+    private ExpressionTypeAnalyzer $expressionTypeAnalyzer;
+
+    private ExpressionValueResolver $expressionValueResolver;
+
     /** @var array<string, string> */
     private array $customValidators;
 
@@ -66,10 +75,16 @@ final class ModelRulesValidationRule implements Rule
     public function __construct(
         BaseObjectConfigAnalyzer $baseObjectConfigAnalyzer,
         ComponentConfigMethodAnalyzer $componentConfigMethodAnalyzer,
+        ComponentObjectConfigAnalyzer $componentObjectConfigAnalyzer,
+        ExpressionTypeAnalyzer $expressionTypeAnalyzer,
+        ExpressionValueResolver $expressionValueResolver,
         array $customValidators
     ) {
         $this->baseObjectConfigAnalyzer = $baseObjectConfigAnalyzer;
         $this->componentConfigMethodAnalyzer = $componentConfigMethodAnalyzer;
+        $this->componentObjectConfigAnalyzer = $componentObjectConfigAnalyzer;
+        $this->expressionTypeAnalyzer = $expressionTypeAnalyzer;
+        $this->expressionValueResolver = $expressionValueResolver;
         $this->customValidators = $customValidators;
     }
 
@@ -112,11 +127,11 @@ final class ModelRulesValidationRule implements Rule
                 continue;
             }
 
-            if ($this->baseObjectConfigAnalyzer->isObjectOf($item->value, $scope, Validator::class)) {
+            if ($this->expressionTypeAnalyzer->isObjectOf($item->value, $scope, Validator::class)) {
                 continue;
             }
 
-            if ($this->baseObjectConfigAnalyzer->isDefinitelyNotArrayOrObjectOf($item->value, $scope, Validator::class)) {
+            if ($this->expressionTypeAnalyzer->isDefinitelyNotArrayOrObjectOf($item->value, $scope, Validator::class)) {
                 $errors[] = $this->buildError(
                     'Model validation rule must be an array or a yii\validators\Validator instance.',
                     $item->value,
@@ -141,7 +156,7 @@ final class ModelRulesValidationRule implements Rule
         if ($attributeIndex !== null) {
             if (!isset($items[$attributeIndex])) {
                 $errors[] = $this->buildError('Model validation rule must specify attribute names at index 0.', $rule);
-            } elseif ($this->baseObjectConfigAnalyzer->isNullExpression($items[$attributeIndex]->value)) {
+            } elseif ($this->expressionValueResolver->isNullExpression($items[$attributeIndex]->value)) {
                 $errors[] = $this->buildError(
                     'Model validation rule attribute names at index 0 cannot be null.',
                     $items[$attributeIndex]->value
@@ -165,7 +180,7 @@ final class ModelRulesValidationRule implements Rule
         }
 
         $validatorTypeExpr = $items[$validatorTypeIndex]->value;
-        if ($this->baseObjectConfigAnalyzer->isNullExpression($validatorTypeExpr)) {
+        if ($this->expressionValueResolver->isNullExpression($validatorTypeExpr)) {
             $errors[] = $this->buildError(
                 $embedded
                     ? 'Embedded validation rule validator type at index 0 cannot be null.'
@@ -185,7 +200,7 @@ final class ModelRulesValidationRule implements Rule
             return $errors;
         }
 
-        $validatorName = $this->baseObjectConfigAnalyzer->getSingleStringValue($validatorTypeExpr, $scope);
+        $validatorName = $this->expressionValueResolver->getSingleStringValue($validatorTypeExpr, $scope);
         $validatorClass = $this->resolveKnownValidatorClass($validatorTypeExpr, $validatorName, $scope);
         if ($validatorClass === null) {
             if ($validatorName !== null) {
@@ -253,7 +268,7 @@ final class ModelRulesValidationRule implements Rule
                     continue;
                 }
 
-                if ($this->baseObjectConfigAnalyzer->isDefinitelyNotString($item->value, $scope)) {
+                if ($this->expressionTypeAnalyzer->isDefinitelyNotString($item->value, $scope)) {
                     $errors[] = $this->buildError(
                         'Model validation rule attributes must be strings.',
                         $item->value
@@ -264,7 +279,7 @@ final class ModelRulesValidationRule implements Rule
             return $errors;
         }
 
-        if ($this->baseObjectConfigAnalyzer->isDefinitelyNotString($attributesExpr, $scope)) {
+        if ($this->expressionTypeAnalyzer->isDefinitelyNotString($attributesExpr, $scope)) {
             return [
                 $this->buildError(
                     'Model validation rule attributes must be a string or array of strings.',
@@ -284,7 +299,7 @@ final class ModelRulesValidationRule implements Rule
      */
     private function validateOptionNames(string $validatorClass, array $options): array
     {
-        return $this->baseObjectConfigAnalyzer->validateObjectOptionNames(
+        return $this->componentObjectConfigAnalyzer->validateObjectOptionNames(
             $validatorClass,
             $options,
             'validator',
@@ -300,7 +315,7 @@ final class ModelRulesValidationRule implements Rule
      */
     private function validateOptionValueTypes(string $validatorClass, array $options, Scope $scope): array
     {
-        return $this->baseObjectConfigAnalyzer->validateObjectOptionValueTypes(
+        return $this->componentObjectConfigAnalyzer->validateObjectOptionValueTypes(
             $validatorClass,
             $options,
             $scope,
@@ -325,7 +340,7 @@ final class ModelRulesValidationRule implements Rule
         foreach (self::REQUIRED_OPTIONS[$validatorName] as $optionName) {
             if (
                 !isset($options[$optionName])
-                || $this->baseObjectConfigAnalyzer->isNullExpression($options[$optionName]->value)
+                || $this->expressionValueResolver->isNullExpression($options[$optionName]->value)
             ) {
                 $errors[] = $this->buildError(
                     sprintf('Validator "%s" requires option "%s".', $validatorName, $optionName),
@@ -351,7 +366,7 @@ final class ModelRulesValidationRule implements Rule
         $errors = [];
 
         if ($validatorName === 'compare' && isset($options['operator'])) {
-            $operator = $this->baseObjectConfigAnalyzer->getSingleStringValue($options['operator']->value, $scope);
+            $operator = $this->expressionValueResolver->getSingleStringValue($options['operator']->value, $scope);
             if ($operator !== null && !in_array($operator, self::COMPARE_OPERATORS, true)) {
                 $errors[] = $this->buildError(
                     sprintf('Unknown compare validator operator "%s".', $operator),
@@ -361,7 +376,7 @@ final class ModelRulesValidationRule implements Rule
         }
 
         if (in_array($validatorName, ['date', 'datetime', 'time'], true) && isset($options['type'])) {
-            $dateType = $this->baseObjectConfigAnalyzer->getSingleStringValue($options['type']->value, $scope);
+            $dateType = $this->expressionValueResolver->getSingleStringValue($options['type']->value, $scope);
             if ($dateType !== null && !in_array($dateType, self::DATE_TYPES, true)) {
                 $errors[] = $this->buildError(
                     sprintf('Unknown date validator type "%s".', $dateType),
@@ -371,8 +386,8 @@ final class ModelRulesValidationRule implements Rule
         }
 
         if ($validatorName === 'ip' && isset($options['ipv4'], $options['ipv6'])) {
-            $ipv4 = $this->baseObjectConfigAnalyzer->getConstantBoolean($options['ipv4']->value, $scope);
-            $ipv6 = $this->baseObjectConfigAnalyzer->getConstantBoolean($options['ipv6']->value, $scope);
+            $ipv4 = $this->expressionValueResolver->getConstantBoolean($options['ipv4']->value, $scope);
+            $ipv6 = $this->expressionValueResolver->getConstantBoolean($options['ipv6']->value, $scope);
             if ($ipv4 === false && $ipv6 === false) {
                 $errors[] = $this->buildError(
                     'IP validator cannot disable both IPv4 and IPv6 checks.',
@@ -417,9 +432,9 @@ final class ModelRulesValidationRule implements Rule
      */
     private function validatePatternOption(Expr $patternExpr, Scope $scope): array
     {
-        $pattern = $this->baseObjectConfigAnalyzer->getSingleStringValue($patternExpr, $scope);
+        $pattern = $this->expressionValueResolver->getSingleStringValue($patternExpr, $scope);
         if ($pattern === null) {
-            if ($this->baseObjectConfigAnalyzer->isDefinitelyNotString($patternExpr, $scope)) {
+            if ($this->expressionTypeAnalyzer->isDefinitelyNotString($patternExpr, $scope)) {
                 return [$this->buildError('Match validator option "pattern" must be a string.', $patternExpr)];
             }
 
@@ -488,7 +503,7 @@ final class ModelRulesValidationRule implements Rule
                     continue;
                 }
 
-                if ($this->baseObjectConfigAnalyzer->isDefinitelyNotString($item->value, $scope)) {
+                if ($this->expressionTypeAnalyzer->isDefinitelyNotString($item->value, $scope)) {
                     $errors[] = $this->buildError(
                         sprintf('Validator option "%s" must contain only scenario names as strings.', $optionName),
                         $item->value
@@ -499,7 +514,7 @@ final class ModelRulesValidationRule implements Rule
             return $errors;
         }
 
-        if ($this->baseObjectConfigAnalyzer->isDefinitelyNotString($optionExpr, $scope)) {
+        if ($this->expressionTypeAnalyzer->isDefinitelyNotString($optionExpr, $scope)) {
             return [
                 $this->buildError(
                     sprintf('Validator option "%s" must be a string or array of strings.', $optionName),
@@ -532,7 +547,7 @@ final class ModelRulesValidationRule implements Rule
 
             if (
                 is_string($builtInValidatorClass)
-                && $this->baseObjectConfigAnalyzer->isClassNameOf($builtInValidatorClass, Validator::class)
+                && $this->expressionTypeAnalyzer->isClassNameOf($builtInValidatorClass, Validator::class)
             ) {
                 return $builtInValidatorClass;
             }
@@ -542,12 +557,12 @@ final class ModelRulesValidationRule implements Rule
 
         if (isset($this->customValidators[$validatorName])) {
             $customValidatorClass = $this->customValidators[$validatorName];
-            if ($this->baseObjectConfigAnalyzer->isClassNameOf($customValidatorClass, Validator::class)) {
+            if ($this->expressionTypeAnalyzer->isClassNameOf($customValidatorClass, Validator::class)) {
                 return $customValidatorClass;
             }
         }
 
-        if ($this->baseObjectConfigAnalyzer->isClassNameOf($validatorName, Validator::class)) {
+        if ($this->expressionTypeAnalyzer->isClassNameOf($validatorName, Validator::class)) {
             return $validatorName;
         }
 

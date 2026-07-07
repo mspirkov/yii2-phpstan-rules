@@ -42,6 +42,7 @@ final class ModelRulesValidationRuleTest extends RuleTestCase
                 ['Model validation rule must be an array or a yii\validators\Validator instance.', 62],
                 ['Unknown option "lenght" for validator MSpirkov\Yii2\PHPStan\Tests\Rules\Source\ModelRulesValidation\ProjectSpecificValidator.', 63],
                 ['Validator option "ipv4" for yii\validators\IpValidator must be bool, int given.', 128],
+                ['Unknown option "current" for validator yii\validators\StringValidator.', 132],
                 ['Model validation rule must specify attribute names at index 0.', 170],
                 ['Model validation rule attribute names at index 0 cannot be null.', 171],
                 ['Model validation rule validator type at index 1 cannot be null.', 172],

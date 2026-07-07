@@ -10,17 +10,12 @@ use PhpParser\Node;
 use PhpParser\Node\ArrayItem;
 use PhpParser\Node\Expr;
 use PhpParser\Node\Expr\Array_;
-use PhpParser\Node\Expr\ConstFetch;
-use PhpParser\Node\Expr\FuncCall;
-use PhpParser\Node\Name;
 use PhpParser\Node\Scalar\Int_;
 use PhpParser\Node\Scalar\String_;
 use PHPStan\Analyser\Scope;
 use PHPStan\Reflection\ReflectionProvider;
 use PHPStan\Rules\IdentifierRuleError;
-use PHPStan\Type\BooleanType;
 use PHPStan\Type\MixedType;
-use PHPStan\Type\ObjectType;
 use PHPStan\Type\VerbosityLevel;
 
 final class BaseObjectConfigAnalyzer
@@ -29,7 +24,6 @@ final class BaseObjectConfigAnalyzer
     private const SPECIAL_CONFIG_KEYS = [
         '__class',
         'class',
-        'current',
     ];
 
     private ReflectionProvider $reflectionProvider;
@@ -97,92 +91,6 @@ final class BaseObjectConfigAnalyzer
         return $items;
     }
 
-    public function getConstantBoolean(Expr $expr, Scope $scope): ?bool
-    {
-        $type = $scope->getType($expr);
-
-        if ((new BooleanType())->isSuperTypeOf($type)->no()) {
-            return null;
-        }
-
-        if ($type->isTrue()->yes()) {
-            return true;
-        }
-
-        if ($type->isFalse()->yes()) {
-            return false;
-        }
-
-        return null;
-    }
-
-    public function getSingleStringValue(Expr $expr, Scope $scope): ?string
-    {
-        if ($expr instanceof String_) {
-            return $expr->value;
-        }
-
-        $constantStrings = $scope->getType($expr)->getConstantStrings();
-        if (count($constantStrings) !== 1) {
-            return null;
-        }
-
-        return $constantStrings[0]->getValue();
-    }
-
-    public function hasClass(string $className): bool
-    {
-        return $this->reflectionProvider->hasClass($className);
-    }
-
-    /**
-     * @template T of object
-     *
-     * @param class-string<T> $parentClass
-     *
-     * @phpstan-assert-if-true class-string<T> $className
-     */
-    public function isClassNameOf(string $className, string $parentClass): bool
-    {
-        if (!$this->reflectionProvider->hasClass($className)) {
-            return false;
-        }
-
-        $classReflection = $this->reflectionProvider->getClass($className);
-
-        return $classReflection->is($parentClass) || $classReflection->isSubclassOf($parentClass);
-    }
-
-    public function isDefinitelyNotArrayOrObjectOf(Expr $expr, Scope $scope, string $className): bool
-    {
-        $type = $scope->getType($expr);
-        if (!$type->isArray()->no()) {
-            return false;
-        }
-
-        return (new ObjectType($className))->isSuperTypeOf($type)->no();
-    }
-
-    public function isDefinitelyNotString(Expr $expr, Scope $scope): bool
-    {
-        return $scope->getType($expr)->isString()->no();
-    }
-
-    public function isFunctionCallNamed(FuncCall $funcCall, string $name): bool
-    {
-        return $funcCall->name instanceof Name && strtolower($funcCall->name->toString()) === $name;
-    }
-
-    public function isNullExpression(Expr $expr): bool
-    {
-        return $expr instanceof ConstFetch && strtolower($expr->name->toString()) === 'null';
-    }
-
-    public function isObjectOf(Expr $expr, Scope $scope, string $className): bool
-    {
-        return (new ObjectType($className))->isSuperTypeOf($scope->getType($expr))->yes();
-    }
-
     /**
      * @param class-string $className
      * @param array<string, ArrayItem> $options
@@ -201,10 +109,6 @@ final class BaseObjectConfigAnalyzer
 
         foreach ($options as $optionName => $item) {
             if (isset($writableProperties[$optionName])) {
-                continue;
-            }
-
-            if ($this->isEventOrBehaviorConfigKey($optionName)) {
                 continue;
             }
 
@@ -359,18 +263,12 @@ final class BaseObjectConfigAnalyzer
         return $this->writablePropertiesByClass[$className] = $properties;
     }
 
-    private function isEventOrBehaviorConfigKey(string $optionName): bool
-    {
-        return strncmp($optionName, 'on ', 3) === 0 || strncmp($optionName, 'as ', 3) === 0;
-    }
-
     /**
      * @param list<string> $typeCheckSkippedOptions
      */
     private function shouldSkipOptionTypeCheck(string $optionName, array $typeCheckSkippedOptions): bool
     {
         return in_array($optionName, self::SPECIAL_CONFIG_KEYS, true)
-            || in_array($optionName, $typeCheckSkippedOptions, true)
-            || $this->isEventOrBehaviorConfigKey($optionName);
+            || in_array($optionName, $typeCheckSkippedOptions, true);
     }
 }

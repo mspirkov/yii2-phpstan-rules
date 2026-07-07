@@ -33,12 +33,6 @@ final class ValidComponent extends Component
                 'class' => NotBehavior::class,
                 'name' => 'preferredClassKey',
             ],
-            [
-                'class' => ProjectBehavior::class,
-                'on beforeValidate' => static function (): void {
-                },
-                'as nested' => ProjectBehavior::class,
-            ],
             new ProjectBehavior(),
             $dynamicBehavior,
             ...$dynamicList,
@@ -74,6 +68,9 @@ final class InvalidComponent extends Component
             ['class' => 'MissingBehavior'],
             ['class' => ProjectBehavior::class, 'unexpected numeric option'],
             ['class' => ProjectBehavior::class, 'unknown' => 1],
+            ['class' => ProjectBehavior::class, 'on beforeValidate' => static function (): void {
+            }],
+            ['class' => ProjectBehavior::class, 'as nested' => ProjectBehavior::class],
             ['class' => ProjectBehavior::class, 'enabled' => 1],
             ['__class' => ProjectBehavior::class, 'enabled' => 'yes'],
             ['class' => ProjectBehavior::class, 'threshold' => 'high'],

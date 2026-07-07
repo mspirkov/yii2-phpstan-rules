@@ -179,4 +179,10 @@ services:
 	-
 		class: MSpirkov\Yii2\PHPStan\Analyzers\ComponentConfigMethodAnalyzer
 	-
+		class: MSpirkov\Yii2\PHPStan\Analyzers\ComponentObjectConfigAnalyzer
+	-
+		class: MSpirkov\Yii2\PHPStan\Analyzers\ExpressionTypeAnalyzer
+	-
 		class: MSpirkov\Yii2\PHPStan\Finders\MethodReturnExpressionFinder
+	-
+		class: MSpirkov\Yii2\PHPStan\Resolvers\ExpressionValueResolver
