@@ -189,36 +189,6 @@ $id = $this->request->get('id');
 
 Covers `$_GET`, `$_POST`, `$_REQUEST`, `$_SESSION`, `$_COOKIE`, `$_FILES`, and `$_SERVER`, each pointing at the matching `yii\web\Request` / `Session` / `UploadedFile` API.
 
-### Component behaviors that lie
-
-`Component::behaviors()` uses Yii object configs, so typos usually wait until runtime. This rule checks statically visible behavior definitions on `yii\base\Component` subclasses, including models: class strings, `class` / `__class` config arrays, direct `Behavior` instances, unknown classes, classes that do not extend `yii\base\Behavior`, unknown config options, and option value types inferred from public properties or setters.
-
-```php
-public function behaviors(): array
-{
-    return [
-        'timestamp' => [
-            'class' => TimestampBehavior::class,
-            'createdAtAtribute' => 'created_at',     // ✗ typo — unknown option
-        ],
-        'typecast' => [
-            'class' => AttributeTypecastBehavior::class,
-            'attributeTypes' => [
-                'views_count' => AttributeTypecastBehavior::TYPE_INTEGER,
-                'is_published' => AttributeTypecastBehavior::TYPE_BOOLEAN,
-            ],
-            'typecastAfterValidate' => 1,            // ✗ bool expected
-        ],
-        'invalid' => stdClass::class,                // ✗ not a yii\base\Behavior
-
-        'slug' => [
-            'class' => SluggableBehavior::class,
-            'attribute' => 'title',                  // ✓
-        ],
-    ];
-}
-```
-
 ### Active Record relations that lie
 
 `hasOne()` and `hasMany()` relation links are plain string arrays: the array keys belong to the related AR class, and the values belong to the current AR class. This rule checks that those properties exist, including properties declared through PHPDoc `@property`.
@@ -270,6 +240,36 @@ final class Order extends ActiveRecord
         // ✓
         return $this->hasOne(Customer::class, ['id' => 'customer_id']);
     }
+}
+```
+
+### Component behaviors that lie
+
+`Component::behaviors()` uses Yii object configs, so typos usually wait until runtime. This rule checks statically visible behavior definitions on `yii\base\Component` subclasses, including models: class strings, `class` / `__class` config arrays, direct `Behavior` instances, unknown classes, classes that do not extend `yii\base\Behavior`, unknown config options, and option value types inferred from public properties or setters.
+
+```php
+public function behaviors(): array
+{
+    return [
+        'timestamp' => [
+            'class' => TimestampBehavior::class,
+            'createdAtAtribute' => 'created_at',     // ✗ typo — unknown option
+        ],
+        'typecast' => [
+            'class' => AttributeTypecastBehavior::class,
+            'attributeTypes' => [
+                'views_count' => AttributeTypecastBehavior::TYPE_INTEGER,
+                'is_published' => AttributeTypecastBehavior::TYPE_BOOLEAN,
+            ],
+            'typecastAfterValidate' => 1,            // ✗ bool expected
+        ],
+        'invalid' => stdClass::class,                // ✗ not a yii\base\Behavior
+
+        'slug' => [
+            'class' => SluggableBehavior::class,
+            'attribute' => 'title',                  // ✓
+        ],
+    ];
 }
 ```
 
