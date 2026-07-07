@@ -90,19 +90,12 @@ final class ActiveRecordRelationValidationRule implements Rule
         }
 
         if (!$this->expressionTypeAnalyzer->isClassNameOf($relatedClassName, BaseActiveRecord::class)) {
-            return [
-                $this->buildError(
-                    sprintf(
-                        'Related class "%s" in %s() relation must be yii\db\BaseActiveRecord or its subclass.',
-                        $relatedClassName,
-                        $node->name->name
-                    ),
-                    $node->args[0]->value
-                ),
-            ];
+            // PHPStan already catches these errors, so there's no need to duplicate them
+            return [];
         }
 
         if (!$node->args[1]->value instanceof Array_) {
+            // PHPStan already catches these errors, so there's no need to duplicate them
             return [];
         }
 
@@ -149,9 +142,10 @@ final class ActiveRecordRelationValidationRule implements Rule
                 continue;
             }
 
-            $relatedProperty = $this->resolveLinkKey($item, $relationMethod, $scope, $errors);
-            $currentProperty = $this->resolveLinkValue($item, $relationMethod, $scope, $errors);
+            $relatedProperty = $this->resolveLinkKey($item, $scope);
+            $currentProperty = $this->resolveLinkValue($item, $scope);
 
+            // We simply skip invalid links, as PHPStan will catch these errors thanks to PHPDoc annotations.
             if ($relatedProperty === null || $currentProperty === null) {
                 continue;
             }
@@ -184,53 +178,18 @@ final class ActiveRecordRelationValidationRule implements Rule
         return $errors;
     }
 
-    /**
-     * @param list<IdentifierRuleError> $errors
-     */
-    private function resolveLinkKey(ArrayItem $item, string $relationMethod, Scope $scope, array &$errors): ?string
+    private function resolveLinkKey(ArrayItem $item, Scope $scope): ?string
     {
         if (!$item->key instanceof Expr) {
-            $errors[] = $this->buildError(
-                sprintf('%s() relation link keys must be strings.', $relationMethod),
-                $item
-            );
-
             return null;
         }
 
-        $value = $this->expressionValueResolver->getSingleStringValue($item->key, $scope);
-        if ($value !== null) {
-            return $value;
-        }
-
-        if ($this->expressionTypeAnalyzer->isDefinitelyNotString($item->key, $scope)) {
-            $errors[] = $this->buildError(
-                sprintf('%s() relation link keys must be strings.', $relationMethod),
-                $item->key
-            );
-        }
-
-        return null;
+        return $this->expressionValueResolver->getSingleStringValue($item->key, $scope);
     }
 
-    /**
-     * @param list<IdentifierRuleError> $errors
-     */
-    private function resolveLinkValue(ArrayItem $item, string $relationMethod, Scope $scope, array &$errors): ?string
+    private function resolveLinkValue(ArrayItem $item, Scope $scope): ?string
     {
-        $value = $this->expressionValueResolver->getSingleStringValue($item->value, $scope);
-        if ($value !== null) {
-            return $value;
-        }
-
-        if ($this->expressionTypeAnalyzer->isDefinitelyNotString($item->value, $scope)) {
-            $errors[] = $this->buildError(
-                sprintf('%s() relation link values must be strings.', $relationMethod),
-                $item->value
-            );
-        }
-
-        return null;
+        return $this->expressionValueResolver->getSingleStringValue($item->value, $scope);
     }
 
     private function buildError(string $message, Node $node): IdentifierRuleError

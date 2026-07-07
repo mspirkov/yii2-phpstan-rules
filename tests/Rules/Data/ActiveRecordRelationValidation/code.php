@@ -4,6 +4,7 @@ namespace MSpirkov\Yii2\PHPStan\Tests\Rules\Data\ActiveRecordRelationValidation;
 
 use MSpirkov\Yii2\PHPStan\Tests\Rules\Source\ActiveRecordRelationValidation\Country;
 use MSpirkov\Yii2\PHPStan\Tests\Rules\Source\ActiveRecordRelationValidation\Order;
+use MSpirkov\Yii2\PHPStan\Tests\Rules\Source\ActiveRecordRelationValidation\RelationFactory;
 use stdClass;
 use yii\db\ActiveRecord;
 
@@ -55,15 +56,5 @@ final class Customer extends ActiveRecord
     private function getDynamicRelatedClassName(): string
     {
         return Country::class;
-    }
-}
-
-final class RelationFactory
-{
-    /**
-     * @param array<string, string> $link
-     */
-    public function hasOne(string $class, array $link): void
-    {
     }
 }
