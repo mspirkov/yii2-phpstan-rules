@@ -81,21 +81,14 @@ final class ActiveRecordRelationValidationRule implements Rule
         }
 
         if (!$this->expressionTypeAnalyzer->hasClass($relatedClassName)) {
-            return [
-                $this->buildError(
-                    sprintf('Unknown related ActiveRecord class "%s" in %s() relation.', $relatedClassName, $node->name->name),
-                    $node->args[0]->value
-                ),
-            ];
+            return [];
         }
 
         if (!$this->expressionTypeAnalyzer->isClassNameOf($relatedClassName, BaseActiveRecord::class)) {
-            // PHPStan already catches these errors, so there's no need to duplicate them
             return [];
         }
 
         if (!$node->args[1]->value instanceof Array_) {
-            // PHPStan already catches these errors, so there's no need to duplicate them
             return [];
         }
 
@@ -145,7 +138,6 @@ final class ActiveRecordRelationValidationRule implements Rule
             $relatedProperty = $this->resolveLinkKey($item, $scope);
             $currentProperty = $this->resolveLinkValue($item, $scope);
 
-            // We simply skip invalid links, as PHPStan will catch these errors thanks to PHPDoc annotations.
             if ($relatedProperty === null || $currentProperty === null) {
                 continue;
             }

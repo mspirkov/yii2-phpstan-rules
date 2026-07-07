@@ -28,7 +28,6 @@ final class ActiveRecordRelationValidationRuleTest extends RuleTestCase
                 [sprintf('Unknown property "missing_country_id" for current ActiveRecord %s in hasOne() relation link.', $customerClass), 47],
                 [sprintf('Unknown property "missing_customer_id" for related ActiveRecord %s in hasMany() relation link.', $orderClass), 48],
                 [sprintf('Unknown property "missing_id" for current ActiveRecord %s in hasMany() relation link.', $customerClass), 48],
-                ['Unknown related ActiveRecord class "MissingRecord" in hasOne() relation.', 52],
             ],
         );
     }
