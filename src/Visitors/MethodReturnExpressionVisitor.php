@@ -15,21 +15,21 @@ use PhpParser\Node\Stmt\Return_;
 final class MethodReturnExpressionVisitor extends NodeVisitorAbstract
 {
     /** @var list<Expr> */
-    private array $returnExpressions = [];
+    private array $expressions = [];
 
     /**
      * @return list<Expr>
      */
     public function getExpressions(): array
     {
-        return $this->returnExpressions;
+        return $this->expressions;
     }
 
     public function enterNode(Node $node): ?int
     {
         if ($node instanceof Return_) {
             if ($node->expr instanceof Expr) {
-                $this->returnExpressions[] = $node->expr;
+                $this->expressions[] = $node->expr;
             }
 
             return NodeVisitor::DONT_TRAVERSE_CHILDREN;
