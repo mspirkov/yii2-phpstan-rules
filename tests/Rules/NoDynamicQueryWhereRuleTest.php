@@ -18,10 +18,10 @@ final class NoDynamicQueryWhereRuleTest extends RuleTestCase
         $this->analyse(
             [__DIR__ . '/Data/NoDynamicQueryWhere/code.php'],
             [
-                ['Dynamic string conditions in Query::where() are forbidden. Use array condition syntax, for example ["column" => $columnValue].', 11],
-                ['Dynamic string conditions in Query::where() are forbidden. Use array condition syntax, for example ["column" => $columnValue].', 13],
-                ['Dynamic string conditions in Query::where() are forbidden. Use array condition syntax, for example ["column" => $columnValue].', 15],
-                ['Dynamic string conditions in Query::where() are forbidden. Use array condition syntax, for example ["column" => $columnValue].', 38],
+                ['Dynamic string conditions in Query::where() are forbidden. Use array condition syntax, for example [\'column\' => $columnValue].', 11],
+                ['Dynamic string conditions in Query::where() are forbidden. Use array condition syntax, for example [\'column\' => $columnValue].', 13],
+                ['Dynamic string conditions in Query::where() are forbidden. Use array condition syntax, for example [\'column\' => $columnValue].', 15],
+                ['Dynamic string conditions in Query::where() are forbidden. Use array condition syntax, for example [\'column\' => $columnValue].', 38],
             ],
         );
     }

@@ -63,7 +63,7 @@ final class NoDynamicQueryWhereRule implements Rule
         return [
             ErrorBuilder::build(
                 'Dynamic string conditions in Query::where() are forbidden. Use array '
-                    . 'condition syntax, for example ["column" => $columnValue].',
+                    . 'condition syntax, for example [\'column\' => $columnValue].',
                 Identifiers::NO_DYNAMIC_QUERY_WHERE
             ),
         ];
