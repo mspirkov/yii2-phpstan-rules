@@ -49,6 +49,6 @@ abstract class AbstractTestCase extends RuleTestCase
     {
         $ruleClassParts = explode('\\', static::getRuleClass());
 
-        return (string) substr($ruleClassParts[count($ruleClassParts) - 1], 0, -4);
+        return substr($ruleClassParts[count($ruleClassParts) - 1], 0, -4) . '';
     }
 }
