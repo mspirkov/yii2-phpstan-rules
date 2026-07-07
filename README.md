@@ -16,21 +16,21 @@ A set of PHPStan rules for Yii2 projects that I put together for my own day-to-d
 
 ## What's inside
 
-| Rule                                                                   | Catches                                                                                                                      |
-| ---------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
-| [`noComplexControllerActions`](#complexity-limits)                     | Controller actions with too much branching/looping — logic that belongs in a service                                         |
-| [`noComplexActionClasses`](#complexity-limits)                         | The same, for standalone `yii\base\Action` classes                                                                           |
-| [`noControllerActionCallsViaThis`](#no-calling-actions-via-this)       | `$this->actionFoo()` inside a controller instead of a redirect or shared method                                              |
-| [`noDbQueriesInControllers`](#no-database-access-outside-repositories) | Direct DB/ActiveRecord access in controllers                                                                                 |
-| [`noDbQueriesInActions`](#no-database-access-outside-repositories)     | Direct DB/ActiveRecord access in `Action` classes                                                                            |
-| [`noDbQueriesInViews`](#no-database-access-outside-repositories)       | Direct DB/ActiveRecord access in view files                                                                                  |
-| [`noDynamicQueryWhere`](#no-dynamic-sql-strings)                       | String-concatenated conditions passed to `Query::where()` / `andWhere()`                                                     |
-| [`noForbiddenYiiAppProperties`](#taming-yiiapp)                        | Reads of arbitrary `Yii::$app->*` components                                                                                 |
-| [`noYiiAppPropertyMutation`](#taming-yiiapp)                           | Writes to `Yii::$app` properties, including `setComponents()`                                                                |
-| [`noDirectSuperglobals`](#no-raw-superglobals)                         | Direct use of `$_GET`, `$_POST`, `$_SESSION`, etc.                                                                           |
-| [`componentBehaviorsValidation`](#component-behaviors-that-lie)        | Malformed or invalid `behaviors()` in `yii\base\Component` — unknown behavior classes, bad config keys, and bad option types |
-| [`activeRecordRelationValidation`](#active-record-relations-that-lie)  | Invalid `hasOne()` / `hasMany()` link properties that do not exist on the current or related ActiveRecord model              |
-| [`modelRulesValidation`](#model-validation-rules-that-lie)             | Malformed or invalid `rules()` in `yii\base\Model` — unknown validators, missing required options, bad regexes, and more     |
+| Rule                                                                    | Catches                                                                                                                      |
+| ----------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| [`activeRecordRelationValidation`](#active-record-relations-validation) | Invalid `hasOne()` / `hasMany()` link properties that do not exist on the current or related ActiveRecord model              |
+| [`componentBehaviorsValidation`](#component-behaviors-validation)       | Malformed or invalid `behaviors()` in `yii\base\Component` — unknown behavior classes, bad config keys, and bad option types |
+| [`modelRulesValidation`](#model-validation-rules-validation)            | Malformed or invalid `rules()` in `yii\base\Model` — unknown validators, missing required options, bad regexes, and more     |
+| [`noComplexControllerActions`](#complexity-limits)                      | Controller actions with too much branching/looping — logic that belongs in a service                                         |
+| [`noComplexActionClasses`](#complexity-limits)                          | The same, for standalone `yii\base\Action` classes                                                                           |
+| [`noControllerActionCallsViaThis`](#no-calling-actions-via-this)        | `$this->actionFoo()` inside a controller instead of a redirect or shared method                                              |
+| [`noDbQueriesInControllers`](#no-database-access-outside-repositories)  | Direct DB/ActiveRecord access in controllers                                                                                 |
+| [`noDbQueriesInActions`](#no-database-access-outside-repositories)      | Direct DB/ActiveRecord access in `Action` classes                                                                            |
+| [`noDbQueriesInViews`](#no-database-access-outside-repositories)        | Direct DB/ActiveRecord access in view files                                                                                  |
+| [`noDynamicQueryWhere`](#no-dynamic-sql-strings)                        | String-concatenated conditions passed to `Query::where()` / `andWhere()`                                                     |
+| [`noForbiddenYiiAppProperties`](#taming-yiiapp)                         | Reads of arbitrary `Yii::$app->*` components                                                                                 |
+| [`noYiiAppPropertyMutation`](#taming-yiiapp)                            | Writes to `Yii::$app` properties, including `setComponents()`                                                                |
+| [`noDirectSuperglobals`](#no-raw-superglobals)                          | Direct use of `$_GET`, `$_POST`, `$_SESSION`, etc.                                                                           |
 
 Every rule ships with its own PHPStan error identifier (`mspirkovYii2Rules.*`), so you can target `ignoreErrors` precisely instead of silencing a whole rule.
 
@@ -56,8 +56,6 @@ All rules are on by default. Turn the whole set off, or tune individual rules, u
 ```neon
 parameters:
     mspirkovYii2Rules:
-        enableAllRules: true
-
         # Component IDs treated as "the database" by the DB-access rules
         yiiAppDbProperties:
             - db
@@ -94,6 +92,109 @@ parameters:
 ```
 
 ## The rules
+
+### Active Record relations validation
+
+`hasOne()` and `hasMany()` relation links are plain string arrays: the array keys belong to the related AR class, and the values belong to the current AR class. This rule checks that those properties exist, including properties declared through PHPDoc `@property`.
+
+```php
+/**
+ * @property int $id
+ * @property int $customer_id
+ * @property int $shipping_address_id
+ */
+final class Order extends ActiveRecord
+{
+    public function getShippingAddress(): ActiveQuery
+    {
+        // ✗ missing property "uuid" on Address
+        return $this->hasOne(Address::class, ['uuid' => 'shipping_address_id']);
+    }
+
+    public function getItems(): ActiveQuery
+    {
+        // ✗ missing property "order_uuid" on Order
+        return $this->hasMany(OrderItem::class, ['order_id' => 'order_uuid']);
+    }
+
+    public function getCustomer(): ActiveQuery
+    {
+        // ✓
+        return $this->hasOne(Customer::class, ['id' => 'customer_id']);
+    }
+}
+
+/**
+ * @property int $id
+ */
+final class Customer extends ActiveRecord
+{
+}
+
+/**
+ * @property int $id
+ */
+final class Address extends ActiveRecord
+{
+}
+
+/**
+ * @property int $id
+ * @property int $order_id
+ */
+final class OrderItem extends ActiveRecord
+{
+}
+```
+
+### Component behaviors validation
+
+`Component::behaviors()` uses Yii object configs, so typos usually wait until runtime. This rule checks statically visible behavior definitions on `yii\base\Component` subclasses, including models: class strings, `class` / `__class` config arrays, direct `Behavior` instances, unknown classes, classes that do not extend `yii\base\Behavior`, unknown config options, and option value types inferred from public properties or setters.
+
+```php
+public function behaviors(): array
+{
+    return [
+        'timestamp' => [
+            'class' => TimestampBehavior::class,
+            'createdAtAtribute' => 'created_at',     // ✗ typo — unknown option
+        ],
+        'typecast' => [
+            'class' => AttributeTypecastBehavior::class,
+            'attributeTypes' => [
+                'views_count' => AttributeTypecastBehavior::TYPE_INTEGER,
+                'is_published' => AttributeTypecastBehavior::TYPE_BOOLEAN,
+            ],
+            'typecastAfterValidate' => 1,            // ✗ bool expected
+        ],
+        'invalid' => stdClass::class,                // ✗ not a yii\base\Behavior
+
+        'slug' => [
+            'class' => SluggableBehavior::class,
+            'attribute' => 'title',                  // ✓
+        ],
+    ];
+}
+```
+
+### Model validation rules validation
+
+`Model::rules()` is just a plain array — PHP will never tell you that you forgot a validator's required option, wrote an invalid regex, or misconfigured one of its options. For every rule entry the validator type resolves to (a built-in alias like `required`/`string`/`number`/`compare`/`date`/`match`/`in`/`unique`/`exist`/`file`/`image`/`ip`/`url`, a custom `Validator` subclass, a configured project alias, or an inline closure/method), this rule statically checks the option array against what that validator actually accepts and requires. A validator name it can't resolve is reported as an error; add project-specific aliases under `modelRulesValidation.customValidators`:
+
+```php
+public function rules(): array
+{
+    return [
+        ['email', 'string', 'lenght' => 255],             // ✗ typo — unknown option "lenght" for StringValidator
+        ['code', 'match', 'pattern' => '/[/'],            // ✗ invalid regular expression
+        ['ip', 'ip', 'ipv4' => false, 'ipv6' => false],   // ✗ disables both protocols
+        ['message', 'string', 'max' => 'invalid'],        // ✗ 'max' must be int|null
+        ['status', 'someUnregisteredAlias'],              // ✗ unknown validator
+
+        ['name', 'string', 'max' => 255],                 // ✓
+    ];
+}
+```
 
 ### Complexity limits
 
@@ -188,103 +289,3 @@ $id = $this->request->get('id');
 ```
 
 Covers `$_GET`, `$_POST`, `$_REQUEST`, `$_SESSION`, `$_COOKIE`, `$_FILES`, and `$_SERVER`, each pointing at the matching `yii\web\Request` / `Session` / `UploadedFile` API.
-
-### Component behaviors that lie
-
-`Component::behaviors()` uses Yii object configs, so typos usually wait until runtime. This rule checks statically visible behavior definitions on `yii\base\Component` subclasses, including models: class strings, `class` / `__class` config arrays, direct `Behavior` instances, unknown classes, classes that do not extend `yii\base\Behavior`, unknown config options, and option value types inferred from public properties or setters.
-
-```php
-public function behaviors(): array
-{
-    return [
-        'timestamp' => [
-            'class' => TimestampBehavior::class,
-            'createdAtAtribute' => 'created_at',     // ✗ typo — unknown option
-        ],
-        'typecast' => [
-            'class' => AttributeTypecastBehavior::class,
-            'attributeTypes' => [
-                'views_count' => AttributeTypecastBehavior::TYPE_INTEGER,
-                'is_published' => AttributeTypecastBehavior::TYPE_BOOLEAN,
-            ],
-            'typecastAfterValidate' => 1,            // ✗ bool expected
-        ],
-        'invalid' => stdClass::class,                // ✗ not a yii\base\Behavior
-
-        'slug' => [
-            'class' => SluggableBehavior::class,
-            'attribute' => 'title',                  // ✓
-        ],
-    ];
-}
-```
-
-### Active Record relations that lie
-
-`hasOne()` and `hasMany()` relation links are plain string arrays: the array keys belong to the related AR class, and the values belong to the current AR class. This rule checks that those properties exist, including properties declared through PHPDoc `@property`.
-
-```php
-/**
- * @property int $id
- */
-final class Customer extends ActiveRecord
-{
-}
-
-/**
- * @property int $id
- */
-final class Address extends ActiveRecord
-{
-}
-
-/**
- * @property int $id
- * @property int $order_id
- */
-final class OrderItem extends ActiveRecord
-{
-}
-
-/**
- * @property int $id
- * @property int $customer_id
- * @property int $shipping_address_id
- */
-final class Order extends ActiveRecord
-{
-    public function getCustomer()
-    {
-        return $this->hasOne(Customer::class, ['id' => 'customer_id']);              // ✓
-    }
-
-    public function getShippingAddress()
-    {
-        return $this->hasOne(Address::class, ['uuid' => 'shipping_address_id']);     // ✗ missing on Address
-    }
-
-    public function getItems()
-    {
-        return $this->hasMany(OrderItem::class, ['order_id' => 'order_uuid']);       // ✗ missing on Order
-    }
-}
-```
-
-### Model validation rules that lie
-
-`Model::rules()` is just a plain array — PHP will never tell you that you forgot a validator's required option, wrote an invalid regex, or misconfigured one of its options. For every rule entry the validator type resolves to (a built-in alias like `required`/`string`/`number`/`compare`/`date`/`match`/`in`/`unique`/`exist`/`file`/`image`/`ip`/`url`, a custom `Validator` subclass, a configured project alias, or an inline closure/method), this rule statically checks the option array against what that validator actually accepts and requires. A validator name it can't resolve is reported as an error; add project-specific aliases under `modelRulesValidation.customValidators`:
-
-```php
-public function rules(): array
-{
-    return [
-        ['email', 'string', 'lenght' => 255],            // ✗ typo — unknown option "lenght" for StringValidator
-        ['code', 'match', 'pattern' => '/[/'],            // ✗ invalid regular expression
-        ['ip', 'ip', 'ipv4' => false, 'ipv6' => false],   // ✗ disables both protocols
-        ['message', 'string', 'max' => 'invalid'],        // ✗ 'max' must be int|null
-        ['status', 'someUnregisteredAlias'],              // ✗ unknown validator
-
-        ['name', 'string', 'max' => 255],                 // ✓
-    ];
-}
-```
