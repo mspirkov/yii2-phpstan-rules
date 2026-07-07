@@ -39,6 +39,8 @@ parameters:
 				- timeZone
 		noYiiAppPropertyMutation:
 			enabled: %mspirkovYii2Rules.enableAllRules%
+		componentBehaviorsValidation:
+			enabled: %mspirkovYii2Rules.enableAllRules%
 		modelRulesValidation:
 			enabled: %mspirkovYii2Rules.enableAllRules%
 			customValidators: []
@@ -89,6 +91,9 @@ parametersSchema:
 		noYiiAppPropertyMutation: structure([
 			enabled: bool()
 		])
+		componentBehaviorsValidation: structure([
+			enabled: bool()
+		])
 		modelRulesValidation: structure([
 			enabled: bool()
 			customValidators: arrayOf(string())
@@ -116,6 +121,8 @@ conditionalTags:
 		phpstan.rules.rule: %mspirkovYii2Rules.noForbiddenYiiAppProperties.enabled%
 	MSpirkov\Yii2\PHPStan\Rules\NoYiiAppPropertyMutationRule:
 		phpstan.rules.rule: %mspirkovYii2Rules.noYiiAppPropertyMutation.enabled%
+	MSpirkov\Yii2\PHPStan\Rules\ComponentBehaviorsValidationRule:
+		phpstan.rules.rule: %mspirkovYii2Rules.componentBehaviorsValidation.enabled%
 	MSpirkov\Yii2\PHPStan\Rules\ModelRulesValidationRule:
 		phpstan.rules.rule: %mspirkovYii2Rules.modelRulesValidation.enabled%
 
@@ -143,6 +150,8 @@ services:
 	-
 		class: MSpirkov\Yii2\PHPStan\Rules\NoYiiAppPropertyMutationRule
 	-
+		class: MSpirkov\Yii2\PHPStan\Rules\ComponentBehaviorsValidationRule
+	-
 		class: MSpirkov\Yii2\PHPStan\Rules\ModelRulesValidationRule
 		arguments:
 			customValidators: %mspirkovYii2Rules.modelRulesValidation.customValidators%
@@ -166,4 +175,14 @@ services:
 	-
 		class: MSpirkov\Yii2\PHPStan\Analyzers\YiiAppAnalyzer
 	-
-		class: MSpirkov\Yii2\PHPStan\Finders\ModelRulesReturnExpressionFinder
+		class: MSpirkov\Yii2\PHPStan\Analyzers\BaseObjectConfigAnalyzer
+	-
+		class: MSpirkov\Yii2\PHPStan\Analyzers\ComponentConfigMethodAnalyzer
+	-
+		class: MSpirkov\Yii2\PHPStan\Analyzers\ComponentObjectConfigAnalyzer
+	-
+		class: MSpirkov\Yii2\PHPStan\Analyzers\ExpressionTypeAnalyzer
+	-
+		class: MSpirkov\Yii2\PHPStan\Finders\MethodReturnExpressionFinder
+	-
+		class: MSpirkov\Yii2\PHPStan\Resolvers\ExpressionValueResolver

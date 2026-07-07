@@ -19,6 +19,7 @@ use PhpParser\Node\Stmt\While_;
 
 final class ActionComplexityAnalyzer
 {
+    /** @var list<string> */
     public const COUNTER_NAMES = [
         self::COUNTER_NAME_IF,
         self::COUNTER_NAME_FOREACH,

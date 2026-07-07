@@ -13,7 +13,7 @@ use PhpParser\NodeVisitorAbstract;
 use PhpParser\Node\Stmt\ClassLike;
 use PhpParser\Node\Stmt\Return_;
 
-final class ModelRulesReturnExpressionFinder extends NodeVisitorAbstract
+final class MethodReturnExpressionFinder extends NodeVisitorAbstract
 {
     /** @var list<Expr> */
     private array $returnExpressions = [];

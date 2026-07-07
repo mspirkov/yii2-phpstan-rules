@@ -16,6 +16,7 @@ final class Identifiers
     public const NO_DYNAMIC_QUERY_WHERE = self::PREFIX . 'noDynamicQueryWhere';
     public const NO_FORBIDDEN_YII_APP_PROPERTIES = self::PREFIX . 'noForbiddenYiiAppProperties';
     public const NO_YII_APP_PROPERTY_MUTATION = self::PREFIX . 'noYiiAppPropertyMutation';
+    public const COMPONENT_BEHAVIORS_VALIDATION = self::PREFIX . 'componentBehaviorsValidation';
     public const MODEL_RULES_VALIDATION = self::PREFIX . 'modelRulesValidation';
 
     public const LIST = [
@@ -29,6 +30,7 @@ final class Identifiers
         self::NO_DYNAMIC_QUERY_WHERE,
         self::NO_FORBIDDEN_YII_APP_PROPERTIES,
         self::NO_YII_APP_PROPERTY_MUTATION,
+        self::COMPONENT_BEHAVIORS_VALIDATION,
         self::MODEL_RULES_VALIDATION,
     ];
 
