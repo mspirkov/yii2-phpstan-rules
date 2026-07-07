@@ -38,6 +38,8 @@ final class Customer extends ActiveRecord
         $this->hasOne($dynamicRelatedClass, ['id' => 'country_id']);
 
         $this->hasOne(Country::class, [...['id' => 'country_id']]);
+        $this->hasMany(Order::class, ['missing_customer_id' => 'customer_id'])
+            ->viaTable('customer_order', ['customer_id' => 'id']);
         (new RelationFactory())->hasOne(Country::class, ['id' => 'country_id']);
     }
 
