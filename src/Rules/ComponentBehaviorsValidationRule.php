@@ -156,12 +156,14 @@ final class ComponentBehaviorsValidationRule implements Rule
     private function validateBehaviorClassExpression(Expr $expr, Scope $scope): array
     {
         if ($this->expressionTypeAnalyzer->isDefinitelyNotString($expr, $scope)) {
-            return [
-                $this->buildError(
-                    'Component behavior must be a class string, configuration array, or yii\base\Behavior instance.',
-                    $expr
-                ),
-            ];
+            return $this->expressionTypeAnalyzer->isDefinitelyNotArrayOrObjectOf($expr, $scope, Behavior::class)
+                ? [
+                    $this->buildError(
+                        'Component behavior must be a class string, configuration array, or yii\base\Behavior instance.',
+                        $expr
+                    ),
+                ]
+                : [];
         }
 
         $errors = [];
