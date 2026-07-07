@@ -1,6 +1,3 @@
-includes:
-	- ../../../../rules.neon
-
 parameters:
 	scanFiles:
 		- ../../Data/NoComplexActions/custom-config.php

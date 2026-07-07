@@ -5,41 +5,29 @@ declare(strict_types=1);
 namespace MSpirkov\Yii2\PHPStan\Tests\Rules;
 
 use MSpirkov\Yii2\PHPStan\Rules\NoDbQueriesInControllersRule;
-use PHPStan\Rules\Rule;
-use PHPStan\Testing\RuleTestCase;
 
 /**
- * @extends RuleTestCase<NoDbQueriesInControllersRule>
+ * @extends AbstractTestCase<NoDbQueriesInControllersRule>
  */
-final class NoDbQueriesInControllersRuleTest extends RuleTestCase
+final class NoDbQueriesInControllersRuleTest extends AbstractTestCase
 {
     public function testRule(): void
     {
         $this->analyse(
-            [__DIR__ . '/Data/NoDbQueriesInApplicationClasses/code.php'],
+            [self::getDataFilePath('code')],
             [
-                ['Database queries in controllers are forbidden. Move queries to repositories.', 14],
-                ['Database queries in controllers are forbidden. Move queries to repositories.', 16],
-                ['Database queries in controllers are forbidden. Move queries to repositories.', 18],
-                ['Database queries in controllers are forbidden. Move queries to repositories.', 20],
-                ['Database queries in controllers are forbidden. Move queries to repositories.', 22],
-                ['Database queries in controllers are forbidden. Move queries to repositories.', 29],
+                ['Database queries in controllers are forbidden. Move queries to repositories.', 13],
+                ['Database queries in controllers are forbidden. Move queries to repositories.', 15],
+                ['Database queries in controllers are forbidden. Move queries to repositories.', 17],
+                ['Database queries in controllers are forbidden. Move queries to repositories.', 19],
+                ['Database queries in controllers are forbidden. Move queries to repositories.', 21],
+                ['Database queries in controllers are forbidden. Move queries to repositories.', 28],
             ],
         );
     }
 
-    /**
-     * @return string[]
-     */
-    public static function getAdditionalConfigFiles(): array
+    protected static function getRuleClass(): string
     {
-        return array_merge(parent::getAdditionalConfigFiles(), [
-            __DIR__ . '/../../rules.neon',
-        ]);
-    }
-
-    protected function getRule(): Rule
-    {
-        return self::getContainer()->getByType(NoDbQueriesInControllersRule::class);
+        return NoDbQueriesInControllersRule::class;
     }
 }

@@ -5,18 +5,16 @@ declare(strict_types=1);
 namespace MSpirkov\Yii2\PHPStan\Tests\Rules;
 
 use MSpirkov\Yii2\PHPStan\Rules\NoDbQueriesInViewsRule;
-use PHPStan\Rules\Rule;
-use PHPStan\Testing\RuleTestCase;
 
 /**
- * @extends RuleTestCase<NoDbQueriesInViewsRule>
+ * @extends AbstractTestCase<NoDbQueriesInViewsRule>
  */
-final class NoDbQueriesInViewsRuleTest extends RuleTestCase
+final class NoDbQueriesInViewsRuleTest extends AbstractTestCase
 {
     public function testRule(): void
     {
         $this->analyse(
-            [__DIR__ . '/Data/NoDbQueriesInViews/views/site/index.php'],
+            [self::getDataFilePath('views/site/index')],
             [
                 ['Database queries in views are forbidden. Move queries to repositories.', 13],
                 ['Database queries in views are forbidden. Move queries to repositories.', 15],
@@ -39,23 +37,13 @@ final class NoDbQueriesInViewsRuleTest extends RuleTestCase
     public function testRuleSkipsNonViewFiles(): void
     {
         $this->analyse(
-            [__DIR__ . '/Data/NoDbQueriesInViews/not-view.php'],
+            [self::getDataFilePath('not-view')],
             [],
         );
     }
 
-    /**
-     * @return string[]
-     */
-    public static function getAdditionalConfigFiles(): array
+    protected static function getRuleClass(): string
     {
-        return array_merge(parent::getAdditionalConfigFiles(), [
-            __DIR__ . '/../../rules.neon',
-        ]);
-    }
-
-    protected function getRule(): Rule
-    {
-        return self::getContainer()->getByType(NoDbQueriesInViewsRule::class);
+        return NoDbQueriesInViewsRule::class;
     }
 }
