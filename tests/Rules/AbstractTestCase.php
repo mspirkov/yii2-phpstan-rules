@@ -14,9 +14,6 @@ use PHPStan\Rules\Rule;
  */
 abstract class AbstractTestCase extends RuleTestCase
 {
-    /**
-     * @return string[]
-     */
     public static function getAdditionalConfigFiles(): array
     {
         return array_merge(parent::getAdditionalConfigFiles(), [
@@ -52,6 +49,6 @@ abstract class AbstractTestCase extends RuleTestCase
     {
         $ruleClassParts = explode('\\', static::getRuleClass());
 
-        return substr($ruleClassParts[count($ruleClassParts) - 1], 0, -4);
+        return (string) substr($ruleClassParts[count($ruleClassParts) - 1], 0, -4);
     }
 }
