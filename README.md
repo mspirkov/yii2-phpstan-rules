@@ -253,19 +253,22 @@ final class OrderItem extends ActiveRecord
  */
 final class Order extends ActiveRecord
 {
-    public function getCustomer()
-    {
-        return $this->hasOne(Customer::class, ['id' => 'customer_id']);              // ✓
-    }
-
     public function getShippingAddress()
     {
-        return $this->hasOne(Address::class, ['uuid' => 'shipping_address_id']);     // ✗ missing on Address
+        // ✗ missing property "uuid" on Address
+        return $this->hasOne(Address::class, ['uuid' => 'shipping_address_id']);
     }
 
     public function getItems()
     {
-        return $this->hasMany(OrderItem::class, ['order_id' => 'order_uuid']);       // ✗ missing on Order
+        // ✗ missing property "order_uuid" on Order
+        return $this->hasMany(OrderItem::class, ['order_id' => 'order_uuid']);
+    }
+
+    public function getCustomer()
+    {
+        // ✓
+        return $this->hasOne(Customer::class, ['id' => 'customer_id']);
     }
 }
 ```
