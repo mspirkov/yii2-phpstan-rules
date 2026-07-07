@@ -17,7 +17,10 @@ A set of PHPStan rules for Yii2 projects that I put together for my own day-to-d
 ## What's inside
 
 | Rule                                                                   | Catches                                                                                                                      |
-| ---------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| ---------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- | --- |
+| [`activeRecordRelationValidation`](#active-record-relations-that-lie)  | Invalid `hasOne()` / `hasMany()` link properties that do not exist on the current or related ActiveRecord model              |
+| [`componentBehaviorsValidation`](#component-behaviors-that-lie)        | Malformed or invalid `behaviors()` in `yii\base\Component` — unknown behavior classes, bad config keys, and bad option types |     |
+| [`modelRulesValidation`](#model-validation-rules-that-lie)             | Malformed or invalid `rules()` in `yii\base\Model` — unknown validators, missing required options, bad regexes, and more     |
 | [`noComplexControllerActions`](#complexity-limits)                     | Controller actions with too much branching/looping — logic that belongs in a service                                         |
 | [`noComplexActionClasses`](#complexity-limits)                         | The same, for standalone `yii\base\Action` classes                                                                           |
 | [`noControllerActionCallsViaThis`](#no-calling-actions-via-this)       | `$this->actionFoo()` inside a controller instead of a redirect or shared method                                              |
@@ -28,9 +31,6 @@ A set of PHPStan rules for Yii2 projects that I put together for my own day-to-d
 | [`noForbiddenYiiAppProperties`](#taming-yiiapp)                        | Reads of arbitrary `Yii::$app->*` components                                                                                 |
 | [`noYiiAppPropertyMutation`](#taming-yiiapp)                           | Writes to `Yii::$app` properties, including `setComponents()`                                                                |
 | [`noDirectSuperglobals`](#no-raw-superglobals)                         | Direct use of `$_GET`, `$_POST`, `$_SESSION`, etc.                                                                           |
-| [`activeRecordRelationValidation`](#active-record-relations-that-lie)  | Invalid `hasOne()` / `hasMany()` link properties that do not exist on the current or related ActiveRecord model
-| [`componentBehaviorsValidation`](#component-behaviors-that-lie)        | Malformed or invalid `behaviors()` in `yii\base\Component` — unknown behavior classes, bad config keys, and bad option types |   |
-| [`modelRulesValidation`](#model-validation-rules-that-lie)             | Malformed or invalid `rules()` in `yii\base\Model` — unknown validators, missing required options, bad regexes, and more     |
 
 Every rule ships with its own PHPStan error identifier (`mspirkovYii2Rules.*`), so you can target `ignoreErrors` precisely instead of silencing a whole rule.
 
@@ -56,8 +56,6 @@ All rules are on by default. Turn the whole set off, or tune individual rules, u
 ```neon
 parameters:
     mspirkovYii2Rules:
-        enableAllRules: true
-
         # Component IDs treated as "the database" by the DB-access rules
         yiiAppDbProperties:
             - db
@@ -94,100 +92,6 @@ parameters:
 ```
 
 ## The rules
-
-### Complexity limits
-
-`noComplexControllerActions` and `noComplexActionClasses` count `if`, `foreach`, `for`, `while`, `do-while`, `switch`, `match`, ternaries, and `try/catch` blocks inside a controller action or `Action::run()`. Cross any configured threshold and the rule fires, pointing at the exact construct that pushed it over:
-
-```php
-// ✗ flagged: 4 `if` statements against a default limit of 3
-public function actionCheckout(): string
-{
-    if ($this->cart->isEmpty()) { /* ... */ }
-    if (!$this->cart->hasPaymentMethod()) { /* ... */ }
-    if ($this->cart->hasOutOfStockItems()) { /* ... */ }
-    if ($this->cart->hasExpiredCoupon()) { /* ... */ }
-
-    return $this->render('checkout', ['cart' => $this->cart]);
-}
-
-// ✓ the decision tree moves to a service, the action just orchestrates
-public function actionCheckout(): string
-{
-    return $this->render('checkout', $this->checkoutService->process($this->cart));
-}
-```
-
-### No calling actions via `$this`
-
-```php
-// ✗ flagged: bypasses the action-resolution pipeline (filters, events, results)
-public function actionEdit(int $id): Response
-{
-    return $this->actionView($id);
-}
-
-// ✓ redirect, or extract the shared part into a private method / service
-public function actionEdit(int $id): Response
-{
-    return $this->redirect(['view', 'id' => $id]);
-}
-```
-
-### No database access outside repositories
-
-Fires on `ActiveRecord::find()`/`findOne()`/`save()`, `Yii::$app->db`, `Yii::$app->db->createCommand()`, creating or configuring a `Query`, transactions, and friends — wherever they turn up in a controller, an `Action`, or a view file.
-
-```php
-// ✗ flagged in a view: queries the database instead of just rendering data
-<?php foreach (Post::find()->where(['status' => 1])->all() as $post): ?>
-
-// ✓ the controller/action fetches the data, the view only renders it
-<?php foreach ($posts as $post): ?>
-```
-
-`noDbQueriesInControllers` / `noDbQueriesInActions` push the same query building into a repository or service instead. Query builder setup counts too: `new Query()`, `$query->where()`, and dynamic calls on a `Query` object are all treated as direct database access in these layers.
-
-### No dynamic SQL strings
-
-```php
-// ✗ flagged: string-built condition, one step from SQL injection
-$query->where("status = $status");
-$query->where('status = ' . $status);
-
-// ✓ array condition syntax — parameterized, and PHPStan can see the shape
-$query->where(['status' => $status]);
-```
-
-### Taming `Yii::$app`
-
-Two rules keep the service locator from becoming a place where any property can be read or reassigned from anywhere:
-
-```php
-// ✗ noForbiddenYiiAppProperties: arbitrary component access
-$cache = Yii::$app->cache;
-
-// ✗ noYiiAppPropertyMutation: mutating the container at runtime
-Yii::$app->params = [];
-Yii::$app->setComponents([...]);
-
-// ✓ inject the component instead
-public function __construct(private CacheInterface $cache) {}
-```
-
-A short allowlist (`id`, `name`, `charset`, `language`, `timeZone` by default) stays available everywhere since those are effectively static configuration, not injectable services.
-
-### No raw superglobals
-
-```php
-// ✗ flagged, with the fix suggested in the error message
-$id = $_GET['id'];
-
-// ✓ read through the injected yii\web\Request instead
-$id = $this->request->get('id');
-```
-
-Covers `$_GET`, `$_POST`, `$_REQUEST`, `$_SESSION`, `$_COOKIE`, `$_FILES`, and `$_SERVER`, each pointing at the matching `yii\web\Request` / `Session` / `UploadedFile` API.
 
 ### Active Record relations that lie
 
@@ -291,3 +195,97 @@ public function rules(): array
     ];
 }
 ```
+
+### Complexity limits
+
+`noComplexControllerActions` and `noComplexActionClasses` count `if`, `foreach`, `for`, `while`, `do-while`, `switch`, `match`, ternaries, and `try/catch` blocks inside a controller action or `Action::run()`. Cross any configured threshold and the rule fires, pointing at the exact construct that pushed it over:
+
+```php
+// ✗ flagged: 4 `if` statements against a default limit of 3
+public function actionCheckout(): string
+{
+    if ($this->cart->isEmpty()) { /* ... */ }
+    if (!$this->cart->hasPaymentMethod()) { /* ... */ }
+    if ($this->cart->hasOutOfStockItems()) { /* ... */ }
+    if ($this->cart->hasExpiredCoupon()) { /* ... */ }
+
+    return $this->render('checkout', ['cart' => $this->cart]);
+}
+
+// ✓ the decision tree moves to a service, the action just orchestrates
+public function actionCheckout(): string
+{
+    return $this->render('checkout', $this->checkoutService->process($this->cart));
+}
+```
+
+### No calling actions via `$this`
+
+```php
+// ✗ flagged: bypasses the action-resolution pipeline (filters, events, results)
+public function actionEdit(int $id): Response
+{
+    return $this->actionView($id);
+}
+
+// ✓ redirect, or extract the shared part into a private method / service
+public function actionEdit(int $id): Response
+{
+    return $this->redirect(['view', 'id' => $id]);
+}
+```
+
+### No database access outside repositories
+
+Fires on `ActiveRecord::find()`/`findOne()`/`save()`, `Yii::$app->db`, `Yii::$app->db->createCommand()`, creating or configuring a `Query`, transactions, and friends — wherever they turn up in a controller, an `Action`, or a view file.
+
+```php
+// ✗ flagged in a view: queries the database instead of just rendering data
+<?php foreach (Post::find()->where(['status' => 1])->all() as $post): ?>
+
+// ✓ the controller/action fetches the data, the view only renders it
+<?php foreach ($posts as $post): ?>
+```
+
+`noDbQueriesInControllers` / `noDbQueriesInActions` push the same query building into a repository or service instead. Query builder setup counts too: `new Query()`, `$query->where()`, and dynamic calls on a `Query` object are all treated as direct database access in these layers.
+
+### No dynamic SQL strings
+
+```php
+// ✗ flagged: string-built condition, one step from SQL injection
+$query->where("status = $status");
+$query->where('status = ' . $status);
+
+// ✓ array condition syntax — parameterized, and PHPStan can see the shape
+$query->where(['status' => $status]);
+```
+
+### Taming `Yii::$app`
+
+Two rules keep the service locator from becoming a place where any property can be read or reassigned from anywhere:
+
+```php
+// ✗ noForbiddenYiiAppProperties: arbitrary component access
+$cache = Yii::$app->cache;
+
+// ✗ noYiiAppPropertyMutation: mutating the container at runtime
+Yii::$app->params = [];
+Yii::$app->setComponents([...]);
+
+// ✓ inject the component instead
+public function __construct(private CacheInterface $cache) {}
+```
+
+A short allowlist (`id`, `name`, `charset`, `language`, `timeZone` by default) stays available everywhere since those are effectively static configuration, not injectable services.
+
+### No raw superglobals
+
+```php
+// ✗ flagged, with the fix suggested in the error message
+$id = $_GET['id'];
+
+// ✓ read through the injected yii\web\Request instead
+$id = $this->request->get('id');
+```
+
+Covers `$_GET`, `$_POST`, `$_REQUEST`, `$_SESSION`, `$_COOKIE`, `$_FILES`, and `$_SERVER`, each pointing at the matching `yii\web\Request` / `Session` / `UploadedFile` API.
