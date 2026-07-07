@@ -28,8 +28,8 @@ A set of PHPStan rules for Yii2 projects that I put together for my own day-to-d
 | [`noForbiddenYiiAppProperties`](#taming-yiiapp)                        | Reads of arbitrary `Yii::$app->*` components                                                                                 |
 | [`noYiiAppPropertyMutation`](#taming-yiiapp)                           | Writes to `Yii::$app` properties, including `setComponents()`                                                                |
 | [`noDirectSuperglobals`](#no-raw-superglobals)                         | Direct use of `$_GET`, `$_POST`, `$_SESSION`, etc.                                                                           |
-| [`componentBehaviorsValidation`](#component-behaviors-that-lie)        | Malformed or invalid `behaviors()` in `yii\base\Component` — unknown behavior classes, bad config keys, and bad option types |
-| [`activeRecordRelationValidation`](#active-record-relations-that-lie)  | Invalid `hasOne()` / `hasMany()` link properties that do not exist on the current or related ActiveRecord model              |
+| [`activeRecordRelationValidation`](#active-record-relations-that-lie)  | Invalid `hasOne()` / `hasMany()` link properties that do not exist on the current or related ActiveRecord model
+| [`componentBehaviorsValidation`](#component-behaviors-that-lie)        | Malformed or invalid `behaviors()` in `yii\base\Component` — unknown behavior classes, bad config keys, and bad option types |   |
 | [`modelRulesValidation`](#model-validation-rules-that-lie)             | Malformed or invalid `rules()` in `yii\base\Model` — unknown validators, missing required options, bad regexes, and more     |
 
 Every rule ships with its own PHPStan error identifier (`mspirkovYii2Rules.*`), so you can target `ignoreErrors` precisely instead of silencing a whole rule.
@@ -281,7 +281,7 @@ final class Order extends ActiveRecord
 public function rules(): array
 {
     return [
-        ['email', 'string', 'lenght' => 255],            // ✗ typo — unknown option "lenght" for StringValidator
+        ['email', 'string', 'lenght' => 255],             // ✗ typo — unknown option "lenght" for StringValidator
         ['code', 'match', 'pattern' => '/[/'],            // ✗ invalid regular expression
         ['ip', 'ip', 'ipv4' => false, 'ipv6' => false],   // ✗ disables both protocols
         ['message', 'string', 'max' => 'invalid'],        // ✗ 'max' must be int|null
