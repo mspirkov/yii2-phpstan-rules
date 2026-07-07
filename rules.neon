@@ -194,4 +194,6 @@ services:
 	-
 		class: MSpirkov\Yii2\PHPStan\Finders\MethodReturnExpressionFinder
 	-
+		class: MSpirkov\Yii2\PHPStan\Visitors\MethodReturnExpressionVisitor
+	-
 		class: MSpirkov\Yii2\PHPStan\Resolvers\ExpressionValueResolver
