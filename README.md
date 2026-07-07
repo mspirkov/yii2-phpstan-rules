@@ -16,20 +16,20 @@ A set of PHPStan rules for Yii2 projects that I put together for my own day-to-d
 
 ## What's inside
 
-| Rule                                                                   | Catches                                                                                                                  |
-| ---------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
-| [`noComplexControllerActions`](#complexity-limits)                     | Controller actions with too much branching/looping — logic that belongs in a service                                     |
-| [`noComplexActionClasses`](#complexity-limits)                         | The same, for standalone `yii\base\Action` classes                                                                       |
-| [`noControllerActionCallsViaThis`](#no-calling-actions-via-this)       | `$this->actionFoo()` inside a controller instead of a redirect or shared method                                          |
-| [`noDbQueriesInControllers`](#no-database-access-outside-repositories) | Direct DB/ActiveRecord access in controllers                                                                             |
-| [`noDbQueriesInActions`](#no-database-access-outside-repositories)     | Direct DB/ActiveRecord access in `Action` classes                                                                        |
-| [`noDbQueriesInViews`](#no-database-access-outside-repositories)       | Direct DB/ActiveRecord access in view files                                                                              |
-| [`noDynamicQueryWhere`](#no-dynamic-sql-strings)                       | String-concatenated conditions passed to `Query::where()` / `andWhere()`                                                 |
-| [`noForbiddenYiiAppProperties`](#taming-yiiapp)                        | Reads of arbitrary `Yii::$app->*` components                                                                             |
-| [`noYiiAppPropertyMutation`](#taming-yiiapp)                           | Writes to `Yii::$app` properties, including `setComponents()`                                                            |
-| [`noDirectSuperglobals`](#no-raw-superglobals)                         | Direct use of `$_GET`, `$_POST`, `$_SESSION`, etc.                                                                       |
+| Rule                                                                   | Catches                                                                                                                      |
+| ---------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| [`noComplexControllerActions`](#complexity-limits)                     | Controller actions with too much branching/looping — logic that belongs in a service                                         |
+| [`noComplexActionClasses`](#complexity-limits)                         | The same, for standalone `yii\base\Action` classes                                                                           |
+| [`noControllerActionCallsViaThis`](#no-calling-actions-via-this)       | `$this->actionFoo()` inside a controller instead of a redirect or shared method                                              |
+| [`noDbQueriesInControllers`](#no-database-access-outside-repositories) | Direct DB/ActiveRecord access in controllers                                                                                 |
+| [`noDbQueriesInActions`](#no-database-access-outside-repositories)     | Direct DB/ActiveRecord access in `Action` classes                                                                            |
+| [`noDbQueriesInViews`](#no-database-access-outside-repositories)       | Direct DB/ActiveRecord access in view files                                                                                  |
+| [`noDynamicQueryWhere`](#no-dynamic-sql-strings)                       | String-concatenated conditions passed to `Query::where()` / `andWhere()`                                                     |
+| [`noForbiddenYiiAppProperties`](#taming-yiiapp)                        | Reads of arbitrary `Yii::$app->*` components                                                                                 |
+| [`noYiiAppPropertyMutation`](#taming-yiiapp)                           | Writes to `Yii::$app` properties, including `setComponents()`                                                                |
+| [`noDirectSuperglobals`](#no-raw-superglobals)                         | Direct use of `$_GET`, `$_POST`, `$_SESSION`, etc.                                                                           |
 | [`componentBehaviorsValidation`](#component-behaviors-that-lie)        | Malformed or invalid `behaviors()` in `yii\base\Component` — unknown behavior classes, bad config keys, and bad option types |
-| [`modelRulesValidation`](#model-validation-rules-that-lie)             | Malformed or invalid `rules()` in `yii\base\Model` — unknown validators, missing required options, bad regexes, and more |
+| [`modelRulesValidation`](#model-validation-rules-that-lie)             | Malformed or invalid `rules()` in `yii\base\Model` — unknown validators, missing required options, bad regexes, and more     |
 
 Every rule ships with its own PHPStan error identifier (`mspirkovYii2Rules.*`), so you can target `ignoreErrors` precisely instead of silencing a whole rule.
 
@@ -196,19 +196,23 @@ Covers `$_GET`, `$_POST`, `$_REQUEST`, `$_SESSION`, `$_COOKIE`, `$_FILES`, and `
 public function behaviors(): array
 {
     return [
-        'audit' => [
-            'class' => AuditBehavior::class,
-            'enabeld' => true,         // ✗ typo — unknown option
+        'timestamp' => [
+            'class' => TimestampBehavior::class,
+            'createdAtAtribute' => 'created_at',     // ✗ typo — unknown option
         ],
         'typecast' => [
-            'class' => TypecastBehavior::class,
-            'enabled' => 1,            // ✗ bool expected
+            'class' => AttributeTypecastBehavior::class,
+            'attributeTypes' => [
+                'views_count' => AttributeTypecastBehavior::TYPE_INTEGER,
+                'is_published' => AttributeTypecastBehavior::TYPE_BOOLEAN,
+            ],
+            'typecastAfterValidate' => 1,            // ✗ bool expected
         ],
-        'broken' => stdClass::class,   // ✗ not a yii\base\Behavior
+        'invalid' => stdClass::class,                // ✗ not a yii\base\Behavior
 
         'slug' => [
-            'class' => SlugBehavior::class,
-            'attribute' => 'title',    // ✓
+            'class' => SluggableBehavior::class,
+            'attribute' => 'title',                  // ✓
         ],
     ];
 }
