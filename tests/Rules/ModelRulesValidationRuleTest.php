@@ -5,20 +5,18 @@ declare(strict_types=1);
 namespace MSpirkov\Yii2\PHPStan\Tests\Rules;
 
 use MSpirkov\Yii2\PHPStan\Rules\ModelRulesValidationRule;
-use PHPStan\Rules\Rule;
-use PHPStan\Testing\RuleTestCase;
 use yii\validators\Validator;
 use stdClass;
 
 /**
- * @extends RuleTestCase<ModelRulesValidationRule>
+ * @extends AbstractTestCase<ModelRulesValidationRule>
  */
-final class ModelRulesValidationRuleTest extends RuleTestCase
+final class ModelRulesValidationRuleTest extends AbstractTestCase
 {
     public function testRule(): void
     {
         $this->analyse(
-            [__DIR__ . '/Data/ModelRulesValidation/code.php'],
+            [self::getDataFilePath('code')],
             [
                 ['Model validation rule must specify validator type at index 1.', 43],
                 ['Model validation rule attributes must be a string or array of strings.', 44],
@@ -84,18 +82,15 @@ final class ModelRulesValidationRuleTest extends RuleTestCase
         }
     }
 
-    /**
-     * @return string[]
-     */
     public static function getAdditionalConfigFiles(): array
     {
         return array_merge(parent::getAdditionalConfigFiles(), [
-            __DIR__ . '/Config/ModelRulesValidation/config.neon',
+            self::getConfigFilePath('config'),
         ]);
     }
 
-    protected function getRule(): Rule
+    protected static function getRuleClass(): string
     {
-        return self::getContainer()->getByType(ModelRulesValidationRule::class);
+        return ModelRulesValidationRule::class;
     }
 }

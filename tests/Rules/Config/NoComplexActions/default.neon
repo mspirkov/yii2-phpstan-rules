@@ -1,7 +1,0 @@
-includes:
-	- ../../../../rules.neon
-
-parameters:
-	scanFiles:
-		- ../../Data/NoComplexActions/controller-actions.php
-		- ../../Data/NoComplexActions/action-classes.php

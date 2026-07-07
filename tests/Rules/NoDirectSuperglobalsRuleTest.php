@@ -5,18 +5,16 @@ declare(strict_types=1);
 namespace MSpirkov\Yii2\PHPStan\Tests\Rules;
 
 use MSpirkov\Yii2\PHPStan\Rules\NoDirectSuperglobalsRule;
-use PHPStan\Rules\Rule;
-use PHPStan\Testing\RuleTestCase;
 
 /**
- * @extends RuleTestCase<NoDirectSuperglobalsRule>
+ * @extends AbstractTestCase<NoDirectSuperglobalsRule>
  */
-final class NoDirectSuperglobalsRuleTest extends RuleTestCase
+final class NoDirectSuperglobalsRuleTest extends AbstractTestCase
 {
     public function testRule(): void
     {
         $this->analyse(
-            [__DIR__ . '/Data/NoDirectSuperglobals/code.php'],
+            [self::getDataFilePath('code')],
             [
                 ['Direct use of superglobal $_GET is forbidden. Use yii\web\Request::get() or yii\web\Request::getQueryParam() instead.', 3],
                 ['Direct use of superglobal $_POST is forbidden. Use yii\web\Request::post() or yii\web\Request::getBodyParam() instead.', 4],
@@ -29,8 +27,8 @@ final class NoDirectSuperglobalsRuleTest extends RuleTestCase
         );
     }
 
-    protected function getRule(): Rule
+    protected static function getRuleClass(): string
     {
-        return new NoDirectSuperglobalsRule();
+        return NoDirectSuperglobalsRule::class;
     }
 }

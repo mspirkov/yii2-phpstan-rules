@@ -5,18 +5,16 @@ declare(strict_types=1);
 namespace MSpirkov\Yii2\PHPStan\Tests\Rules;
 
 use MSpirkov\Yii2\PHPStan\Rules\NoYiiAppPropertyMutationRule;
-use PHPStan\Rules\Rule;
-use PHPStan\Testing\RuleTestCase;
 
 /**
- * @extends RuleTestCase<NoYiiAppPropertyMutationRule>
+ * @extends AbstractTestCase<NoYiiAppPropertyMutationRule>
  */
-final class NoYiiAppPropertyMutationRuleTest extends RuleTestCase
+final class NoYiiAppPropertyMutationRuleTest extends AbstractTestCase
 {
     public function testRule(): void
     {
         $this->analyse(
-            [__DIR__ . '/Data/NoYiiAppPropertyMutation/code.php'],
+            [self::getDataFilePath('code')],
             [
                 ['Modification of Yii::$app->name is forbidden.', 6],
                 ['Modification of Yii::$app->language is forbidden.', 8],
@@ -32,18 +30,8 @@ final class NoYiiAppPropertyMutationRuleTest extends RuleTestCase
         );
     }
 
-    /**
-     * @return string[]
-     */
-    public static function getAdditionalConfigFiles(): array
+    protected static function getRuleClass(): string
     {
-        return array_merge(parent::getAdditionalConfigFiles(), [
-            __DIR__ . '/../../rules.neon',
-        ]);
-    }
-
-    protected function getRule(): Rule
-    {
-        return self::getContainer()->getByType(NoYiiAppPropertyMutationRule::class);
+        return NoYiiAppPropertyMutationRule::class;
     }
 }

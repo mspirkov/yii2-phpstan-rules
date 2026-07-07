@@ -29,7 +29,7 @@ parameters:
     shipmonkRules:
         classSuffixNaming:
             superclassToSuffixMapping!:
-                \PHPStan\Testing\RuleTestCase: Test
+                \MSpirkov\Yii2\PHPStan\Tests\Rules\AbstractTestCase: Test
 
     ergebnis:
         allRules: false

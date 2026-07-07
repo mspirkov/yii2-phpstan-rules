@@ -7,13 +7,11 @@ namespace MSpirkov\Yii2\PHPStan\Tests\Rules;
 use MSpirkov\Yii2\PHPStan\Rules\ComponentBehaviorsValidationRule;
 use MSpirkov\Yii2\PHPStan\Tests\Rules\Source\ComponentBehaviorsValidation\NotBehavior;
 use MSpirkov\Yii2\PHPStan\Tests\Rules\Source\ComponentBehaviorsValidation\ProjectBehavior;
-use PHPStan\Rules\Rule;
-use PHPStan\Testing\RuleTestCase;
 
 /**
- * @extends RuleTestCase<ComponentBehaviorsValidationRule>
+ * @extends AbstractTestCase<ComponentBehaviorsValidationRule>
  */
-final class ComponentBehaviorsValidationRuleTest extends RuleTestCase
+final class ComponentBehaviorsValidationRuleTest extends AbstractTestCase
 {
     public function testRule(): void
     {
@@ -21,7 +19,7 @@ final class ComponentBehaviorsValidationRuleTest extends RuleTestCase
         $projectBehaviorClass = ProjectBehavior::class;
 
         $this->analyse(
-            [__DIR__ . '/Data/ComponentBehaviorsValidation/code.php'],
+            [self::getDataFilePath('code')],
             [
                 ['Component behavior must be a class string, configuration array, or yii\base\Behavior instance.', 65],
                 ['Component behavior must be a class string, configuration array, or yii\base\Behavior instance.', 66],
@@ -44,18 +42,8 @@ final class ComponentBehaviorsValidationRuleTest extends RuleTestCase
         );
     }
 
-    /**
-     * @return string[]
-     */
-    public static function getAdditionalConfigFiles(): array
+    protected static function getRuleClass(): string
     {
-        return array_merge(parent::getAdditionalConfigFiles(), [
-            __DIR__ . '/../../rules.neon',
-        ]);
-    }
-
-    protected function getRule(): Rule
-    {
-        return self::getContainer()->getByType(ComponentBehaviorsValidationRule::class);
+        return ComponentBehaviorsValidationRule::class;
     }
 }

@@ -5,37 +5,25 @@ declare(strict_types=1);
 namespace MSpirkov\Yii2\PHPStan\Tests\Rules;
 
 use MSpirkov\Yii2\PHPStan\Rules\NoDbQueriesInActionsRule;
-use PHPStan\Rules\Rule;
-use PHPStan\Testing\RuleTestCase;
 
 /**
- * @extends RuleTestCase<NoDbQueriesInActionsRule>
+ * @extends AbstractTestCase<NoDbQueriesInActionsRule>
  */
-final class NoDbQueriesInActionsRuleTest extends RuleTestCase
+final class NoDbQueriesInActionsRuleTest extends AbstractTestCase
 {
     public function testRule(): void
     {
         $this->analyse(
-            [__DIR__ . '/Data/NoDbQueriesInApplicationClasses/code.php'],
+            [self::getDataFilePath('code')],
             [
-                ['Database queries in actions are forbidden. Move queries to repositories.', 37],
-                ['Database queries in actions are forbidden. Move queries to repositories.', 39],
+                ['Database queries in actions are forbidden. Move queries to repositories.', 13],
+                ['Database queries in actions are forbidden. Move queries to repositories.', 15],
             ],
         );
     }
 
-    /**
-     * @return string[]
-     */
-    public static function getAdditionalConfigFiles(): array
+    protected static function getRuleClass(): string
     {
-        return array_merge(parent::getAdditionalConfigFiles(), [
-            __DIR__ . '/../../rules.neon',
-        ]);
-    }
-
-    protected function getRule(): Rule
-    {
-        return self::getContainer()->getByType(NoDbQueriesInActionsRule::class);
+        return NoDbQueriesInActionsRule::class;
     }
 }

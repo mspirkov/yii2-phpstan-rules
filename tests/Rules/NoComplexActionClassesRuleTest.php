@@ -5,18 +5,16 @@ declare(strict_types=1);
 namespace MSpirkov\Yii2\PHPStan\Tests\Rules;
 
 use MSpirkov\Yii2\PHPStan\Rules\NoComplexActionClassesRule;
-use PHPStan\Rules\Rule;
-use PHPStan\Testing\RuleTestCase;
 
 /**
- * @extends RuleTestCase<NoComplexActionClassesRule>
+ * @extends AbstractTestCase<NoComplexActionClassesRule>
  */
-final class NoComplexActionClassesRuleTest extends RuleTestCase
+final class NoComplexActionClassesRuleTest extends AbstractTestCase
 {
     public function testRule(): void
     {
         $this->analyse(
-            [__DIR__ . '/Data/NoComplexActions/action-classes.php'],
+            [self::getDataFilePath('code')],
             [
                 ['Action class contains too much business logic: ifCount is 4, allowed 3. Move business logic to the service layer.', 20],
                 ['Action class contains too much business logic: foreachCount is 1, allowed 0. Move business logic to the service layer.', 23],
@@ -24,18 +22,8 @@ final class NoComplexActionClassesRuleTest extends RuleTestCase
         );
     }
 
-    /**
-     * @return string[]
-     */
-    public static function getAdditionalConfigFiles(): array
+    protected static function getRuleClass(): string
     {
-        return array_merge(parent::getAdditionalConfigFiles(), [
-            __DIR__ . '/Config/NoComplexActions/default.neon',
-        ]);
-    }
-
-    protected function getRule(): Rule
-    {
-        return self::getContainer()->getByType(NoComplexActionClassesRule::class);
+        return NoComplexActionClassesRule::class;
     }
 }

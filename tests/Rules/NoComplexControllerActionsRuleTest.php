@@ -5,18 +5,16 @@ declare(strict_types=1);
 namespace MSpirkov\Yii2\PHPStan\Tests\Rules;
 
 use MSpirkov\Yii2\PHPStan\Rules\NoComplexControllerActionsRule;
-use PHPStan\Rules\Rule;
-use PHPStan\Testing\RuleTestCase;
 
 /**
- * @extends RuleTestCase<NoComplexControllerActionsRule>
+ * @extends AbstractTestCase<NoComplexControllerActionsRule>
  */
-final class NoComplexControllerActionsRuleTest extends RuleTestCase
+final class NoComplexControllerActionsRuleTest extends AbstractTestCase
 {
     public function testRule(): void
     {
         $this->analyse(
-            [__DIR__ . '/Data/NoComplexActions/controller-actions.php'],
+            [self::getDataFilePath('base')],
             [
                 ['Controller action contains too much business logic: ifCount is 5, allowed 3. Move business logic to the service layer.', 30],
                 ['Controller action contains too much business logic: foreachCount is 1, allowed 0. Move business logic to the service layer.', 39],
@@ -29,18 +27,8 @@ final class NoComplexControllerActionsRuleTest extends RuleTestCase
         );
     }
 
-    /**
-     * @return string[]
-     */
-    public static function getAdditionalConfigFiles(): array
+    protected static function getRuleClass(): string
     {
-        return array_merge(parent::getAdditionalConfigFiles(), [
-            __DIR__ . '/Config/NoComplexActions/default.neon',
-        ]);
-    }
-
-    protected function getRule(): Rule
-    {
-        return self::getContainer()->getByType(NoComplexControllerActionsRule::class);
+        return NoComplexControllerActionsRule::class;
     }
 }

@@ -5,18 +5,16 @@ declare(strict_types=1);
 namespace MSpirkov\Yii2\PHPStan\Tests\Rules;
 
 use MSpirkov\Yii2\PHPStan\Rules\NoForbiddenYiiAppPropertiesRule;
-use PHPStan\Rules\Rule;
-use PHPStan\Testing\RuleTestCase;
 
 /**
- * @extends RuleTestCase<NoForbiddenYiiAppPropertiesRule>
+ * @extends AbstractTestCase<NoForbiddenYiiAppPropertiesRule>
  */
-final class NoForbiddenYiiAppPropertiesRuleTest extends RuleTestCase
+final class NoForbiddenYiiAppPropertiesRuleTest extends AbstractTestCase
 {
     public function testDefaultConfiguration(): void
     {
         $this->analyse(
-            [__DIR__ . '/Data/NoForbiddenYiiAppProperties/code.php'],
+            [self::getDataFilePath('code')],
             [
                 ['Use of Yii::$app->request is forbidden.', 9],
                 ['Use of dynamic Yii::$app property is forbidden.', 12],
@@ -26,18 +24,8 @@ final class NoForbiddenYiiAppPropertiesRuleTest extends RuleTestCase
         );
     }
 
-    /**
-     * @return string[]
-     */
-    public static function getAdditionalConfigFiles(): array
+    protected static function getRuleClass(): string
     {
-        return array_merge(parent::getAdditionalConfigFiles(), [
-            __DIR__ . '/../../rules.neon',
-        ]);
-    }
-
-    protected function getRule(): Rule
-    {
-        return self::getContainer()->getByType(NoForbiddenYiiAppPropertiesRule::class);
+        return NoForbiddenYiiAppPropertiesRule::class;
     }
 }
