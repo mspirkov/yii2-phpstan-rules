@@ -100,28 +100,6 @@ parameters:
 ```php
 /**
  * @property int $id
- */
-final class Customer extends ActiveRecord
-{
-}
-
-/**
- * @property int $id
- */
-final class Address extends ActiveRecord
-{
-}
-
-/**
- * @property int $id
- * @property int $order_id
- */
-final class OrderItem extends ActiveRecord
-{
-}
-
-/**
- * @property int $id
  * @property int $customer_id
  * @property int $shipping_address_id
  */
@@ -144,6 +122,28 @@ final class Order extends ActiveRecord
         // ✓
         return $this->hasOne(Customer::class, ['id' => 'customer_id']);
     }
+}
+
+/**
+ * @property int $id
+ */
+final class Customer extends ActiveRecord
+{
+}
+
+/**
+ * @property int $id
+ */
+final class Address extends ActiveRecord
+{
+}
+
+/**
+ * @property int $id
+ * @property int $order_id
+ */
+final class OrderItem extends ActiveRecord
+{
 }
 ```
 
