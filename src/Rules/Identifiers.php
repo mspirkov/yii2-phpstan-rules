@@ -17,6 +17,7 @@ final class Identifiers
     public const NO_FORBIDDEN_YII_APP_PROPERTIES = self::PREFIX . 'noForbiddenYiiAppProperties';
     public const NO_YII_APP_PROPERTY_MUTATION = self::PREFIX . 'noYiiAppPropertyMutation';
     public const COMPONENT_BEHAVIORS_VALIDATION = self::PREFIX . 'componentBehaviorsValidation';
+    public const ACTIVE_RECORD_RELATION_VALIDATION = self::PREFIX . 'activeRecordRelationValidation';
     public const MODEL_RULES_VALIDATION = self::PREFIX . 'modelRulesValidation';
 
     public const LIST = [
@@ -31,6 +32,7 @@ final class Identifiers
         self::NO_FORBIDDEN_YII_APP_PROPERTIES,
         self::NO_YII_APP_PROPERTY_MUTATION,
         self::COMPONENT_BEHAVIORS_VALIDATION,
+        self::ACTIVE_RECORD_RELATION_VALIDATION,
         self::MODEL_RULES_VALIDATION,
     ];
 

@@ -15,12 +15,14 @@ final class ValidComponent extends Component
     public function behaviors(): array
     {
         $dynamicBehavior = ['class' => $this->dynamicBehaviorClass, 'whatever' => 123];
+        $dynamicBehaviorClass = $this->getDynamicBehaviorClass();
         $dynamicList = [
             ProjectBehavior::class,
         ];
 
         return array_merge(parent::behaviors(), [
             ProjectBehavior::class,
+            $dynamicBehaviorClass,
             [
                 'class' => ProjectBehavior::class,
                 'name' => 'audit',
@@ -37,6 +39,11 @@ final class ValidComponent extends Component
             $dynamicBehavior,
             ...$dynamicList,
         ]);
+    }
+
+    private function getDynamicBehaviorClass(): string
+    {
+        return ProjectBehavior::class;
     }
 }
 

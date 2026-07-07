@@ -29,6 +29,7 @@ A set of PHPStan rules for Yii2 projects that I put together for my own day-to-d
 | [`noYiiAppPropertyMutation`](#taming-yiiapp)                           | Writes to `Yii::$app` properties, including `setComponents()`                                                                |
 | [`noDirectSuperglobals`](#no-raw-superglobals)                         | Direct use of `$_GET`, `$_POST`, `$_SESSION`, etc.                                                                           |
 | [`componentBehaviorsValidation`](#component-behaviors-that-lie)        | Malformed or invalid `behaviors()` in `yii\base\Component` — unknown behavior classes, bad config keys, and bad option types |
+| [`activeRecordRelationValidation`](#active-record-relations-that-lie)  | Invalid `hasOne()` / `hasMany()` link properties that do not exist on the current or related ActiveRecord model              |
 | [`modelRulesValidation`](#model-validation-rules-that-lie)             | Malformed or invalid `rules()` in `yii\base\Model` — unknown validators, missing required options, bad regexes, and more     |
 
 Every rule ships with its own PHPStan error identifier (`mspirkovYii2Rules.*`), so you can target `ignoreErrors` precisely instead of silencing a whole rule.
@@ -215,6 +216,57 @@ public function behaviors(): array
             'attribute' => 'title',                  // ✓
         ],
     ];
+}
+```
+
+### Active Record relations that lie
+
+`hasOne()` and `hasMany()` relation links are plain string arrays: the array keys belong to the related AR class, and the values belong to the current AR class. This rule checks that those properties exist, including properties declared through PHPDoc `@property`.
+
+```php
+/**
+ * @property int $id
+ */
+final class Customer extends ActiveRecord
+{
+}
+
+/**
+ * @property int $id
+ */
+final class Address extends ActiveRecord
+{
+}
+
+/**
+ * @property int $id
+ * @property int $order_id
+ */
+final class OrderItem extends ActiveRecord
+{
+}
+
+/**
+ * @property int $id
+ * @property int $customer_id
+ * @property int $shipping_address_id
+ */
+final class Order extends ActiveRecord
+{
+    public function getCustomer()
+    {
+        return $this->hasOne(Customer::class, ['id' => 'customer_id']);              // ✓
+    }
+
+    public function getShippingAddress()
+    {
+        return $this->hasOne(Address::class, ['uuid' => 'shipping_address_id']);     // ✗ missing on Address
+    }
+
+    public function getItems()
+    {
+        return $this->hasMany(OrderItem::class, ['order_id' => 'order_uuid']);       // ✗ missing on Order
+    }
 }
 ```
 

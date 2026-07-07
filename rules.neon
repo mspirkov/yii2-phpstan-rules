@@ -41,6 +41,8 @@ parameters:
 			enabled: %mspirkovYii2Rules.enableAllRules%
 		componentBehaviorsValidation:
 			enabled: %mspirkovYii2Rules.enableAllRules%
+		activeRecordRelationValidation:
+			enabled: %mspirkovYii2Rules.enableAllRules%
 		modelRulesValidation:
 			enabled: %mspirkovYii2Rules.enableAllRules%
 			customValidators: []
@@ -94,6 +96,9 @@ parametersSchema:
 		componentBehaviorsValidation: structure([
 			enabled: bool()
 		])
+		activeRecordRelationValidation: structure([
+			enabled: bool()
+		])
 		modelRulesValidation: structure([
 			enabled: bool()
 			customValidators: arrayOf(string())
@@ -123,6 +128,8 @@ conditionalTags:
 		phpstan.rules.rule: %mspirkovYii2Rules.noYiiAppPropertyMutation.enabled%
 	MSpirkov\Yii2\PHPStan\Rules\ComponentBehaviorsValidationRule:
 		phpstan.rules.rule: %mspirkovYii2Rules.componentBehaviorsValidation.enabled%
+	MSpirkov\Yii2\PHPStan\Rules\ActiveRecordRelationValidationRule:
+		phpstan.rules.rule: %mspirkovYii2Rules.activeRecordRelationValidation.enabled%
 	MSpirkov\Yii2\PHPStan\Rules\ModelRulesValidationRule:
 		phpstan.rules.rule: %mspirkovYii2Rules.modelRulesValidation.enabled%
 
@@ -151,6 +158,8 @@ services:
 		class: MSpirkov\Yii2\PHPStan\Rules\NoYiiAppPropertyMutationRule
 	-
 		class: MSpirkov\Yii2\PHPStan\Rules\ComponentBehaviorsValidationRule
+	-
+		class: MSpirkov\Yii2\PHPStan\Rules\ActiveRecordRelationValidationRule
 	-
 		class: MSpirkov\Yii2\PHPStan\Rules\ModelRulesValidationRule
 		arguments:
