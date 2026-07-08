@@ -21,7 +21,8 @@
             <directory>./src</directory>
         </include>
         <report>
-            <html outputDirectory="tests/coverage" />
+            <html outputDirectory="tests/coverage/html" />
+            <clover outputFile="tests/coverage/clover.xml" />
         </report>
     </coverage>
 </phpunit>

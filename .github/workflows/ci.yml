@@ -34,7 +34,7 @@ jobs:
           php-version: "7.4"
 
       - name: Run PHP CS Fixer
-        run: vendor/bin/php-cs-fixer check
+        run: ./vendor/bin/php-cs-fixer check
 
   rector:
     name: "Rector check"
@@ -49,7 +49,7 @@ jobs:
           php-version: "7.4"
 
       - name: Run Rector
-        run: vendor/bin/rector process --dry-run
+        run: ./vendor/bin/rector process --dry-run
 
   tests:
     runs-on: ubuntu-latest
@@ -77,7 +77,13 @@ jobs:
           php-version: ${{ matrix.php-version }}
 
       - name: Run tests
-        run: vendor/bin/phpunit
+        run: ./vendor/bin/phpunit
+
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./tests/coverage/clover.xml
 
       - name: Run PHPStan
-        run: vendor/bin/phpstan
+        run: ./vendor/bin/phpstan
