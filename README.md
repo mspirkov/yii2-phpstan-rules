@@ -11,7 +11,7 @@ A set of PHPStan rules for Yii2 projects that I put together for my own day-to-d
 [![Yii 2.0.x](https://img.shields.io/badge/%3E%3D2.0.53-247BA0.svg?style=for-the-badge&logo=yii&logoColor=white&label=Yii)](https://github.com/yiisoft/yii2/tree/2.0.53)
 [![Tests](https://img.shields.io/github/actions/workflow/status/mspirkov/yii2-phpstan-rules/ci.yml?branch=main&style=for-the-badge&logo=github&label=Tests)](https://github.com/mspirkov/yii2-phpstan-rules/actions/workflows/ci.yml)
 [![PHPStan](https://img.shields.io/github/actions/workflow/status/mspirkov/yii2-phpstan-rules/ci.yml?branch=main&style=for-the-badge&logo=github&label=PHPStan)](https://github.com/mspirkov/yii2-phpstan-rules/actions/workflows/ci.yml)
-![Coverage](https://img.shields.io/badge/100%25-44CC11.svg?style=for-the-badge&label=Coverage)
+[![Coverage](https://img.shields.io/codecov/c/github/mspirkov/yii2-phpstan-rules.svg?branch=main&style=for-the-badge&logo=codecov&logoColor=white&label=Coverage)](https://codecov.io/github/mspirkov/yii2-phpstan-rules)
 ![PHPStan Level Max](https://img.shields.io/badge/Max-7A86B8.svg?style=for-the-badge&label=PHPStan%20Level)
 
 ## What's inside
