@@ -16,3 +16,15 @@ $nullsafe = Yii::$app?->request;
 $byFqcn = \Yii::$app->db;
 
 $headers = $request->headers;
+
+$app = Yii::$app;
+$idViaVariable = $app->id;
+$requestViaVariable = $app->request;
+
+$appAlias = $app;
+$dbViaAlias = $appAlias->db;
+
+$application = new \yii\web\Application([]);
+$applicationId = $application->id;
+$applicationRequest = $application->request;
+$applicationDynamic = $application->{$propertyName};

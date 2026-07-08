@@ -100,7 +100,7 @@ final class NoYiiAppPropertyMutationRule implements Rule
         if (!$propertyFetch->name instanceof Identifier) {
             return [
                 ErrorBuilder::build(
-                    'Modification of dynamic Yii::$app property is forbidden.',
+                    'Modification of dynamic Yii application property is forbidden.',
                     Identifiers::NO_YII_APP_PROPERTY_MUTATION
                 ),
             ];
@@ -108,7 +108,7 @@ final class NoYiiAppPropertyMutationRule implements Rule
 
         return [
             ErrorBuilder::build(
-                sprintf('Modification of Yii::$app->%s is forbidden.', $propertyFetch->name->name),
+                sprintf('Modification of Yii application property "%s" is forbidden.', $propertyFetch->name->name),
                 Identifiers::NO_YII_APP_PROPERTY_MUTATION
             ),
         ];
@@ -151,7 +151,7 @@ final class NoYiiAppPropertyMutationRule implements Rule
         return [
             ErrorBuilder::build(
                 sprintf(
-                    'Call to Yii::$app->%s() is forbidden because it modifies application properties.',
+                    'Call to Yii application method "%s()" is forbidden because it modifies application properties.',
                     $methodCall->name->name
                 ),
                 Identifiers::NO_YII_APP_PROPERTY_MUTATION

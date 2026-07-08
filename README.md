@@ -28,8 +28,8 @@ A set of PHPStan rules for Yii2 projects that I put together for my own day-to-d
 | [`noDbQueriesInActions`](#no-database-access-outside-repositories)      | Direct DB/ActiveRecord access in `Action` classes                                                                            |
 | [`noDbQueriesInViews`](#no-database-access-outside-repositories)        | Direct DB/ActiveRecord access in view files                                                                                  |
 | [`noDynamicQueryWhere`](#no-dynamic-sql-strings)                        | String-concatenated conditions passed to `Query::where()` / `andWhere()`                                                     |
-| [`noForbiddenYiiAppProperties`](#taming-yiiapp)                         | Reads of arbitrary `Yii::$app->*` components                                                                                 |
-| [`noYiiAppPropertyMutation`](#taming-yiiapp)                            | Writes to `Yii::$app` properties, including `setComponents()`                                                                |
+| [`noForbiddenYiiAppProperties`](#taming-yiiapp)                         | Reads of arbitrary `yii\base\Application` components, including `Yii::$app->*`                                                |
+| [`noYiiAppPropertyMutation`](#taming-yiiapp)                            | Writes to `yii\base\Application` properties, including `setComponents()`                                                     |
 | [`noDirectSuperglobals`](#no-raw-superglobals)                          | Direct use of `$_GET`, `$_POST`, `$_SESSION`, etc.                                                                           |
 
 Every rule ships with its own PHPStan error identifier (`mspirkovYii2Rules.*`), so you can target `ignoreErrors` precisely instead of silencing a whole rule.
@@ -72,7 +72,7 @@ parameters:
             ternaryCount: 1
             tryCatchCount: 1
 
-        # Yii::$app properties allowed to be read anywhere (e.g. request-agnostic settings)
+        # Yii application properties allowed to be read anywhere (e.g. request-agnostic settings)
         noForbiddenYiiAppProperties:
             allowedProperties:
                 - id
@@ -262,15 +262,24 @@ $query->where(['status' => $status]);
 
 ### Taming `Yii::$app`
 
-Two rules keep the service locator from becoming a place where any property can be read or reassigned from anywhere:
+Two rules keep the application object from becoming a place where any property can be read or reassigned from anywhere. They check expressions typed as `yii\base\Application`, so the same restrictions apply to direct `Yii::$app` usage, variables holding it, and explicit `Application` instances:
 
 ```php
 // ✗ noForbiddenYiiAppProperties: arbitrary component access
 $cache = Yii::$app->cache;
 
+$app = Yii::$app;
+$request = $app->request;
+
+$application = new Application($config);
+$session = $application->session;
+
 // ✗ noYiiAppPropertyMutation: mutating the container at runtime
 Yii::$app->params = [];
 Yii::$app->setComponents([...]);
+
+$app->language = 'ru-RU';
+$application->setComponents([...]);
 
 // ✓ inject the component instead
 public function __construct(private CacheInterface $cache) {}
