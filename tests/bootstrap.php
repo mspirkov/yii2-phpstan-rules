@@ -2,4 +2,7 @@
 
 declare(strict_types=1);
 
-require dirname(__DIR__) . '/vendor/autoload.php';
+$rootDir = dirname(__DIR__);
+
+require "{$rootDir}/vendor/autoload.php";
+require "{$rootDir}/vendor/yiisoft/yii2/Yii.php";

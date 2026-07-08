@@ -4,32 +4,18 @@ declare(strict_types=1);
 
 namespace MSpirkov\Yii2\PHPStan\Analyzers;
 
-use PhpParser\Node;
-use PhpParser\Node\Expr\StaticPropertyFetch;
-use PhpParser\Node\Identifier;
-use PhpParser\Node\Name;
+use PhpParser\Node\Expr;
 use PHPStan\Analyser\Scope;
+use PHPStan\Type\ObjectType;
+use PHPStan\Type\TypeCombinator;
+use yii\base\Application;
 
 final class YiiAppAnalyzer
 {
-    public function isPropertyFetch(Node $node, Scope $scope): bool
+    public function isPropertyFetch(Expr $expr, Scope $scope): bool
     {
-        if (!$node instanceof StaticPropertyFetch) {
-            return false;
-        }
+        $type = TypeCombinator::removeNull($scope->getType($expr));
 
-        if (!$node->class instanceof Name) {
-            return false;
-        }
-
-        if (!$node->name instanceof Identifier) {
-            return false;
-        }
-
-        if ($node->name->name !== 'app') {
-            return false;
-        }
-
-        return $scope->resolveName($node->class) === 'Yii';
+        return (new ObjectType(Application::class))->isSuperTypeOf($type)->yes();
     }
 }

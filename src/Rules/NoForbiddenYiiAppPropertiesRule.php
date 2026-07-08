@@ -54,7 +54,7 @@ final class NoForbiddenYiiAppPropertiesRule implements Rule
         if (!$node->name instanceof Identifier) {
             return [
                 ErrorBuilder::build(
-                    'Use of dynamic Yii::$app property is forbidden.',
+                    'Use of dynamic Yii application property is forbidden.',
                     Identifiers::NO_FORBIDDEN_YII_APP_PROPERTIES
                 ),
             ];
@@ -68,7 +68,7 @@ final class NoForbiddenYiiAppPropertiesRule implements Rule
 
         return [
             ErrorBuilder::build(
-                sprintf('Use of Yii::$app->%s is forbidden.', $propertyName),
+                sprintf('Use of Yii application property "%s" is forbidden.', $propertyName),
                 Identifiers::NO_FORBIDDEN_YII_APP_PROPERTIES
             ),
         ];

@@ -34,3 +34,18 @@ $request->headers = [];
 })->setComponents([]);
 $methodName = 'getComponents';
 Yii::$app->{$methodName}();
+
+$app = Yii::$app;
+$app->name = 'app2';
+$app->counter++;
+unset($app->cache);
+$app->setComponents([]);
+
+$appAlias = $app;
+$appAlias->language .= '-RU';
+
+$application = new \yii\web\Application([]);
+$application->name = 'app3';
+$application->params['feature']['enabled'] = false;
+$application->{$propertyName} = 'value';
+$application->setComponents([]);

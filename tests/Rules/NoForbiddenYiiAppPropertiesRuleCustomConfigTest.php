@@ -16,9 +16,12 @@ final class NoForbiddenYiiAppPropertiesRuleCustomConfigTest extends AbstractTest
         $this->analyse(
             [self::getDataFilePath('code')],
             [
-                ['Use of Yii::$app->request is forbidden.', 9],
-                ['Use of dynamic Yii::$app property is forbidden.', 12],
-                ['Use of Yii::$app->request is forbidden.', 14],
+                ['Use of Yii application property "request" is forbidden.', 9],
+                ['Use of dynamic Yii application property is forbidden.', 12],
+                ['Use of Yii application property "request" is forbidden.', 14],
+                ['Use of Yii application property "request" is forbidden.', 22],
+                ['Use of Yii application property "request" is forbidden.', 29],
+                ['Use of dynamic Yii application property is forbidden.', 30],
             ],
         );
     }
