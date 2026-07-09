@@ -12,6 +12,7 @@ use PhpParser\Node\Expr\Array_;
 use PhpParser\Node\Scalar\Int_;
 use PhpParser\Node\Scalar\String_;
 use PHPStan\Analyser\Scope;
+use PHPStan\Reflection\ClassReflection;
 use PHPStan\Reflection\ReflectionProvider;
 use PHPStan\Rules\IdentifierRuleError;
 use PHPStan\Type\MixedType;
@@ -107,9 +108,10 @@ final class BaseObjectConfigAnalyzer
         string $identifier
     ): array {
         $errors = [];
+        $classReflection = $this->reflectionProvider->getClass($className);
 
         foreach ($options as $optionName => $item) {
-            if ($this->isWritableOption($className, $optionName, $scope)) {
+            if ($this->isWritableOption($classReflection, $optionName, $scope)) {
                 continue;
             }
 
@@ -221,13 +223,11 @@ final class BaseObjectConfigAnalyzer
     /**
      * @param class-string $className
      */
-    private function isWritableOption(string $className, string $propertyName, Scope $scope): bool
+    private function isWritableOption(ClassReflection $classReflection, string $propertyName, Scope $scope): bool
     {
         if (in_array($propertyName, self::SPECIAL_CONFIG_KEYS, true)) {
             return true;
         }
-
-        $classReflection = $this->reflectionProvider->getClass($className);
 
         return $this->baseObjectPropertyAnalyzer->hasWritableProperty($classReflection, $propertyName, $scope);
     }
