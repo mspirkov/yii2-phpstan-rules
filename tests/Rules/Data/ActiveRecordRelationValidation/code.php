@@ -40,6 +40,8 @@ final class Customer extends ActiveRecord
         $this->hasOne(Country::class, [...['id' => 'country_id']]);
         $this->hasMany(Order::class, ['missing_customer_id' => 'customer_id'])
             ->viaTable('customer_order', ['customer_id' => 'id']);
+        $this->hasMany(Order::class, ['missing_customer_id' => 'customer_id'])
+            ->via('orders');
         (new RelationFactory())->hasOne(Country::class, ['id' => 'country_id']);
     }
 

@@ -20,10 +20,10 @@ final class ActiveRecordRelationValidationRuleTest extends AbstractTestCase
         $this->analyse(
             [self::getDataFilePath('code')],
             [
-                [sprintf('Unknown property "missing_id" for related ActiveRecord %s in hasOne() relation link.', Country::class), 48],
-                [sprintf('Unknown property "missing_country_id" for current ActiveRecord %s in hasOne() relation link.', self::CUSTOMER_CLASS), 49],
-                [sprintf('Unknown property "missing_customer_id" for related ActiveRecord %s in hasMany() relation link.', Order::class), 50],
-                [sprintf('Unknown property "missing_id" for current ActiveRecord %s in hasMany() relation link.', self::CUSTOMER_CLASS), 50],
+                [sprintf('Unknown property "missing_id" for related ActiveRecord %s in hasOne() relation link.', Country::class), 50],
+                [sprintf('Unknown property "missing_country_id" for current ActiveRecord %s in hasOne() relation link.', self::CUSTOMER_CLASS), 51],
+                [sprintf('Unknown property "missing_customer_id" for related ActiveRecord %s in hasMany() relation link.', Order::class), 52],
+                [sprintf('Unknown property "missing_id" for current ActiveRecord %s in hasMany() relation link.', self::CUSTOMER_CLASS), 52],
             ],
         );
     }
