@@ -221,3 +221,22 @@ final class OptionTypeValidationModel extends Model
         return mt_rand(0, 1) === 1 ? 255 : 'dynamic';
     }
 }
+
+final class DynamicAttributeCollectionModel extends Model
+{
+    public function rules(): array
+    {
+        $mappedAttributes = array_map(static fn (int $i): string => 'attr' . $i, [1, 2, 3]);
+        $pKeyGroup = ['rule_id', 'weapon_type_id'];
+        $mergedAttributes = array_merge($pKeyGroup, ['battles', 'wins']);
+        $mergedScenarios = array_merge(['create'], ['update']);
+        $intAttributes = array_map(static fn (int $i): int => $i, [1, 2, 3]);
+
+        return [
+            [$mappedAttributes, 'trim'],
+            [$mergedAttributes, 'required'],
+            ['login', 'required', 'on' => $mergedScenarios],
+            [$intAttributes, 'trim'],
+        ];
+    }
+}

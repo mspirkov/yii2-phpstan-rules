@@ -279,7 +279,7 @@ final class ModelRulesValidationRule implements Rule
             return $errors;
         }
 
-        if ($this->expressionTypeAnalyzer->isDefinitelyNotString($attributesExpr, $scope)) {
+        if ($this->expressionTypeAnalyzer->isDefinitelyNotStringOrArrayOfStrings($attributesExpr, $scope)) {
             return [
                 $this->buildError(
                     'Model validation rule attributes must be a string or array of strings.',
@@ -514,7 +514,7 @@ final class ModelRulesValidationRule implements Rule
             return $errors;
         }
 
-        if ($this->expressionTypeAnalyzer->isDefinitelyNotString($optionExpr, $scope)) {
+        if ($this->expressionTypeAnalyzer->isDefinitelyNotStringOrArrayOfStrings($optionExpr, $scope)) {
             return [
                 $this->buildError(
                     sprintf('Validator option "%s" must be a string or array of strings.', $optionName),

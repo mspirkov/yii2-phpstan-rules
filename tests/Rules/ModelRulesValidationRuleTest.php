@@ -55,6 +55,7 @@ final class ModelRulesValidationRuleTest extends AbstractTestCase
                 ['Validator option "integerOnly" for yii\validators\NumberValidator must be bool, string given.', 213],
                 ['Unknown option "attributeNames" for validator yii\validators\RequiredValidator.', 214],
                 ['Unknown validator "missingValidatorAlias".', 215],
+                ['Model validation rule attributes must be a string or array of strings.', 239],
             ],
         );
     }
