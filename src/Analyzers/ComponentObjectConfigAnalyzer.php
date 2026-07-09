@@ -28,12 +28,14 @@ final class ComponentObjectConfigAnalyzer
     public function validateObjectOptionNames(
         string $className,
         array $options,
+        Scope $scope,
         string $objectLabel,
         string $identifier
     ): array {
         return $this->baseObjectConfigAnalyzer->validateObjectOptionNames(
             $className,
             $this->filterComponentConfigOptions($options),
+            $scope,
             $objectLabel,
             $identifier
         );

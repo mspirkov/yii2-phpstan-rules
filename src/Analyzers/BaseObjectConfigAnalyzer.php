@@ -27,10 +27,14 @@ final class BaseObjectConfigAnalyzer
 
     private ReflectionProvider $reflectionProvider;
 
+    private BaseObjectPropertyAnalyzer $baseObjectPropertyAnalyzer;
+
     public function __construct(
-        ReflectionProvider $reflectionProvider
+        ReflectionProvider $reflectionProvider,
+        BaseObjectPropertyAnalyzer $baseObjectPropertyAnalyzer
     ) {
         $this->reflectionProvider = $reflectionProvider;
+        $this->baseObjectPropertyAnalyzer = $baseObjectPropertyAnalyzer;
     }
 
     /**
@@ -98,13 +102,14 @@ final class BaseObjectConfigAnalyzer
     public function validateObjectOptionNames(
         string $className,
         array $options,
+        Scope $scope,
         string $objectLabel,
         string $identifier
     ): array {
         $errors = [];
 
         foreach ($options as $optionName => $item) {
-            if ($this->isWritableOption($className, $optionName)) {
+            if ($this->isWritableOption($className, $optionName, $scope)) {
                 continue;
             }
 
@@ -216,31 +221,15 @@ final class BaseObjectConfigAnalyzer
     /**
      * @param class-string $className
      */
-    private function isWritableOption(string $className, string $propertyName): bool
+    private function isWritableOption(string $className, string $propertyName, Scope $scope): bool
     {
         if (in_array($propertyName, self::SPECIAL_CONFIG_KEYS, true)) {
             return true;
         }
 
         $classReflection = $this->reflectionProvider->getClass($className);
-        $reflection = $classReflection->getNativeReflection();
 
-        if ($reflection->hasProperty($propertyName)) {
-            $property = $reflection->getProperty($propertyName);
-            if ($property->isPublic() && !$property->isStatic()) {
-                return true;
-            }
-        }
-
-        $setter = 'set' . ucfirst($propertyName);
-        if ($reflection->hasMethod($setter)) {
-            $method = $reflection->getMethod($setter);
-            if ($method->isPublic() && !$method->isStatic()) {
-                return true;
-            }
-        }
-
-        return false;
+        return $this->baseObjectPropertyAnalyzer->hasWritableProperty($classReflection, $propertyName, $scope);
     }
 
     /**

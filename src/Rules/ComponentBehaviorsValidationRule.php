@@ -76,9 +76,7 @@ final class ComponentBehaviorsValidationRule implements Rule
             }
 
             if ($item->value instanceof Array_) {
-                foreach ($this->validateBehaviorArray($item->value, $scope) as $error) {
-                    $errors[] = $error;
-                }
+                $errors = array_merge($errors, $this->validateBehaviorArray($item->value, $scope));
 
                 continue;
             }
@@ -87,9 +85,7 @@ final class ComponentBehaviorsValidationRule implements Rule
                 continue;
             }
 
-            foreach ($this->validateBehaviorClassExpression($item->value, $scope) as $error) {
-                $errors[] = $error;
-            }
+            $errors = array_merge($errors, $this->validateBehaviorClassExpression($item->value, $scope));
         }
 
         return $errors;
@@ -136,6 +132,7 @@ final class ComponentBehaviorsValidationRule implements Rule
         $errors = array_merge($errors, $this->baseObjectConfigAnalyzer->validateObjectOptionNames(
             $behaviorClass,
             $options['items'],
+            $scope,
             'behavior',
             Identifiers::COMPONENT_BEHAVIORS_VALIDATION
         ));

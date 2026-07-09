@@ -83,7 +83,7 @@ final class NotInterestingMethod
     }
 }
 
-final class VirtualAttributeModel extends Model
+final class MagicAttributeModel extends Model
 {
     public $login;
 

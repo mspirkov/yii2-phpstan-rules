@@ -280,7 +280,7 @@ final class UnknownAttributeModel extends Model
     }
 }
 
-final class VirtualAttributeModel extends Model
+final class MagicAttributeModel extends Model
 {
     public $login;
 
