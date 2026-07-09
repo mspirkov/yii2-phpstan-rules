@@ -28,7 +28,7 @@ final class BaseObjectPropertyAnalyzer
         Scope $scope
     ): bool {
         $instanceProperty = $this->findInstanceProperty($classReflection, $propertyName, $scope);
-        if ($instanceProperty !== null && $instanceProperty->isWritable()) {
+        if ($instanceProperty instanceof ExtendedPropertyReflection && $instanceProperty->isWritable()) {
             return true;
         }
 
