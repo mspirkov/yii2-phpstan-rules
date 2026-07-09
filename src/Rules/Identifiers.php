@@ -19,6 +19,7 @@ final class Identifiers
     public const COMPONENT_BEHAVIORS_VALIDATION = self::PREFIX . 'componentBehaviorsValidation';
     public const ACTIVE_RECORD_RELATION_VALIDATION = self::PREFIX . 'activeRecordRelationValidation';
     public const MODEL_RULES_VALIDATION = self::PREFIX . 'modelRulesValidation';
+    public const MODEL_ATTRIBUTE_LABELS_VALIDATION = self::PREFIX . 'modelAttributeLabelsValidation';
 
     public const LIST = [
         self::NO_DIRECT_SUPERGLOBALS,
@@ -34,6 +35,7 @@ final class Identifiers
         self::COMPONENT_BEHAVIORS_VALIDATION,
         self::ACTIVE_RECORD_RELATION_VALIDATION,
         self::MODEL_RULES_VALIDATION,
+        self::MODEL_ATTRIBUTE_LABELS_VALIDATION,
     ];
 
     private const PREFIX = 'mspirkovYii2Rules.';

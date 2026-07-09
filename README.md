@@ -21,6 +21,7 @@ A set of PHPStan rules for Yii2 projects that I put together for my own day-to-d
 | [`activeRecordRelationValidation`](#active-record-relations-validation) | Invalid `hasOne()` / `hasMany()` link properties that do not exist on the current or related ActiveRecord model              |
 | [`componentBehaviorsValidation`](#component-behaviors-validation)       | Malformed or invalid `behaviors()` in `yii\base\Component` — unknown behavior classes, bad config keys, and bad option types |
 | [`modelRulesValidation`](#model-validation-rules-validation)            | Malformed or invalid `rules()` in `yii\base\Model` — unknown validators, missing required options, bad regexes, unknown attributes, and more |
+| [`modelAttributeLabelsValidation`](#model-attribute-labels-validation)  | `attributeLabels()` entries in `yii\base\Model` that target attributes that don't exist, or use an empty attribute name      |
 | [`noComplexControllerActions`](#complexity-limits)                      | Controller actions with too much branching/looping — logic that belongs in a service                                         |
 | [`noComplexActionClasses`](#complexity-limits)                          | The same, for standalone `yii\base\Action` classes                                                                           |
 | [`noControllerActionCallsViaThis`](#no-calling-actions-via-this)        | `$this->actionFoo()` inside a controller instead of a redirect or shared method                                              |
@@ -212,6 +213,29 @@ final class ContactModel extends Model
             ['name', 'required'],
             ['emial', 'required'],   // ✗ typo — "emial" is not a property on ContactModel
             ['email', 'string'],     // ✓ declared via @property
+        ];
+    }
+}
+```
+
+### Model attribute labels validation
+
+`Model::attributeLabels()` is just as easy to get wrong as `rules()` — a typo'd key silently falls back to the default humanized attribute name instead of showing your label. This rule checks that every key is an existing property on the model (as a declared property or a PHPDoc `@property`, same resolution as `modelRulesValidation`) and isn't left empty. It doesn't duplicate what PHPStan already infers on its own: `yii\base\Model::attributeLabels()` is documented as `@return array<string, string>`, so as long as your override doesn't add its own looser `@return` docblock, PHPStan itself will flag positional entries or non-string labels as a return type mismatch.
+
+```php
+/**
+ * @property string $email
+ */
+final class ContactModel extends Model
+{
+    public $name;
+
+    public function attributeLabels(): array
+    {
+        return [
+            'name' => 'Name',
+            'emial' => 'E-mail',   // ✗ typo — "emial" is not a property on ContactModel
+            'email' => 'E-mail',   // ✓ declared via @property
         ];
     }
 }
