@@ -59,6 +59,16 @@ final class ExpressionTypeAnalyzer
         return $scope->getType($expr)->isString()->no();
     }
 
+    public function isDefinitelyNotStringOrArrayOfStrings(Expr $expr, Scope $scope): bool
+    {
+        $type = $scope->getType($expr);
+        if ($type->isArray()->yes()) {
+            return $type->getIterableValueType()->isString()->no();
+        }
+
+        return $type->isString()->no();
+    }
+
     /**
      * @param class-string $className
      */
