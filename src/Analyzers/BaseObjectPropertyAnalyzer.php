@@ -6,14 +6,30 @@ namespace MSpirkov\Yii2\PHPStan\Analyzers;
 
 use PHPStan\Analyser\Scope;
 use PHPStan\Reflection\ClassReflection;
+use PHPStan\Reflection\ExtendedPropertyReflection;
 
 final class BaseObjectPropertyAnalyzer
 {
-    public function hasWritableProperty(ClassReflection $classReflection, string $propertyName, Scope $scope): bool
-    {
+    public function findInstanceProperty(
+        ClassReflection $classReflection,
+        string $propertyName,
+        Scope $scope
+    ): ?ExtendedPropertyReflection {
         if ($classReflection->hasInstanceProperty($propertyName)) {
-            $propertyReflection = $classReflection->getInstanceProperty($propertyName, $scope);
-            if ($propertyReflection->isWritable()) {
+            return $classReflection->getInstanceProperty($propertyName, $scope);
+        }
+
+        return null;
+    }
+
+    public function hasWritableProperty(
+        ClassReflection $classReflection,
+        string $propertyName,
+        Scope $scope
+    ): bool {
+        $instanceProperty = $this->findInstanceProperty($classReflection, $propertyName, $scope);
+        if ($instanceProperty !== null) {
+            if ($instanceProperty->isWritable()) {
                 return true;
             }
         }

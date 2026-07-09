@@ -148,17 +148,21 @@ final class BaseObjectConfigAnalyzer
             if (
                 in_array($optionName, self::SPECIAL_CONFIG_KEYS, true)
                 || in_array($optionName, $typeCheckSkippedOptions, true)
-                || !$classReflection->hasInstanceProperty($optionName)
             ) {
                 continue;
             }
 
-            $property = $classReflection->getInstanceProperty($optionName, $scope);
-            if (!$property->isWritable()) {
+            $instanceProperty = $this->baseObjectPropertyAnalyzer->findInstanceProperty(
+                $classReflection,
+                $optionName,
+                $scope
+            );
+
+            if ($instanceProperty === null || !$instanceProperty->isWritable()) {
                 continue;
             }
 
-            $expectedType = $property->getWritableType();
+            $expectedType = $instanceProperty->getWritableType();
             $actualType = $scope->getType($item->value);
             if ($expectedType instanceof MixedType || $actualType instanceof MixedType) {
                 continue;
