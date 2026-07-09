@@ -13,14 +13,14 @@ final class ModelAttributeLabelsValidationRuleTest extends AbstractTestCase
 {
     public function testRule(): void
     {
-        $invalidModelClassname = 'MSpirkov\Yii2\PHPStan\Tests\Rules\Source\ModelAttributeLabelsValidation\InvalidModel';
+        $invalidModelClass = 'MSpirkov\Yii2\PHPStan\Tests\Rules\Source\ModelAttributeLabelsValidation\InvalidModel';
 
         $this->analyse(
             [self::getDataFilePath('code')],
             [
-                [sprintf('Unknown attribute "nickname" for model %s.', $invalidModelClassname), 34],
+                [sprintf('Unknown attribute "nickname" for model %s.', $invalidModelClass), 34],
                 ['Model attribute label contains an empty attribute name.', 37],
-                [sprintf('Unknown attribute "unknownAndBadType" for model %s.', $invalidModelClassname), 38],
+                [sprintf('Unknown attribute "unknownAndBadType" for model %s.', $invalidModelClass), 38],
             ],
         );
     }
