@@ -146,7 +146,8 @@ final class BaseObjectConfigAnalyzer
 
         foreach ($options as $optionName => $item) {
             if (
-                $this->shouldSkipOptionTypeCheck($optionName, $typeCheckSkippedOptions)
+                in_array($optionName, self::SPECIAL_CONFIG_KEYS, true)
+                || in_array($optionName, $typeCheckSkippedOptions, true)
                 || !$classReflection->hasInstanceProperty($optionName)
             ) {
                 continue;
@@ -220,9 +221,6 @@ final class BaseObjectConfigAnalyzer
         return ['found' => false];
     }
 
-    /**
-     * @param class-string $className
-     */
     private function isWritableOption(ClassReflection $classReflection, string $propertyName, Scope $scope): bool
     {
         if (in_array($propertyName, self::SPECIAL_CONFIG_KEYS, true)) {
@@ -230,14 +228,5 @@ final class BaseObjectConfigAnalyzer
         }
 
         return $this->baseObjectPropertyAnalyzer->hasWritableProperty($classReflection, $propertyName, $scope);
-    }
-
-    /**
-     * @param list<string> $typeCheckSkippedOptions
-     */
-    private function shouldSkipOptionTypeCheck(string $optionName, array $typeCheckSkippedOptions): bool
-    {
-        return in_array($optionName, self::SPECIAL_CONFIG_KEYS, true)
-            || in_array($optionName, $typeCheckSkippedOptions, true);
     }
 }
