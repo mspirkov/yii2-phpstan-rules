@@ -65,7 +65,7 @@ final class BaseObjectPropertyAnalyzer
 
     private function looksLikePropertyName(string $name): bool
     {
-        return preg_match('/^[A-Za-z_][A-Za-z0-9_]*$/', $name) === 1;
+        return preg_match('/^[A-Za-z_]\w*$/', $name) === 1;
     }
 
     private function hasPropertySetter(ClassReflection $classReflection, string $propertyName): bool
