@@ -66,7 +66,7 @@ final class ActiveRecordRelationValidationRule implements Rule
             return [];
         }
 
-        if ($this->isFollowedByViaTable($node, $scope)) {
+        if ($this->isFollowedByVia($node, $scope)) {
             return [];
         }
 
@@ -122,14 +122,14 @@ final class ActiveRecordRelationValidationRule implements Rule
         return array_values($activeRecordReflections)[0];
     }
 
-    private function isFollowedByViaTable(MethodCall $methodCall, Scope $scope): bool
+    private function isFollowedByVia(MethodCall $methodCall, Scope $scope): bool
     {
         $endFilePos = $methodCall->getAttribute('endFilePos');
         $tail = is_int($endFilePos)
             ? (string) file_get_contents($scope->getFile(), false, null, $endFilePos + 1, 128)
             : '';
 
-        return preg_match('/^\s*->\s*viaTable\s*\(/', $tail) === 1;
+        return preg_match('/^\s*->\s*(?:viaTable|via)\s*\(/', $tail) === 1;
     }
 
     /**
