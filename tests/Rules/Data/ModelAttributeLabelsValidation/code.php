@@ -105,3 +105,18 @@ final class MagicAttributeModel extends Model
     {
     }
 }
+
+final class AttributeNameShapeModel extends Model
+{
+    public $login;
+
+    public function attributeLabels(): array
+    {
+        return [
+            'user.name' => 'User name',
+            'COALESCE(map_id, 0)' => 'Map',
+            ' login ' => 'Login',
+            ' nickname ' => 'Nickname',
+        ];
+    }
+}
