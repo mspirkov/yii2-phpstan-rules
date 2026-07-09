@@ -266,9 +266,8 @@ final class ModelRulesValidationRule implements Rule
                             $item->value
                         );
                     } else {
-                        foreach ($this->validateAttributeExists($item->value->value, $item->value, $scope) as $error) {
-                            $errors[] = $error;
-                        }
+                        $attributesErrors = $this->validateAttributeExists($item->value->value, $item->value, $scope);
+                        $errors = array_merge($errors, $attributesErrors);
                     }
 
                     continue;
