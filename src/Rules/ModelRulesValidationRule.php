@@ -245,9 +245,11 @@ final class ModelRulesValidationRule implements Rule
     private function validateAttributeNames(Expr $attributesExpr, Scope $scope): array
     {
         if ($attributesExpr instanceof String_) {
-            return $attributesExpr->value === ''
-                ? [$this->buildError('Model validation rule contains an empty attribute name.', $attributesExpr)]
-                : [];
+            if ($attributesExpr->value === '') {
+                return [$this->buildError('Model validation rule contains an empty attribute name.', $attributesExpr)];
+            }
+
+            return $this->validateAttributeExists($attributesExpr->value, $attributesExpr, $scope);
         }
 
         if ($attributesExpr instanceof Array_) {
@@ -263,6 +265,10 @@ final class ModelRulesValidationRule implements Rule
                             'Model validation rule contains an empty attribute name.',
                             $item->value
                         );
+                    } else {
+                        foreach ($this->validateAttributeExists($item->value->value, $item->value, $scope) as $error) {
+                            $errors[] = $error;
+                        }
                     }
 
                     continue;
@@ -289,6 +295,24 @@ final class ModelRulesValidationRule implements Rule
         }
 
         return [];
+    }
+
+    /**
+     * @return list<IdentifierRuleError>
+     */
+    private function validateAttributeExists(string $attributeName, Node $node, Scope $scope): array
+    {
+        $classReflection = $scope->getClassReflection();
+        if (!$classReflection instanceof ClassReflection || $classReflection->hasInstanceProperty($attributeName)) {
+            return [];
+        }
+
+        return [
+            $this->buildError(
+                sprintf('Unknown attribute "%s" for model %s.', $attributeName, $classReflection->getName()),
+                $node
+            ),
+        ];
     }
 
     /**
