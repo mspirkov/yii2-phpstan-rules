@@ -88,7 +88,7 @@ final class ModelAttributeLabelsValidationRule implements Rule
         $classReflection = $scope->getClassReflection();
         if (
             !$classReflection instanceof ClassReflection
-            || $this->baseObjectPropertyAnalyzer->hasProperty($classReflection, $attributeName)
+            || !$this->baseObjectPropertyAnalyzer->isUnknownAttribute($classReflection, $attributeName)
         ) {
             return [];
         }

@@ -48,6 +48,26 @@ final class BaseObjectPropertyAnalyzer
         return $this->hasPropertySetter($classReflection, $propertyName);
     }
 
+    /**
+     * Attribute names coming from free-form config (e.g. model `rules()` or
+     * `attributeLabels()` keys) may reference relation properties (`user.name`) or
+     * arbitrary expressions (`COALESCE(map_id, 0)`) a custom validator interprets on its
+     * own, so existence is only checked for names that could plausibly be a property.
+     */
+    public function isUnknownAttribute(ClassReflection $classReflection, string $attributeName): bool
+    {
+        if (!$this->looksLikePropertyName(trim($attributeName))) {
+            return false;
+        }
+
+        return !$this->hasProperty($classReflection, $attributeName);
+    }
+
+    private function looksLikePropertyName(string $name): bool
+    {
+        return preg_match('/^[A-Za-z_]\w*$/', $name) === 1;
+    }
+
     private function hasPropertySetter(ClassReflection $classReflection, string $propertyName): bool
     {
         $accessorName = ucfirst($propertyName);

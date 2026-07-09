@@ -55,6 +55,8 @@ final class ModelRulesValidationRuleTest extends AbstractTestCase
             ['Unknown validator "missingValidatorAlias".', 238],
             ['Unknown attribute "nickname" for model MSpirkov\Yii2\PHPStan\Tests\Rules\Source\ModelRulesValidation\UnknownAttributeModel.', 277],
             ['Unknown attribute "nickname" for model MSpirkov\Yii2\PHPStan\Tests\Rules\Source\ModelRulesValidation\UnknownAttributeModel.', 278],
+            ['Unknown attribute " login " for model MSpirkov\Yii2\PHPStan\Tests\Rules\Source\ModelRulesValidation\AttributeNameShapeModel.', 314],
+            ['Unknown attribute " nickname " for model MSpirkov\Yii2\PHPStan\Tests\Rules\Source\ModelRulesValidation\AttributeNameShapeModel.', 315],
         ];
 
         // For versions 7.4 and 8.0, we simply do not display this error because PHPStan

@@ -301,3 +301,18 @@ final class MagicAttributeModel extends Model
     {
     }
 }
+
+final class AttributeNameShapeModel extends Model
+{
+    public $login;
+
+    public function rules(): array
+    {
+        return [
+            ['user.name', 'safe'],
+            ['COALESCE(map_id, 0)', 'safe'],
+            [' login ', 'trim'],
+            [' nickname ', 'trim'],
+        ];
+    }
+}
