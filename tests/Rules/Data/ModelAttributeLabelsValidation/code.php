@@ -82,3 +82,26 @@ final class NotInterestingMethod
         ];
     }
 }
+
+final class VirtualAttributeModel extends Model
+{
+    public $login;
+
+    public function attributeLabels(): array
+    {
+        return [
+            'login' => 'Login',
+            'fullName' => 'Full name',
+            'secret' => 'Secret',
+        ];
+    }
+
+    public function getFullName(): string
+    {
+        return 'Full Name';
+    }
+
+    public function setSecret(string $value): void
+    {
+    }
+}

@@ -27,11 +27,9 @@ final class BaseObjectConfigAnalyzer
 
     private ReflectionProvider $reflectionProvider;
 
-    /** @var array<class-string, array<string, true>> */
-    private array $writablePropertiesByClass = [];
-
-    public function __construct(ReflectionProvider $reflectionProvider)
-    {
+    public function __construct(
+        ReflectionProvider $reflectionProvider
+    ) {
         $this->reflectionProvider = $reflectionProvider;
     }
 
@@ -104,10 +102,9 @@ final class BaseObjectConfigAnalyzer
         string $identifier
     ): array {
         $errors = [];
-        $writableProperties = $this->getWritableProperties($className);
 
         foreach ($options as $optionName => $item) {
-            if (isset($writableProperties[$optionName])) {
+            if ($this->isWritableOption($className, $optionName)) {
                 continue;
             }
 
@@ -218,40 +215,32 @@ final class BaseObjectConfigAnalyzer
 
     /**
      * @param class-string $className
-     *
-     * @return array<string, true>
      */
-    private function getWritableProperties(string $className): array
+    private function isWritableOption(string $className, string $propertyName): bool
     {
-        if (isset($this->writablePropertiesByClass[$className])) {
-            return $this->writablePropertiesByClass[$className];
+        if (in_array($propertyName, self::SPECIAL_CONFIG_KEYS, true)) {
+            return true;
         }
 
-        $properties = array_fill_keys(self::SPECIAL_CONFIG_KEYS, true);
-        $reflection = $this->reflectionProvider->getClass($className)->getNativeReflection();
-        foreach ($reflection->getProperties() as $property) {
-            if (!$property->isPublic() || $property->isStatic()) {
-                continue;
+        $classReflection = $this->reflectionProvider->getClass($className);
+        $reflection = $classReflection->getNativeReflection();
+
+        if ($reflection->hasProperty($propertyName)) {
+            $property = $reflection->getProperty($propertyName);
+            if ($property->isPublic() && !$property->isStatic()) {
+                return true;
             }
-
-            $properties[$property->getName()] = true;
         }
 
-        foreach ($reflection->getMethods() as $method) {
-            $methodName = $method->getName();
-            if (
-                !$method->isPublic()
-                || $method->isStatic()
-                || strncmp($methodName, 'set', 3) !== 0
-                || strlen($methodName) <= 3
-            ) {
-                continue;
+        $setter = 'set' . ucfirst($propertyName);
+        if ($reflection->hasMethod($setter)) {
+            $method = $reflection->getMethod($setter);
+            if ($method->isPublic() && !$method->isStatic()) {
+                return true;
             }
-
-            $properties[lcfirst(implode('', array_slice(str_split($methodName), 3)))] = true;
         }
 
-        return $this->writablePropertiesByClass[$className] = $properties;
+        return false;
     }
 
     /**

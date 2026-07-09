@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace MSpirkov\Yii2\PHPStan\Rules;
 
 use MSpirkov\Yii2\PHPStan\Analyzers\BaseObjectConfigAnalyzer;
+use MSpirkov\Yii2\PHPStan\Analyzers\BaseObjectPropertyAnalyzer;
 use MSpirkov\Yii2\PHPStan\Analyzers\ComponentConfigMethodAnalyzer;
 use PhpParser\Node;
 use PhpParser\Node\Expr\Array_;
@@ -22,13 +23,17 @@ final class ModelAttributeLabelsValidationRule implements Rule
 {
     private BaseObjectConfigAnalyzer $baseObjectConfigAnalyzer;
 
+    private BaseObjectPropertyAnalyzer $baseObjectPropertyAnalyzer;
+
     private ComponentConfigMethodAnalyzer $componentConfigMethodAnalyzer;
 
     public function __construct(
         BaseObjectConfigAnalyzer $baseObjectConfigAnalyzer,
+        BaseObjectPropertyAnalyzer $baseObjectPropertyAnalyzer,
         ComponentConfigMethodAnalyzer $componentConfigMethodAnalyzer
     ) {
         $this->baseObjectConfigAnalyzer = $baseObjectConfigAnalyzer;
+        $this->baseObjectPropertyAnalyzer = $baseObjectPropertyAnalyzer;
         $this->componentConfigMethodAnalyzer = $componentConfigMethodAnalyzer;
     }
 
@@ -81,7 +86,10 @@ final class ModelAttributeLabelsValidationRule implements Rule
     private function validateAttributeExists(string $attributeName, Node $node, Scope $scope): array
     {
         $classReflection = $scope->getClassReflection();
-        if (!$classReflection instanceof ClassReflection || $classReflection->hasInstanceProperty($attributeName)) {
+        if (
+            !$classReflection instanceof ClassReflection
+            || $this->baseObjectPropertyAnalyzer->hasProperty($classReflection, $attributeName)
+        ) {
             return [];
         }
 

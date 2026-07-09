@@ -6,6 +6,7 @@ namespace MSpirkov\Yii2\PHPStan\Rules;
 
 use Closure;
 use MSpirkov\Yii2\PHPStan\Analyzers\BaseObjectConfigAnalyzer;
+use MSpirkov\Yii2\PHPStan\Analyzers\BaseObjectPropertyAnalyzer;
 use MSpirkov\Yii2\PHPStan\Analyzers\ComponentConfigMethodAnalyzer;
 use MSpirkov\Yii2\PHPStan\Analyzers\ComponentObjectConfigAnalyzer;
 use MSpirkov\Yii2\PHPStan\Analyzers\ExpressionTypeAnalyzer;
@@ -58,6 +59,8 @@ final class ModelRulesValidationRule implements Rule
 
     private BaseObjectConfigAnalyzer $baseObjectConfigAnalyzer;
 
+    private BaseObjectPropertyAnalyzer $baseObjectPropertyAnalyzer;
+
     private ComponentConfigMethodAnalyzer $componentConfigMethodAnalyzer;
 
     private ComponentObjectConfigAnalyzer $componentObjectConfigAnalyzer;
@@ -74,6 +77,7 @@ final class ModelRulesValidationRule implements Rule
      */
     public function __construct(
         BaseObjectConfigAnalyzer $baseObjectConfigAnalyzer,
+        BaseObjectPropertyAnalyzer $baseObjectPropertyAnalyzer,
         ComponentConfigMethodAnalyzer $componentConfigMethodAnalyzer,
         ComponentObjectConfigAnalyzer $componentObjectConfigAnalyzer,
         ExpressionTypeAnalyzer $expressionTypeAnalyzer,
@@ -81,6 +85,7 @@ final class ModelRulesValidationRule implements Rule
         array $customValidators
     ) {
         $this->baseObjectConfigAnalyzer = $baseObjectConfigAnalyzer;
+        $this->baseObjectPropertyAnalyzer = $baseObjectPropertyAnalyzer;
         $this->componentConfigMethodAnalyzer = $componentConfigMethodAnalyzer;
         $this->componentObjectConfigAnalyzer = $componentObjectConfigAnalyzer;
         $this->expressionTypeAnalyzer = $expressionTypeAnalyzer;
@@ -302,7 +307,10 @@ final class ModelRulesValidationRule implements Rule
     private function validateAttributeExists(string $attributeName, Node $node, Scope $scope): array
     {
         $classReflection = $scope->getClassReflection();
-        if (!$classReflection instanceof ClassReflection || $classReflection->hasInstanceProperty($attributeName)) {
+        if (
+            !$classReflection instanceof ClassReflection
+            || $this->baseObjectPropertyAnalyzer->hasProperty($classReflection, $attributeName)
+        ) {
             return [];
         }
 

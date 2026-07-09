@@ -279,3 +279,25 @@ final class UnknownAttributeModel extends Model
         ];
     }
 }
+
+final class VirtualAttributeModel extends Model
+{
+    public $login;
+
+    public function rules(): array
+    {
+        return [
+            ['login', 'required'],
+            [['fullName', 'secret'], 'safe'],
+        ];
+    }
+
+    public function getFullName(): string
+    {
+        return 'Full Name';
+    }
+
+    public function setSecret(string $value): void
+    {
+    }
+}
