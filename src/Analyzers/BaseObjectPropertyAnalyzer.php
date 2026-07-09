@@ -28,10 +28,8 @@ final class BaseObjectPropertyAnalyzer
         Scope $scope
     ): bool {
         $instanceProperty = $this->findInstanceProperty($classReflection, $propertyName, $scope);
-        if ($instanceProperty !== null) {
-            if ($instanceProperty->isWritable()) {
-                return true;
-            }
+        if ($instanceProperty !== null && $instanceProperty->isWritable()) {
+            return true;
         }
 
         return $this->hasPropertySetter($classReflection, $propertyName);

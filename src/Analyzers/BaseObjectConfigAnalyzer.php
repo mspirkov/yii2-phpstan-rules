@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace MSpirkov\Yii2\PHPStan\Analyzers;
 
+use PHPStan\Reflection\ExtendedPropertyReflection;
 use MSpirkov\Yii2\PHPStan\Rules\ErrorBuilder;
 use MSpirkov\Yii2\PHPStan\Rules\Identifiers;
 use PhpParser\Node\ArrayItem;
@@ -158,7 +159,10 @@ final class BaseObjectConfigAnalyzer
                 $scope
             );
 
-            if ($instanceProperty === null || !$instanceProperty->isWritable()) {
+            if (
+                !$instanceProperty instanceof ExtendedPropertyReflection
+                || !$instanceProperty->isWritable()
+            ) {
                 continue;
             }
 
