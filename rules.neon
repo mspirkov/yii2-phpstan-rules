@@ -46,6 +46,8 @@ parameters:
 		modelRulesValidation:
 			enabled: %mspirkovYii2Rules.enableAllRules%
 			customValidators: []
+		modelAttributeLabelsValidation:
+			enabled: %mspirkovYii2Rules.enableAllRules%
 
 parametersSchema:
 	mspirkovYii2Rules: structure([
@@ -103,6 +105,9 @@ parametersSchema:
 			enabled: bool()
 			customValidators: arrayOf(string())
 		])
+		modelAttributeLabelsValidation: structure([
+			enabled: bool()
+		])
 	])
 
 conditionalTags:
@@ -132,6 +137,8 @@ conditionalTags:
 		phpstan.rules.rule: %mspirkovYii2Rules.activeRecordRelationValidation.enabled%
 	MSpirkov\Yii2\PHPStan\Rules\ModelRulesValidationRule:
 		phpstan.rules.rule: %mspirkovYii2Rules.modelRulesValidation.enabled%
+	MSpirkov\Yii2\PHPStan\Rules\ModelAttributeLabelsValidationRule:
+		phpstan.rules.rule: %mspirkovYii2Rules.modelAttributeLabelsValidation.enabled%
 
 services:
 	-
@@ -164,6 +171,8 @@ services:
 		class: MSpirkov\Yii2\PHPStan\Rules\ModelRulesValidationRule
 		arguments:
 			customValidators: %mspirkovYii2Rules.modelRulesValidation.customValidators%
+	-
+		class: MSpirkov\Yii2\PHPStan\Rules\ModelAttributeLabelsValidationRule
 
 	-
 		class: MSpirkov\Yii2\PHPStan\Analyzers\ActionComplexityAnalyzer
