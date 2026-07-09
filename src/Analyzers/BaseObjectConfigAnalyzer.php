@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace MSpirkov\Yii2\PHPStan\Analyzers;
 
+use PHPStan\Reflection\ExtendedPropertyReflection;
 use MSpirkov\Yii2\PHPStan\Rules\ErrorBuilder;
 use MSpirkov\Yii2\PHPStan\Rules\Identifiers;
 use PhpParser\Node\ArrayItem;
@@ -12,6 +13,7 @@ use PhpParser\Node\Expr\Array_;
 use PhpParser\Node\Scalar\Int_;
 use PhpParser\Node\Scalar\String_;
 use PHPStan\Analyser\Scope;
+use PHPStan\Reflection\ClassReflection;
 use PHPStan\Reflection\ReflectionProvider;
 use PHPStan\Rules\IdentifierRuleError;
 use PHPStan\Type\MixedType;
@@ -27,12 +29,14 @@ final class BaseObjectConfigAnalyzer
 
     private ReflectionProvider $reflectionProvider;
 
-    /** @var array<class-string, array<string, true>> */
-    private array $writablePropertiesByClass = [];
+    private BaseObjectPropertyAnalyzer $baseObjectPropertyAnalyzer;
 
-    public function __construct(ReflectionProvider $reflectionProvider)
-    {
+    public function __construct(
+        ReflectionProvider $reflectionProvider,
+        BaseObjectPropertyAnalyzer $baseObjectPropertyAnalyzer
+    ) {
         $this->reflectionProvider = $reflectionProvider;
+        $this->baseObjectPropertyAnalyzer = $baseObjectPropertyAnalyzer;
     }
 
     /**
@@ -100,14 +104,15 @@ final class BaseObjectConfigAnalyzer
     public function validateObjectOptionNames(
         string $className,
         array $options,
+        Scope $scope,
         string $objectLabel,
         string $identifier
     ): array {
         $errors = [];
-        $writableProperties = $this->getWritableProperties($className);
+        $classReflection = $this->reflectionProvider->getClass($className);
 
         foreach ($options as $optionName => $item) {
-            if (isset($writableProperties[$optionName])) {
+            if ($this->isWritableOption($classReflection, $optionName, $scope)) {
                 continue;
             }
 
@@ -142,18 +147,26 @@ final class BaseObjectConfigAnalyzer
 
         foreach ($options as $optionName => $item) {
             if (
-                $this->shouldSkipOptionTypeCheck($optionName, $typeCheckSkippedOptions)
-                || !$classReflection->hasInstanceProperty($optionName)
+                in_array($optionName, self::SPECIAL_CONFIG_KEYS, true)
+                || in_array($optionName, $typeCheckSkippedOptions, true)
             ) {
                 continue;
             }
 
-            $property = $classReflection->getInstanceProperty($optionName, $scope);
-            if (!$property->isWritable()) {
+            $instanceProperty = $this->baseObjectPropertyAnalyzer->findInstanceProperty(
+                $classReflection,
+                $optionName,
+                $scope
+            );
+
+            if (
+                !$instanceProperty instanceof ExtendedPropertyReflection
+                || !$instanceProperty->isWritable()
+            ) {
                 continue;
             }
 
-            $expectedType = $property->getWritableType();
+            $expectedType = $instanceProperty->getWritableType();
             $actualType = $scope->getType($item->value);
             if ($expectedType instanceof MixedType || $actualType instanceof MixedType) {
                 continue;
@@ -216,50 +229,12 @@ final class BaseObjectConfigAnalyzer
         return ['found' => false];
     }
 
-    /**
-     * @param class-string $className
-     *
-     * @return array<string, true>
-     */
-    private function getWritableProperties(string $className): array
+    private function isWritableOption(ClassReflection $classReflection, string $propertyName, Scope $scope): bool
     {
-        if (isset($this->writablePropertiesByClass[$className])) {
-            return $this->writablePropertiesByClass[$className];
+        if (in_array($propertyName, self::SPECIAL_CONFIG_KEYS, true)) {
+            return true;
         }
 
-        $properties = array_fill_keys(self::SPECIAL_CONFIG_KEYS, true);
-        $reflection = $this->reflectionProvider->getClass($className)->getNativeReflection();
-        foreach ($reflection->getProperties() as $property) {
-            if (!$property->isPublic() || $property->isStatic()) {
-                continue;
-            }
-
-            $properties[$property->getName()] = true;
-        }
-
-        foreach ($reflection->getMethods() as $method) {
-            $methodName = $method->getName();
-            if (
-                !$method->isPublic()
-                || $method->isStatic()
-                || strncmp($methodName, 'set', 3) !== 0
-                || strlen($methodName) <= 3
-            ) {
-                continue;
-            }
-
-            $properties[lcfirst(implode('', array_slice(str_split($methodName), 3)))] = true;
-        }
-
-        return $this->writablePropertiesByClass[$className] = $properties;
-    }
-
-    /**
-     * @param list<string> $typeCheckSkippedOptions
-     */
-    private function shouldSkipOptionTypeCheck(string $optionName, array $typeCheckSkippedOptions): bool
-    {
-        return in_array($optionName, self::SPECIAL_CONFIG_KEYS, true)
-            || in_array($optionName, $typeCheckSkippedOptions, true);
+        return $this->baseObjectPropertyAnalyzer->hasWritableProperty($classReflection, $propertyName, $scope);
     }
 }

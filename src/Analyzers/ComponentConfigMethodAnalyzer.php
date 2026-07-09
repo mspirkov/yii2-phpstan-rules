@@ -52,9 +52,7 @@ final class ComponentConfigMethodAnalyzer
 
         $errors = [];
         foreach ($this->returnExpressionFinder->find($classMethod->stmts ?? []) as $returnExpression) {
-            foreach ($this->validateReturnExpression($returnExpression, $scope, $validateArray) as $error) {
-                $errors[] = $error;
-            }
+            $errors = array_merge($errors, $this->validateReturnExpression($returnExpression, $scope, $validateArray));
         }
 
         return $errors;
@@ -92,9 +90,7 @@ final class ComponentConfigMethodAnalyzer
                 continue;
             }
 
-            foreach ($validateArray($arg->value, $scope) as $error) {
-                $errors[] = $error;
-            }
+            $errors = array_merge($errors, $validateArray($arg->value, $scope));
         }
 
         return $errors;

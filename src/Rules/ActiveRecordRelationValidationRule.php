@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace MSpirkov\Yii2\PHPStan\Rules;
 
+use MSpirkov\Yii2\PHPStan\Analyzers\BaseObjectPropertyAnalyzer;
 use MSpirkov\Yii2\PHPStan\Analyzers\ExpressionTypeAnalyzer;
 use MSpirkov\Yii2\PHPStan\Resolvers\ExpressionValueResolver;
 use PhpParser\Node;
@@ -31,6 +32,8 @@ final class ActiveRecordRelationValidationRule implements Rule
         'hasone',
     ];
 
+    private BaseObjectPropertyAnalyzer $baseObjectPropertyAnalyzer;
+
     private ExpressionTypeAnalyzer $expressionTypeAnalyzer;
 
     private ExpressionValueResolver $expressionValueResolver;
@@ -38,10 +41,12 @@ final class ActiveRecordRelationValidationRule implements Rule
     private ReflectionProvider $reflectionProvider;
 
     public function __construct(
+        BaseObjectPropertyAnalyzer $baseObjectPropertyAnalyzer,
         ExpressionTypeAnalyzer $expressionTypeAnalyzer,
         ExpressionValueResolver $expressionValueResolver,
         ReflectionProvider $reflectionProvider
     ) {
+        $this->baseObjectPropertyAnalyzer = $baseObjectPropertyAnalyzer;
         $this->expressionTypeAnalyzer = $expressionTypeAnalyzer;
         $this->expressionValueResolver = $expressionValueResolver;
         $this->reflectionProvider = $reflectionProvider;
@@ -156,7 +161,7 @@ final class ActiveRecordRelationValidationRule implements Rule
                 continue;
             }
 
-            if (!$relatedClassReflection->hasInstanceProperty($relatedProperty)) {
+            if (!$this->baseObjectPropertyAnalyzer->hasProperty($relatedClassReflection, $relatedProperty)) {
                 $errors[] = $this->buildError(
                     sprintf(
                         'Unknown property "%s" for related ActiveRecord %s in %s() relation link.',
@@ -168,7 +173,7 @@ final class ActiveRecordRelationValidationRule implements Rule
                 );
             }
 
-            if (!$currentClassReflection->hasInstanceProperty($currentProperty)) {
+            if (!$this->baseObjectPropertyAnalyzer->hasProperty($currentClassReflection, $currentProperty)) {
                 $errors[] = $this->buildError(
                     sprintf(
                         'Unknown property "%s" for current ActiveRecord %s in %s() relation link.',

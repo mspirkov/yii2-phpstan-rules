@@ -6,6 +6,7 @@ namespace MSpirkov\Yii2\PHPStan\Rules;
 
 use Closure;
 use MSpirkov\Yii2\PHPStan\Analyzers\BaseObjectConfigAnalyzer;
+use MSpirkov\Yii2\PHPStan\Analyzers\BaseObjectPropertyAnalyzer;
 use MSpirkov\Yii2\PHPStan\Analyzers\ComponentConfigMethodAnalyzer;
 use MSpirkov\Yii2\PHPStan\Analyzers\ComponentObjectConfigAnalyzer;
 use MSpirkov\Yii2\PHPStan\Analyzers\ExpressionTypeAnalyzer;
@@ -58,6 +59,8 @@ final class ModelRulesValidationRule implements Rule
 
     private BaseObjectConfigAnalyzer $baseObjectConfigAnalyzer;
 
+    private BaseObjectPropertyAnalyzer $baseObjectPropertyAnalyzer;
+
     private ComponentConfigMethodAnalyzer $componentConfigMethodAnalyzer;
 
     private ComponentObjectConfigAnalyzer $componentObjectConfigAnalyzer;
@@ -74,6 +77,7 @@ final class ModelRulesValidationRule implements Rule
      */
     public function __construct(
         BaseObjectConfigAnalyzer $baseObjectConfigAnalyzer,
+        BaseObjectPropertyAnalyzer $baseObjectPropertyAnalyzer,
         ComponentConfigMethodAnalyzer $componentConfigMethodAnalyzer,
         ComponentObjectConfigAnalyzer $componentObjectConfigAnalyzer,
         ExpressionTypeAnalyzer $expressionTypeAnalyzer,
@@ -81,6 +85,7 @@ final class ModelRulesValidationRule implements Rule
         array $customValidators
     ) {
         $this->baseObjectConfigAnalyzer = $baseObjectConfigAnalyzer;
+        $this->baseObjectPropertyAnalyzer = $baseObjectPropertyAnalyzer;
         $this->componentConfigMethodAnalyzer = $componentConfigMethodAnalyzer;
         $this->componentObjectConfigAnalyzer = $componentObjectConfigAnalyzer;
         $this->expressionTypeAnalyzer = $expressionTypeAnalyzer;
@@ -120,9 +125,7 @@ final class ModelRulesValidationRule implements Rule
             }
 
             if ($item->value instanceof Array_) {
-                foreach ($this->validateRuleArray($item->value, $scope, false) as $error) {
-                    $errors[] = $error;
-                }
+                $errors = array_merge($errors, $this->validateRuleArray($item->value, $scope, false));
 
                 continue;
             }
@@ -162,9 +165,7 @@ final class ModelRulesValidationRule implements Rule
                     $items[$attributeIndex]->value
                 );
             } else {
-                foreach ($this->validateAttributeNames($items[$attributeIndex]->value, $scope) as $error) {
-                    $errors[] = $error;
-                }
+                $errors = array_merge($errors, $this->validateAttributeNames($items[$attributeIndex]->value, $scope));
             }
         }
 
@@ -218,25 +219,17 @@ final class ModelRulesValidationRule implements Rule
             $errors[] = $this->buildError('Model validation rule option keys must be strings.', $invalidKey);
         }
 
-        foreach ($this->validateOptionNames($validatorClass, $options['items']) as $error) {
-            $errors[] = $error;
-        }
-
-        foreach ($this->validateOptionValueTypes($validatorClass, $options['items'], $scope) as $error) {
-            $errors[] = $error;
-        }
+        $errors = array_merge(
+            $errors,
+            $this->validateOptionNames($validatorClass, $options['items'], $scope),
+            $this->validateOptionValueTypes($validatorClass, $options['items'], $scope),
+        );
 
         if ($validatorName !== null) {
-            foreach ($this->validateRequiredOptions($validatorName, $rule, $options['items']) as $error) {
-                $errors[] = $error;
-            }
+            $errors = array_merge($errors, $this->validateRequiredOptions($validatorName, $rule, $options['items']));
         }
 
-        foreach ($this->validateKnownOptionValues($validatorName, $options['items'], $scope) as $error) {
-            $errors[] = $error;
-        }
-
-        return $errors;
+        return array_merge($errors, $this->validateKnownOptionValues($validatorName, $options['items'], $scope));
     }
 
     /**
@@ -302,7 +295,10 @@ final class ModelRulesValidationRule implements Rule
     private function validateAttributeExists(string $attributeName, Node $node, Scope $scope): array
     {
         $classReflection = $scope->getClassReflection();
-        if (!$classReflection instanceof ClassReflection || $classReflection->hasInstanceProperty($attributeName)) {
+        if (
+            !$classReflection instanceof ClassReflection
+            || $this->baseObjectPropertyAnalyzer->hasProperty($classReflection, $attributeName)
+        ) {
             return [];
         }
 
@@ -320,11 +316,12 @@ final class ModelRulesValidationRule implements Rule
      *
      * @return list<IdentifierRuleError>
      */
-    private function validateOptionNames(string $validatorClass, array $options): array
+    private function validateOptionNames(string $validatorClass, array $options, Scope $scope): array
     {
         return $this->componentObjectConfigAnalyzer->validateObjectOptionNames(
             $validatorClass,
             $options,
+            $scope,
             'validator',
             Identifiers::MODEL_RULES_VALIDATION
         );
@@ -420,21 +417,15 @@ final class ModelRulesValidationRule implements Rule
         }
 
         if ($validatorName === 'match' && isset($options['pattern'])) {
-            foreach ($this->validatePatternOption($options['pattern']->value, $scope) as $error) {
-                $errors[] = $error;
-            }
+            $errors = array_merge($errors, $this->validatePatternOption($options['pattern']->value, $scope));
         }
 
         if ($validatorName === 'in' && isset($options['range'])) {
-            foreach ($this->validateRangeOption($options['range']->value, $scope) as $error) {
-                $errors[] = $error;
-            }
+            $errors = array_merge($errors, $this->validateRangeOption($options['range']->value, $scope));
         }
 
         if ($validatorName === 'each' && isset($options['rule']) && $options['rule']->value instanceof Array_) {
-            foreach ($this->validateRuleArray($options['rule']->value, $scope, true) as $error) {
-                $errors[] = $error;
-            }
+            $errors = array_merge($errors, $this->validateRuleArray($options['rule']->value, $scope, true));
         }
 
         foreach (['on', 'except'] as $optionName) {
@@ -442,9 +433,7 @@ final class ModelRulesValidationRule implements Rule
                 continue;
             }
 
-            foreach ($this->validateScenarioOption($optionName, $options[$optionName]->value, $scope) as $error) {
-                $errors[] = $error;
-            }
+            $errors = array_merge($errors, $this->validateScenarioOption($optionName, $options[$optionName]->value, $scope));
         }
 
         return $errors;
