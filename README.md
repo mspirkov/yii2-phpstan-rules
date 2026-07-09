@@ -220,7 +220,7 @@ final class ContactModel extends Model
 
 ### Model attribute labels validation
 
-`Model::attributeLabels()` is just as easy to get wrong as `rules()` — a typo'd key silently falls back to the default humanized attribute name instead of showing your label. This rule checks that every key is an existing property on the model (as a declared property or a PHPDoc `@property`, same resolution as `modelRulesValidation`) and isn't left empty. It doesn't duplicate what PHPStan already infers on its own: `yii\base\Model::attributeLabels()` is documented as `@return array<string, string>`, so as long as your override doesn't add its own looser `@return` docblock, PHPStan itself will flag positional entries or non-string labels as a return type mismatch.
+`Model::attributeLabels()` is just as easy to get wrong as `rules()` — a typo'd key silently falls back to the default humanized attribute name instead of showing your label. This rule checks that every key is an existing property on the model (as a declared property or a PHPDoc `@property`, same resolution as `modelRulesValidation`) and isn't left empty:
 
 ```php
 /**
