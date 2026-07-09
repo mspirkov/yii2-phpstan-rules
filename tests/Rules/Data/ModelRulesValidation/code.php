@@ -13,6 +13,8 @@ final class ValidModel extends Model
     public $status;
     public $email;
     public $tags;
+    public $unknown;
+    public $closure;
 
     public function rules(): array
     {
@@ -37,6 +39,14 @@ final class ValidModel extends Model
 
 final class InvalidModel extends Model
 {
+    public $login;
+    public $password;
+    public $status;
+    public $tags;
+    public $createdAt;
+    public $ip;
+    public $unknown;
+
     public function rules(): array
     {
         return [
@@ -77,6 +87,9 @@ final class NotModel
 
 final class AdditionalValidModel extends Model
 {
+    public $login;
+    public $status;
+    public $ip;
     public string $validatorType = 'projectSpecificValidator';
     public array $arrayRange = ['active'];
     public \Traversable $traversableRange;
@@ -162,6 +175,9 @@ final class AdditionalValidModel extends Model
 
 final class AdditionalInvalidModel extends Model
 {
+    public $login;
+    public $tags;
+
     public function rules(): array
     {
         $dynamicKey = 'dynamic';
@@ -181,6 +197,8 @@ final class AdditionalInvalidModel extends Model
 
 final class AdditionalInvalidMergeModel extends Model
 {
+    public $mergeLogin;
+
     public function rules(): array
     {
         return array_merge([], [
@@ -199,6 +217,11 @@ final class DynamicRulesModel extends Model
 
 final class OptionTypeValidationModel extends Model
 {
+    public $title;
+    public $password;
+    public $message;
+    public $age;
+
     public function rules(): array
     {
         $dynamicMax = $this->dynamicValue();
@@ -224,6 +247,8 @@ final class OptionTypeValidationModel extends Model
 
 final class DynamicAttributeCollectionModel extends Model
 {
+    public $login;
+
     public function rules(): array
     {
         $mappedAttributes = array_map(static fn (int $i): string => 'attr' . $i, [1, 2, 3]);
@@ -237,6 +262,20 @@ final class DynamicAttributeCollectionModel extends Model
             [$mergedAttributes, 'required'],
             ['login', 'required', 'on' => $mergedScenarios],
             [$intAttributes, 'trim'],
+        ];
+    }
+}
+
+final class UnknownAttributeModel extends Model
+{
+    public $login;
+
+    public function rules(): array
+    {
+        return [
+            ['login', 'required'],
+            ['nickname', 'required'],
+            [['login', 'nickname'], 'trim'],
         ];
     }
 }

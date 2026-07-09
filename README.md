@@ -20,7 +20,7 @@ A set of PHPStan rules for Yii2 projects that I put together for my own day-to-d
 | ----------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
 | [`activeRecordRelationValidation`](#active-record-relations-validation) | Invalid `hasOne()` / `hasMany()` link properties that do not exist on the current or related ActiveRecord model              |
 | [`componentBehaviorsValidation`](#component-behaviors-validation)       | Malformed or invalid `behaviors()` in `yii\base\Component` — unknown behavior classes, bad config keys, and bad option types |
-| [`modelRulesValidation`](#model-validation-rules-validation)            | Malformed or invalid `rules()` in `yii\base\Model` — unknown validators, missing required options, bad regexes, and more     |
+| [`modelRulesValidation`](#model-validation-rules-validation)            | Malformed or invalid `rules()` in `yii\base\Model` — unknown validators, missing required options, bad regexes, unknown attributes, and more |
 | [`noComplexControllerActions`](#complexity-limits)                      | Controller actions with too much branching/looping — logic that belongs in a service                                         |
 | [`noComplexActionClasses`](#complexity-limits)                          | The same, for standalone `yii\base\Action` classes                                                                           |
 | [`noControllerActionCallsViaThis`](#no-calling-actions-via-this)        | `$this->actionFoo()` inside a controller instead of a redirect or shared method                                              |
@@ -179,7 +179,7 @@ public function behaviors(): array
 
 ### Model validation rules validation
 
-`Model::rules()` is just a plain array — PHP will never tell you that you forgot a validator's required option, wrote an invalid regex, or misconfigured one of its options. For every rule entry the validator type resolves to (a built-in alias like `required`/`string`/`number`/`compare`/`date`/`match`/`in`/`unique`/`exist`/`file`/`image`/`ip`/`url`, a custom `Validator` subclass, a configured project alias, or an inline closure/method), this rule statically checks the option array against what that validator actually accepts and requires. A validator name it can't resolve is reported as an error; add project-specific aliases under `modelRulesValidation.customValidators`:
+`Model::rules()` is just a plain array — PHP will never tell you that you forgot a validator's required option, wrote an invalid regex, misconfigured one of its options, or targeted an attribute that doesn't even exist. For every rule entry the validator type resolves to (a built-in alias like `required`/`string`/`number`/`compare`/`date`/`match`/`in`/`unique`/`exist`/`file`/`image`/`ip`/`url`, a custom `Validator` subclass, a configured project alias, or an inline closure/method), this rule statically checks the option array against what that validator actually accepts and requires. A validator name it can't resolve is reported as an error; add project-specific aliases under `modelRulesValidation.customValidators`:
 
 ```php
 public function rules(): array
@@ -193,6 +193,27 @@ public function rules(): array
 
         ['name', 'string', 'max' => 255],                 // ✓
     ];
+}
+```
+
+This rule also checks that the attribute names at index 0 of each rule (including array lists of attributes) actually exist on the model, the same way `activeRecordRelationValidation` checks relation links — as a declared property or a PHPDoc `@property`. It only reports on attribute names it can resolve to a literal or constant string; anything built dynamically at runtime is left alone.
+
+```php
+/**
+ * @property string $email
+ */
+final class ContactModel extends Model
+{
+    public $name;
+
+    public function rules(): array
+    {
+        return [
+            ['name', 'required'],
+            ['emial', 'required'],   // ✗ typo — "emial" is not a property on ContactModel
+            ['email', 'string'],     // ✓ declared via @property
+        ];
+    }
 }
 ```
 
