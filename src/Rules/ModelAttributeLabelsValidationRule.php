@@ -11,7 +11,6 @@ use PhpParser\Node;
 use PhpParser\Node\Expr\Array_;
 use PhpParser\Node\Stmt\ClassMethod;
 use PHPStan\Analyser\Scope;
-use PHPStan\Reflection\ClassReflection;
 use PHPStan\Rules\IdentifierRuleError;
 use PHPStan\Rules\Rule;
 use yii\base\Model;
@@ -87,7 +86,7 @@ final class ModelAttributeLabelsValidationRule implements Rule
     {
         $classReflection = $scope->getClassReflection();
         if (
-            !$classReflection instanceof ClassReflection
+            $classReflection === null
             || !$this->baseObjectPropertyAnalyzer->isUnknownAttribute($classReflection, $attributeName)
         ) {
             return [];

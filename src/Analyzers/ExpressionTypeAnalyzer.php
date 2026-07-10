@@ -6,6 +6,7 @@ namespace MSpirkov\Yii2\PHPStan\Analyzers;
 
 use PhpParser\Node\Expr;
 use PHPStan\Analyser\Scope;
+use PHPStan\Reflection\ClassReflection;
 use PHPStan\Reflection\ReflectionProvider;
 use PHPStan\Type\ObjectType;
 
@@ -36,9 +37,16 @@ final class ExpressionTypeAnalyzer
             return false;
         }
 
-        $classReflection = $this->reflectionProvider->getClass($className);
+        return $this->isClassReflectionOf($this->reflectionProvider->getClass($className), $parentClass);
+    }
 
-        return $classReflection->is($parentClass) || $classReflection->isSubclassOf($parentClass);
+    /**
+     * @param class-string $parentClass
+     */
+    public function isClassReflectionOf(?ClassReflection $classReflection, string $parentClass): bool
+    {
+        return $classReflection !== null
+            && ($classReflection->is($parentClass) || $classReflection->isSubclassOf($parentClass));
     }
 
     /**

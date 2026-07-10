@@ -4,11 +4,9 @@ declare(strict_types=1);
 
 namespace MSpirkov\Yii2\PHPStan\Analyzers;
 
-use PHPStan\Reflection\ExtendedPropertyReflection;
 use MSpirkov\Yii2\PHPStan\Rules\ErrorBuilder;
 use MSpirkov\Yii2\PHPStan\Rules\Identifiers;
 use PhpParser\Node\ArrayItem;
-use PhpParser\Node\Expr;
 use PhpParser\Node\Expr\Array_;
 use PhpParser\Node\Scalar\Int_;
 use PhpParser\Node\Scalar\String_;
@@ -159,10 +157,7 @@ final class BaseObjectConfigAnalyzer
                 $scope
             );
 
-            if (
-                !$instanceProperty instanceof ExtendedPropertyReflection
-                || !$instanceProperty->isWritable()
-            ) {
+            if ($instanceProperty === null || !$instanceProperty->isWritable()) {
                 continue;
             }
 
@@ -198,7 +193,7 @@ final class BaseObjectConfigAnalyzer
      */
     private function getArrayItemKey(ArrayItem $item, int $nextIndex): array
     {
-        if (!$item->key instanceof Expr) {
+        if ($item->key === null) {
             return [
                 'found' => true,
                 'value' => $nextIndex,

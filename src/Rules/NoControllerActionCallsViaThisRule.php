@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace MSpirkov\Yii2\PHPStan\Rules;
 
+use MSpirkov\Yii2\PHPStan\Analyzers\ExpressionTypeAnalyzer;
 use PhpParser\Node;
 use PhpParser\Node\Expr\MethodCall;
 use PhpParser\Node\Expr\Variable;
 use PhpParser\Node\Identifier;
 use PHPStan\Analyser\Scope;
-use PHPStan\Reflection\ClassReflection;
 use PHPStan\Rules\IdentifierRuleError;
 use PHPStan\Rules\Rule;
 use yii\base\Controller;
@@ -19,6 +19,13 @@ use yii\base\Controller;
  */
 final class NoControllerActionCallsViaThisRule implements Rule
 {
+    private ExpressionTypeAnalyzer $expressionTypeAnalyzer;
+
+    public function __construct(ExpressionTypeAnalyzer $expressionTypeAnalyzer)
+    {
+        $this->expressionTypeAnalyzer = $expressionTypeAnalyzer;
+    }
+
     public function getNodeType(): string
     {
         return MethodCall::class;
@@ -29,7 +36,7 @@ final class NoControllerActionCallsViaThisRule implements Rule
      */
     public function processNode(Node $node, Scope $scope): array
     {
-        if (!$this->isController($scope->getClassReflection())) {
+        if (!$this->expressionTypeAnalyzer->isClassReflectionOf($scope->getClassReflection(), Controller::class)) {
             return [];
         }
 
@@ -56,12 +63,6 @@ final class NoControllerActionCallsViaThisRule implements Rule
                 Identifiers::NO_CONTROLLER_ACTION_CALLS_VIA_THIS,
             ),
         ];
-    }
-
-    private function isController(?ClassReflection $classReflection): bool
-    {
-        return $classReflection instanceof ClassReflection
-            && ($classReflection->is(Controller::class) || $classReflection->isSubclassOf(Controller::class));
     }
 
     private function isThisCall(MethodCall $methodCall): bool
