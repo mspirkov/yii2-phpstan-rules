@@ -10,17 +10,12 @@ use PhpParser\Node\Expr\FuncCall;
 use PhpParser\Node\Name;
 use PhpParser\Node\Scalar\String_;
 use PHPStan\Analyser\Scope;
-use PHPStan\Type\BooleanType;
 
 final class ExpressionValueResolver
 {
     public function getConstantBoolean(Expr $expr, Scope $scope): ?bool
     {
         $type = $scope->getType($expr);
-
-        if ((new BooleanType())->isSuperTypeOf($type)->no()) {
-            return null;
-        }
 
         if ($type->isTrue()->yes()) {
             return true;
