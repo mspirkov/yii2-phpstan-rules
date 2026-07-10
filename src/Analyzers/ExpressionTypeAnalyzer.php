@@ -45,11 +45,8 @@ final class ExpressionTypeAnalyzer
      */
     public function isClassReflectionOf(?ClassReflection $classReflection, string $parentClass): bool
     {
-        if ($classReflection === null) {
-            return false;
-        }
-
-        return $classReflection->is($parentClass) || $classReflection->isSubclassOf($parentClass);
+        return $classReflection !== null
+            && ($classReflection->is($parentClass) || $classReflection->isSubclassOf($parentClass));
     }
 
     /**
