@@ -19,7 +19,6 @@ use PhpParser\Node\Expr\Closure as ClosureExpr;
 use PhpParser\Node\Scalar\String_;
 use PhpParser\Node\Stmt\ClassMethod;
 use PHPStan\Analyser\Scope;
-use PHPStan\Reflection\ClassReflection;
 use PHPStan\Rules\IdentifierRuleError;
 use PHPStan\Rules\Rule;
 use PHPStan\Type\ObjectType;
@@ -296,7 +295,7 @@ final class ModelRulesValidationRule implements Rule
     {
         $classReflection = $scope->getClassReflection();
         if (
-            !$classReflection instanceof ClassReflection
+            $classReflection === null
             || !$this->baseObjectPropertyAnalyzer->isUnknownAttribute($classReflection, $attributeName)
         ) {
             return [];
@@ -579,7 +578,7 @@ final class ModelRulesValidationRule implements Rule
         }
 
         $classReflection = $scope->getClassReflection();
-        if ($classReflection instanceof ClassReflection && $classReflection->hasMethod($validatorName)) {
+        if ($classReflection !== null && $classReflection->hasMethod($validatorName)) {
             return InlineValidator::class;
         }
 

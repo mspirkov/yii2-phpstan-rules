@@ -12,19 +12,22 @@ use PhpParser\Node\Expr\Array_;
 use PhpParser\Node\Expr\FuncCall;
 use PhpParser\Node\Stmt\ClassMethod;
 use PHPStan\Analyser\Scope;
-use PHPStan\Reflection\ClassReflection;
 use PHPStan\Rules\IdentifierRuleError;
 
 final class ComponentConfigMethodAnalyzer
 {
+    private ExpressionTypeAnalyzer $expressionTypeAnalyzer;
+
     private ExpressionValueResolver $expressionValueResolver;
 
     private MethodReturnExpressionFinder $returnExpressionFinder;
 
     public function __construct(
+        ExpressionTypeAnalyzer $expressionTypeAnalyzer,
         ExpressionValueResolver $expressionValueResolver,
         MethodReturnExpressionFinder $returnExpressionFinder
     ) {
+        $this->expressionTypeAnalyzer = $expressionTypeAnalyzer;
         $this->expressionValueResolver = $expressionValueResolver;
         $this->returnExpressionFinder = $returnExpressionFinder;
     }
@@ -63,10 +66,7 @@ final class ComponentConfigMethodAnalyzer
      */
     private function isClassScope(Scope $scope, string $ownerClass): bool
     {
-        $classReflection = $scope->getClassReflection();
-
-        return $classReflection instanceof ClassReflection
-            && ($classReflection->is($ownerClass) || $classReflection->isSubclassOf($ownerClass));
+        return $this->expressionTypeAnalyzer->isClassReflectionOf($scope->getClassReflection(), $ownerClass);
     }
 
     /**

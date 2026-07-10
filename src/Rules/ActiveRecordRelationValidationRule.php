@@ -10,7 +10,6 @@ use MSpirkov\Yii2\PHPStan\Resolvers\ExpressionValueResolver;
 use PhpParser\Node;
 use PhpParser\Node\Arg;
 use PhpParser\Node\ArrayItem;
-use PhpParser\Node\Expr;
 use PhpParser\Node\Expr\Array_;
 use PhpParser\Node\Expr\MethodCall;
 use PhpParser\Node\Identifier;
@@ -76,7 +75,7 @@ final class ActiveRecordRelationValidationRule implements Rule
         }
 
         $currentClassReflection = $this->getActiveRecordReceiverClass($node, $scope);
-        if (!$currentClassReflection instanceof ClassReflection) {
+        if ($currentClassReflection === null) {
             return [];
         }
 
@@ -169,7 +168,7 @@ final class ActiveRecordRelationValidationRule implements Rule
                         $relatedClassReflection->getName(),
                         $relationMethod
                     ),
-                    $item->key instanceof Expr ? $item->key : $item
+                    $item->key ?? $item
                 );
             }
 
@@ -191,7 +190,7 @@ final class ActiveRecordRelationValidationRule implements Rule
 
     private function resolveLinkKey(ArrayItem $item, Scope $scope): ?string
     {
-        if (!$item->key instanceof Expr) {
+        if ($item->key === null) {
             return null;
         }
 

@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace MSpirkov\Yii2\PHPStan\Rules;
 
 use MSpirkov\Yii2\PHPStan\Analyzers\ActionComplexityAnalyzer;
+use MSpirkov\Yii2\PHPStan\Analyzers\ExpressionTypeAnalyzer;
 use PhpParser\Node;
 use PhpParser\Node\Stmt\ClassMethod;
 use PHPStan\Analyser\Scope;
-use PHPStan\Reflection\ClassReflection;
 use PHPStan\Rules\IdentifierRuleError;
 use PHPStan\Rules\Rule;
 use yii\base\Controller;
@@ -20,9 +20,14 @@ final class NoComplexControllerActionsRule implements Rule
 {
     private ActionComplexityAnalyzer $actionComplexityAnalyzer;
 
-    public function __construct(ActionComplexityAnalyzer $actionComplexityAnalyzer)
-    {
+    private ExpressionTypeAnalyzer $expressionTypeAnalyzer;
+
+    public function __construct(
+        ActionComplexityAnalyzer $actionComplexityAnalyzer,
+        ExpressionTypeAnalyzer $expressionTypeAnalyzer
+    ) {
         $this->actionComplexityAnalyzer = $actionComplexityAnalyzer;
+        $this->expressionTypeAnalyzer = $expressionTypeAnalyzer;
     }
 
     public function getNodeType(): string
@@ -35,7 +40,7 @@ final class NoComplexControllerActionsRule implements Rule
      */
     public function processNode(Node $node, Scope $scope): array
     {
-        if (!$this->isController($scope->getClassReflection())) {
+        if (!$this->expressionTypeAnalyzer->isClassReflectionOf($scope->getClassReflection(), Controller::class)) {
             return [];
         }
 
@@ -60,12 +65,6 @@ final class NoComplexControllerActionsRule implements Rule
         }
 
         return $errors;
-    }
-
-    private function isController(?ClassReflection $classReflection): bool
-    {
-        return $classReflection instanceof ClassReflection
-            && ($classReflection->is(Controller::class) || $classReflection->isSubclassOf(Controller::class));
     }
 
     private function isActionMethod(ClassMethod $classMethod): bool

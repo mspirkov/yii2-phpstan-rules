@@ -28,7 +28,7 @@ final class MethodReturnExpressionVisitor extends NodeVisitorAbstract
     public function enterNode(Node $node): ?int
     {
         if ($node instanceof Return_) {
-            if ($node->expr instanceof Expr) {
+            if ($node->expr !== null) {
                 $this->expressions[] = $node->expr;
             }
 
