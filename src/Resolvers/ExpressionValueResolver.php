@@ -10,7 +10,6 @@ use PhpParser\Node\Expr\FuncCall;
 use PhpParser\Node\Name;
 use PhpParser\Node\Scalar\String_;
 use PHPStan\Analyser\Scope;
-use PHPStan\Type\BooleanType;
 
 final class ExpressionValueResolver
 {
