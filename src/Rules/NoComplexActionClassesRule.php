@@ -22,8 +22,10 @@ final class NoComplexActionClassesRule implements Rule
 
     private ExpressionTypeAnalyzer $expressionTypeAnalyzer;
 
-    public function __construct(ActionComplexityAnalyzer $actionComplexityAnalyzer, ExpressionTypeAnalyzer $expressionTypeAnalyzer)
-    {
+    public function __construct(
+        ActionComplexityAnalyzer $actionComplexityAnalyzer,
+        ExpressionTypeAnalyzer $expressionTypeAnalyzer
+    ) {
         $this->actionComplexityAnalyzer = $actionComplexityAnalyzer;
         $this->expressionTypeAnalyzer = $expressionTypeAnalyzer;
     }
