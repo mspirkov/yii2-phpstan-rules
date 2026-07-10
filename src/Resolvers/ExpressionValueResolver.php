@@ -18,10 +18,6 @@ final class ExpressionValueResolver
     {
         $type = $scope->getType($expr);
 
-        if ((new BooleanType())->isSuperTypeOf($type)->no()) {
-            return null;
-        }
-
         if ($type->isTrue()->yes()) {
             return true;
         }
