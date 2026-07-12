@@ -74,7 +74,12 @@ final class ActiveRecordRelationValidationRule implements Rule
             return [];
         }
 
-        $currentClassReflection = $this->getActiveRecordReceiverClass($node, $scope);
+        $currentClassReflection = $this->expressionTypeAnalyzer->getSingleClassReflectionOf(
+            $node->var,
+            $scope,
+            BaseActiveRecord::class
+        );
+
         if ($currentClassReflection === null) {
             return [];
         }
@@ -107,23 +112,6 @@ final class ActiveRecordRelationValidationRule implements Rule
             $currentClassReflection,
             $scope
         );
-    }
-
-    private function getActiveRecordReceiverClass(MethodCall $methodCall, Scope $scope): ?ClassReflection
-    {
-        $activeRecordReflections = [];
-
-        foreach ($scope->getType($methodCall->var)->getObjectClassReflections() as $classReflection) {
-            if ($classReflection->is(BaseActiveRecord::class) || $classReflection->isSubclassOf(BaseActiveRecord::class)) {
-                $activeRecordReflections[$classReflection->getName()] = $classReflection;
-            }
-        }
-
-        if (count($activeRecordReflections) !== 1) {
-            return null;
-        }
-
-        return array_values($activeRecordReflections)[0];
     }
 
     private function isFollowedByVia(MethodCall $methodCall, Scope $scope): bool

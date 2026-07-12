@@ -13,6 +13,8 @@ parameters:
 			matchCount: 0
 			ternaryCount: 1
 			tryCatchCount: 1
+		activeFormFieldValidation:
+			enabled: %mspirkovYii2Rules.enableAllRules%
 		activeRecordRelationValidation:
 			enabled: %mspirkovYii2Rules.enableAllRules%
 		componentBehaviorsValidation:
@@ -66,6 +68,9 @@ parametersSchema:
 			ternaryCount: int()
 			tryCatchCount: int()
 		])
+		activeFormFieldValidation: structure([
+			enabled: bool()
+		])
 		activeRecordRelationValidation: structure([
 			enabled: bool()
 		])
@@ -116,6 +121,8 @@ parametersSchema:
 	])
 
 conditionalTags:
+	MSpirkov\Yii2\PHPStan\Rules\ActiveFormFieldValidationRule:
+		phpstan.rules.rule: %mspirkovYii2Rules.activeFormFieldValidation.enabled%
 	MSpirkov\Yii2\PHPStan\Rules\ActiveRecordRelationValidationRule:
 		phpstan.rules.rule: %mspirkovYii2Rules.activeRecordRelationValidation.enabled%
 	MSpirkov\Yii2\PHPStan\Rules\ComponentBehaviorsValidationRule:
@@ -148,6 +155,8 @@ conditionalTags:
 		phpstan.rules.rule: %mspirkovYii2Rules.noYiiAppPropertyMutation.enabled%
 
 services:
+	-
+		class: MSpirkov\Yii2\PHPStan\Rules\ActiveFormFieldValidationRule
 	-
 		class: MSpirkov\Yii2\PHPStan\Rules\ActiveRecordRelationValidationRule
 	-

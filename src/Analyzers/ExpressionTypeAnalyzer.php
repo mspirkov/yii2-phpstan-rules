@@ -84,4 +84,24 @@ final class ExpressionTypeAnalyzer
     {
         return (new ObjectType($className))->isSuperTypeOf($scope->getType($expr))->yes();
     }
+
+    /**
+     * @param class-string $parentClass
+     */
+    public function getSingleClassReflectionOf(Expr $expr, Scope $scope, string $parentClass): ?ClassReflection
+    {
+        $classReflections = [];
+
+        foreach ($scope->getType($expr)->getObjectClassReflections() as $classReflection) {
+            if ($this->isClassReflectionOf($classReflection, $parentClass)) {
+                $classReflections[$classReflection->getName()] = $classReflection;
+            }
+        }
+
+        if (count($classReflections) !== 1) {
+            return null;
+        }
+
+        return array_values($classReflections)[0];
+    }
 }
