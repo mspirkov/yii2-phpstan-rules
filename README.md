@@ -16,23 +16,24 @@ A set of PHPStan rules for Yii2 projects that I put together for my own day-to-d
 
 ## What's inside
 
-| Rule                                                                    | Catches                                                                                                                      |
-| ----------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
-| [`activeRecordRelationValidation`](#active-record-relations-validation) | Invalid `hasOne()` / `hasMany()` link properties that do not exist on the current or related ActiveRecord model              |
-| [`componentBehaviorsValidation`](#component-behaviors-validation)       | Malformed or invalid `behaviors()` in `yii\base\Component` — unknown behavior classes, bad config keys, and bad option types |
-| [`modelAttributeLabelsValidation`](#model-attribute-labels-validation)  | `attributeLabels()` entries in `yii\base\Model` that target attributes that don't exist, or use an empty attribute name      |
+| Rule                                                                    | Catches                                                                                                                                      |
+| ----------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| [`activeFormFieldValidation`](#active-form-field-validation)            | `ActiveForm::field()` calls targeting an attribute that doesn't exist on the given model                                                     |
+| [`activeRecordRelationValidation`](#active-record-relations-validation) | Invalid `hasOne()` / `hasMany()` link properties that do not exist on the current or related ActiveRecord model                              |
+| [`componentBehaviorsValidation`](#component-behaviors-validation)       | Malformed or invalid `behaviors()` in `yii\base\Component` — unknown behavior classes, bad config keys, and bad option types                 |
+| [`modelAttributeLabelsValidation`](#model-attribute-labels-validation)  | `attributeLabels()` entries in `yii\base\Model` that target attributes that don't exist, or use an empty attribute name                      |
 | [`modelRulesValidation`](#model-validation-rules-validation)            | Malformed or invalid `rules()` in `yii\base\Model` — unknown validators, missing required options, bad regexes, unknown attributes, and more |
-| [`noComplexActionClasses`](#complexity-limits)                          | Standalone `yii\base\Action` classes with too much branching/looping — logic that belongs in a service                       |
-| [`noComplexControllerActions`](#complexity-limits)                      | The same, for controller actions                                                                                             |
-| [`noControllerActionCallsViaThis`](#no-calling-actions-via-this)        | `$this->actionFoo()` inside a controller instead of a redirect or shared method                                              |
-| [`noDbQueriesInActions`](#no-database-access-outside-repositories)      | Direct DB/ActiveRecord access in `Action` classes                                                                            |
-| [`noDbQueriesInControllers`](#no-database-access-outside-repositories)  | Direct DB/ActiveRecord access in controllers                                                                                 |
-| [`noDbQueriesInViews`](#no-database-access-outside-repositories)        | Direct DB/ActiveRecord access in view files                                                                                  |
-| [`noDirectSuperglobals`](#no-raw-superglobals)                          | Direct use of `$_GET`, `$_POST`, `$_SESSION`, etc.                                                                           |
-| [`noDynamicQueryWhere`](#no-dynamic-sql-strings)                        | String-concatenated conditions passed to `Query::where()` / `andWhere()`                                                     |
-| [`noForbiddenYiiAppProperties`](#taming-yiiapp)                         | Reads of arbitrary `yii\base\Application` components, including `Yii::$app->*`                                                |
-| [`noRedundantHtmlEncode`](#no-redundant-htmlencode)                     | `Html::encode()` calls whose argument is always a `numeric-string`                                                          |
-| [`noYiiAppPropertyMutation`](#taming-yiiapp)                            | Writes to `yii\base\Application` properties, including `setComponents()`                                                     |
+| [`noComplexActionClasses`](#complexity-limits)                          | Standalone `yii\base\Action` classes with too much branching/looping — logic that belongs in a service                                       |
+| [`noComplexControllerActions`](#complexity-limits)                      | The same, for controller actions                                                                                                             |
+| [`noControllerActionCallsViaThis`](#no-calling-actions-via-this)        | `$this->actionFoo()` inside a controller instead of a redirect or shared method                                                              |
+| [`noDbQueriesInActions`](#no-database-access-outside-repositories)      | Direct DB/ActiveRecord access in `Action` classes                                                                                            |
+| [`noDbQueriesInControllers`](#no-database-access-outside-repositories)  | Direct DB/ActiveRecord access in controllers                                                                                                 |
+| [`noDbQueriesInViews`](#no-database-access-outside-repositories)        | Direct DB/ActiveRecord access in view files                                                                                                  |
+| [`noDirectSuperglobals`](#no-raw-superglobals)                          | Direct use of `$_GET`, `$_POST`, `$_SESSION`, etc.                                                                                           |
+| [`noDynamicQueryWhere`](#no-dynamic-sql-strings)                        | String-concatenated conditions passed to `Query::where()` / `andWhere()`                                                                     |
+| [`noForbiddenYiiAppProperties`](#taming-yiiapp)                         | Reads of arbitrary `yii\base\Application` components, including `Yii::$app->*`                                                               |
+| [`noRedundantHtmlEncode`](#no-redundant-htmlencode)                     | `Html::encode()` calls whose argument is always a `numeric-string`                                                                           |
+| [`noYiiAppPropertyMutation`](#taming-yiiapp)                            | Writes to `yii\base\Application` properties, including `setComponents()`                                                                     |
 
 Every rule ships with its own PHPStan error identifier (`mspirkovYii2Rules.*`), so you can target `ignoreErrors` precisely instead of silencing a whole rule.
 
@@ -94,6 +95,32 @@ parameters:
 ```
 
 ## The rules
+
+### Active Form field validation
+
+`ActiveForm::field($model, $attribute)` takes the attribute name as a plain string, so a typo silently renders a broken field instead of failing. This rule checks that the attribute exists on the model — as a declared property or a PHPDoc `@property`, the same resolution `modelRulesValidation`/`modelAttributeLabelsValidation` use.
+
+```php
+/**
+ * @property string $email
+ */
+final class ContactModel extends Model
+{
+    public $name;
+}
+```
+
+```php
+/** @var ContactModel $model */
+
+$form = ActiveForm::begin();
+
+echo $form->field($model, 'name');     // ✓ declared property
+echo $form->field($model, 'email');    // ✓ declared via @property
+echo $form->field($model, 'nickname'); // ✗ typo — "nickname" is not a property on ContactModel
+
+ActiveForm::end();
+```
 
 ### Active Record relations validation
 
@@ -351,15 +378,10 @@ PHPStan already flags most nonsensical `Html::encode()` calls on its own (wrong 
 
 ```php
 /**
- * @param numeric-string $id
+ * @var numeric-string $id
+ * @var string $name
  */
-function renderId(string $id): string
-{
-    return Html::encode($id);   // ✗ flagged — $id can only ever be a numeric-string
-}
 
-function renderName(string $name): string
-{
-    return Html::encode($name); // ✓ a plain string may still contain special characters
-}
+echo Html::encode($id);   // ✗ flagged — $id can only ever be a numeric-string
+echo Html::encode($name); // ✓ a plain string may still contain special characters
 ```

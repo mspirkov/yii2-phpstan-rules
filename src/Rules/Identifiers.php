@@ -6,6 +6,7 @@ namespace MSpirkov\Yii2\PHPStan\Rules;
 
 final class Identifiers
 {
+    public const ACTIVE_FORM_FIELD_VALIDATION = self::PREFIX . 'activeFormFieldValidation';
     public const ACTIVE_RECORD_RELATION_VALIDATION = self::PREFIX . 'activeRecordRelationValidation';
     public const COMPONENT_BEHAVIORS_VALIDATION = self::PREFIX . 'componentBehaviorsValidation';
     public const MODEL_ATTRIBUTE_LABELS_VALIDATION = self::PREFIX . 'modelAttributeLabelsValidation';
@@ -23,6 +24,7 @@ final class Identifiers
     public const NO_YII_APP_PROPERTY_MUTATION = self::PREFIX . 'noYiiAppPropertyMutation';
 
     public const LIST = [
+        self::ACTIVE_FORM_FIELD_VALIDATION,
         self::ACTIVE_RECORD_RELATION_VALIDATION,
         self::COMPONENT_BEHAVIORS_VALIDATION,
         self::MODEL_ATTRIBUTE_LABELS_VALIDATION,
