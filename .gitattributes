@@ -5,6 +5,7 @@
 /.gitattributes                 export-ignore
 /.gitignore                     export-ignore
 /.php-cs-fixer.dist.php         export-ignore
+/CLAUDE.md                      export-ignore
 /phpstan.dist.neon              export-ignore
 /phpunit.xml.dist               export-ignore
 /rector.php                     export-ignore
