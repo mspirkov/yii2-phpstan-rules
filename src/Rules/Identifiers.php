@@ -24,6 +24,7 @@ final class Identifiers
     public const NO_REDUNDANT_HTML_ENCODE = self::PREFIX . 'noRedundantHtmlEncode';
     public const NO_YII_APP_PROPERTY_MUTATION = self::PREFIX . 'noYiiAppPropertyMutation';
 
+    /** @var list<string> */
     public const LIST = [
         self::ACTIVE_FORM_FIELD_VALIDATION,
         self::ACTIVE_RECORD_RELATION_VALIDATION,
