@@ -13,8 +13,15 @@ parameters:
 			matchCount: 0
 			ternaryCount: 1
 			tryCatchCount: 1
-		noDirectSuperglobals:
+		activeRecordRelationValidation:
 			enabled: %mspirkovYii2Rules.enableAllRules%
+		componentBehaviorsValidation:
+			enabled: %mspirkovYii2Rules.enableAllRules%
+		modelAttributeLabelsValidation:
+			enabled: %mspirkovYii2Rules.enableAllRules%
+		modelRulesValidation:
+			enabled: %mspirkovYii2Rules.enableAllRules%
+			customValidators: []
 		noComplexActionClasses:
 			enabled: %mspirkovYii2Rules.enableAllRules%
 		noComplexControllerActions:
@@ -27,6 +34,8 @@ parameters:
 			enabled: %mspirkovYii2Rules.enableAllRules%
 		noDbQueriesInViews:
 			enabled: %mspirkovYii2Rules.enableAllRules%
+		noDirectSuperglobals:
+			enabled: %mspirkovYii2Rules.enableAllRules%
 		noDynamicQueryWhere:
 			enabled: %mspirkovYii2Rules.enableAllRules%
 		noForbiddenYiiAppProperties:
@@ -37,16 +46,9 @@ parameters:
 				- charset
 				- language
 				- timeZone
+		noRedundantHtmlEncode:
+			enabled: %mspirkovYii2Rules.enableAllRules%
 		noYiiAppPropertyMutation:
-			enabled: %mspirkovYii2Rules.enableAllRules%
-		componentBehaviorsValidation:
-			enabled: %mspirkovYii2Rules.enableAllRules%
-		activeRecordRelationValidation:
-			enabled: %mspirkovYii2Rules.enableAllRules%
-		modelRulesValidation:
-			enabled: %mspirkovYii2Rules.enableAllRules%
-			customValidators: []
-		modelAttributeLabelsValidation:
 			enabled: %mspirkovYii2Rules.enableAllRules%
 
 parametersSchema:
@@ -64,8 +66,18 @@ parametersSchema:
 			ternaryCount: int()
 			tryCatchCount: int()
 		])
-		noDirectSuperglobals: structure([
+		activeRecordRelationValidation: structure([
 			enabled: bool()
+		])
+		componentBehaviorsValidation: structure([
+			enabled: bool()
+		])
+		modelAttributeLabelsValidation: structure([
+			enabled: bool()
+		])
+		modelRulesValidation: structure([
+			enabled: bool()
+			customValidators: arrayOf(string())
 		])
 		noComplexActionClasses: structure([
 			enabled: bool()
@@ -85,6 +97,9 @@ parametersSchema:
 		noDbQueriesInViews: structure([
 			enabled: bool()
 		])
+		noDirectSuperglobals: structure([
+			enabled: bool()
+		])
 		noDynamicQueryWhere: structure([
 			enabled: bool()
 		])
@@ -92,27 +107,23 @@ parametersSchema:
 			enabled: bool()
 			allowedProperties: arrayOf(string())
 		])
+		noRedundantHtmlEncode: structure([
+			enabled: bool()
+		])
 		noYiiAppPropertyMutation: structure([
-			enabled: bool()
-		])
-		componentBehaviorsValidation: structure([
-			enabled: bool()
-		])
-		activeRecordRelationValidation: structure([
-			enabled: bool()
-		])
-		modelRulesValidation: structure([
-			enabled: bool()
-			customValidators: arrayOf(string())
-		])
-		modelAttributeLabelsValidation: structure([
 			enabled: bool()
 		])
 	])
 
 conditionalTags:
-	MSpirkov\Yii2\PHPStan\Rules\NoDirectSuperglobalsRule:
-		phpstan.rules.rule: %mspirkovYii2Rules.noDirectSuperglobals.enabled%
+	MSpirkov\Yii2\PHPStan\Rules\ActiveRecordRelationValidationRule:
+		phpstan.rules.rule: %mspirkovYii2Rules.activeRecordRelationValidation.enabled%
+	MSpirkov\Yii2\PHPStan\Rules\ComponentBehaviorsValidationRule:
+		phpstan.rules.rule: %mspirkovYii2Rules.componentBehaviorsValidation.enabled%
+	MSpirkov\Yii2\PHPStan\Rules\ModelAttributeLabelsValidationRule:
+		phpstan.rules.rule: %mspirkovYii2Rules.modelAttributeLabelsValidation.enabled%
+	MSpirkov\Yii2\PHPStan\Rules\ModelRulesValidationRule:
+		phpstan.rules.rule: %mspirkovYii2Rules.modelRulesValidation.enabled%
 	MSpirkov\Yii2\PHPStan\Rules\NoComplexActionClassesRule:
 		phpstan.rules.rule: %mspirkovYii2Rules.noComplexActionClasses.enabled%
 	MSpirkov\Yii2\PHPStan\Rules\NoComplexControllerActionsRule:
@@ -125,24 +136,28 @@ conditionalTags:
 		phpstan.rules.rule: %mspirkovYii2Rules.noDbQueriesInControllers.enabled%
 	MSpirkov\Yii2\PHPStan\Rules\NoDbQueriesInViewsRule:
 		phpstan.rules.rule: %mspirkovYii2Rules.noDbQueriesInViews.enabled%
+	MSpirkov\Yii2\PHPStan\Rules\NoDirectSuperglobalsRule:
+		phpstan.rules.rule: %mspirkovYii2Rules.noDirectSuperglobals.enabled%
 	MSpirkov\Yii2\PHPStan\Rules\NoDynamicQueryWhereRule:
 		phpstan.rules.rule: %mspirkovYii2Rules.noDynamicQueryWhere.enabled%
 	MSpirkov\Yii2\PHPStan\Rules\NoForbiddenYiiAppPropertiesRule:
 		phpstan.rules.rule: %mspirkovYii2Rules.noForbiddenYiiAppProperties.enabled%
+	MSpirkov\Yii2\PHPStan\Rules\NoRedundantHtmlEncodeRule:
+		phpstan.rules.rule: %mspirkovYii2Rules.noRedundantHtmlEncode.enabled%
 	MSpirkov\Yii2\PHPStan\Rules\NoYiiAppPropertyMutationRule:
 		phpstan.rules.rule: %mspirkovYii2Rules.noYiiAppPropertyMutation.enabled%
-	MSpirkov\Yii2\PHPStan\Rules\ComponentBehaviorsValidationRule:
-		phpstan.rules.rule: %mspirkovYii2Rules.componentBehaviorsValidation.enabled%
-	MSpirkov\Yii2\PHPStan\Rules\ActiveRecordRelationValidationRule:
-		phpstan.rules.rule: %mspirkovYii2Rules.activeRecordRelationValidation.enabled%
-	MSpirkov\Yii2\PHPStan\Rules\ModelRulesValidationRule:
-		phpstan.rules.rule: %mspirkovYii2Rules.modelRulesValidation.enabled%
-	MSpirkov\Yii2\PHPStan\Rules\ModelAttributeLabelsValidationRule:
-		phpstan.rules.rule: %mspirkovYii2Rules.modelAttributeLabelsValidation.enabled%
 
 services:
 	-
-		class: MSpirkov\Yii2\PHPStan\Rules\NoDirectSuperglobalsRule
+		class: MSpirkov\Yii2\PHPStan\Rules\ActiveRecordRelationValidationRule
+	-
+		class: MSpirkov\Yii2\PHPStan\Rules\ComponentBehaviorsValidationRule
+	-
+		class: MSpirkov\Yii2\PHPStan\Rules\ModelAttributeLabelsValidationRule
+	-
+		class: MSpirkov\Yii2\PHPStan\Rules\ModelRulesValidationRule
+		arguments:
+			customValidators: %mspirkovYii2Rules.modelRulesValidation.customValidators%
 	-
 		class: MSpirkov\Yii2\PHPStan\Rules\NoComplexActionClassesRule
 	-
@@ -156,23 +171,17 @@ services:
 	-
 		class: MSpirkov\Yii2\PHPStan\Rules\NoDbQueriesInViewsRule
 	-
+		class: MSpirkov\Yii2\PHPStan\Rules\NoDirectSuperglobalsRule
+	-
 		class: MSpirkov\Yii2\PHPStan\Rules\NoDynamicQueryWhereRule
 	-
 		class: MSpirkov\Yii2\PHPStan\Rules\NoForbiddenYiiAppPropertiesRule
 		arguments:
 			allowedProperties: %mspirkovYii2Rules.noForbiddenYiiAppProperties.allowedProperties%
 	-
+		class: MSpirkov\Yii2\PHPStan\Rules\NoRedundantHtmlEncodeRule
+	-
 		class: MSpirkov\Yii2\PHPStan\Rules\NoYiiAppPropertyMutationRule
-	-
-		class: MSpirkov\Yii2\PHPStan\Rules\ComponentBehaviorsValidationRule
-	-
-		class: MSpirkov\Yii2\PHPStan\Rules\ActiveRecordRelationValidationRule
-	-
-		class: MSpirkov\Yii2\PHPStan\Rules\ModelRulesValidationRule
-		arguments:
-			customValidators: %mspirkovYii2Rules.modelRulesValidation.customValidators%
-	-
-		class: MSpirkov\Yii2\PHPStan\Rules\ModelAttributeLabelsValidationRule
 
 	-
 		class: MSpirkov\Yii2\PHPStan\Analyzers\ActionComplexityAnalyzer
