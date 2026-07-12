@@ -15,12 +15,10 @@ final class ActiveFormFieldValidationRuleTest extends AbstractTestCase
 {
     public function testRule(): void
     {
-        $modelClass = ContactModel::class;
-
         $this->analyse(
             [self::getDataFilePath('code')],
             [
-                [sprintf('Unknown attribute "nickname" for model %s.', $modelClass), 23],
+                [sprintf('Unknown attribute "nickname" for model %s.', ContactModel::class), 23],
                 [sprintf('Unknown attribute "nickname" for model %s.', Model::class), 59],
             ],
         );
