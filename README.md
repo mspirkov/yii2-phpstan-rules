@@ -18,7 +18,7 @@ A set of PHPStan rules for Yii2 projects that I put together for my own day-to-d
 
 | Rule                                                                    | Catches                                                                                                                                      |
 | ----------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
-| [`activeFormFieldValidation`](#active-form-field-validation)            | `ActiveForm::field()` calls targeting an attribute that doesn't exist on the given model                                                     |
+| [`activeFormFieldValidation`](#active-form-field-validation)            | `ActiveForm::field()` calls targeting an attribute that is missing, read-only, or write-only on the given model                              |
 | [`activeRecordRelationValidation`](#active-record-relations-validation) | Invalid `hasOne()` / `hasMany()` link properties that do not exist on the current or related ActiveRecord model                              |
 | [`componentBehaviorsValidation`](#component-behaviors-validation)       | Malformed or invalid `behaviors()` in `yii\base\Component` — unknown behavior classes, bad config keys, and bad option types                 |
 | [`modelAttributeLabelsValidation`](#model-attribute-labels-validation)  | `attributeLabels()` entries in `yii\base\Model` that target attributes that don't exist, or use an empty attribute name                      |
@@ -98,15 +98,26 @@ parameters:
 
 ### Active Form field validation
 
-`ActiveForm::field($model, $attribute)` takes the attribute name as a plain string, so a typo silently renders a broken field instead of failing. This rule checks that the attribute exists on the model — as a declared property or a PHPDoc `@property`, the same resolution `modelRulesValidation`/`modelAttributeLabelsValidation` use.
+`ActiveForm::field($model, $attribute)` binds an editable input to the attribute: it reads the current value to render the input, and writes the submitted value back to the model on `load()`. This rule checks that the attribute is both readable and writable — a declared (non-readonly) property, a PHPDoc `@property`, or a matching getter/setter pair — and reports it whether it's missing entirely or only exists as read-only or write-only.
 
 ```php
 /**
  * @property string $email
+ * @property-read string $fullName
  */
 final class ContactModel extends Model
 {
     public $name;
+
+    public function getPhone(): string
+    {
+        // ...
+    }
+
+    public function setPhone(string $phone): void
+    {
+        // ...
+    }
 }
 ```
 
@@ -117,6 +128,8 @@ $form = ActiveForm::begin();
 
 echo $form->field($model, 'name');     // ✓ declared property
 echo $form->field($model, 'email');    // ✓ declared via @property
+echo $form->field($model, 'phone');    // ✓ has both getPhone() and setPhone()
+echo $form->field($model, 'fullName'); // ✗ read-only — declared via @property-read, nothing to write the submitted value back to
 echo $form->field($model, 'nickname'); // ✗ typo — "nickname" is not a property on ContactModel
 
 ActiveForm::end();

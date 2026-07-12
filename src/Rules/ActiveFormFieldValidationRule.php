@@ -75,13 +75,17 @@ final class ActiveFormFieldValidationRule implements Rule
             return [];
         }
 
-        if (!$this->baseObjectPropertyAnalyzer->isUnknownAttribute($modelClassReflection, $attributeName)) {
+        if ($this->baseObjectPropertyAnalyzer->hasReadableAndWritableProperty($modelClassReflection, $attributeName, $scope)) {
             return [];
         }
 
         return [
             ErrorBuilder::build(
-                sprintf('Unknown attribute "%s" for model %s.', $attributeName, $modelClassReflection->getName()),
+                sprintf(
+                    'Attribute "%s" is not readable and writable or does not exist on model %s.',
+                    $attributeName,
+                    $modelClassReflection->getName()
+                ),
                 Identifiers::ACTIVE_FORM_FIELD_VALIDATION,
                 $node->getStartLine()
             ),

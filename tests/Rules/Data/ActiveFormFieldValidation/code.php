@@ -23,6 +23,26 @@ function withUnknownProperty(ActiveForm $form, ContactModel $model): void
     $form->field($model, 'nickname');
 }
 
+function withReadOnlyProperty(ActiveForm $form, ContactModel $model): void
+{
+    $form->field($model, 'fullName');
+}
+
+function withGetterAndSetterProperty(ActiveForm $form, ContactModel $model): void
+{
+    $form->field($model, 'phone');
+}
+
+function withGetterOnlyProperty(ActiveForm $form, ContactModel $model): void
+{
+    $form->field($model, 'status');
+}
+
+function withSetterOnlyProperty(ActiveForm $form, ContactModel $model): void
+{
+    $form->field($model, 'secret');
+}
+
 function withDynamicAttribute(ActiveForm $form, ContactModel $model, string $attribute): void
 {
     $form->field($model, $attribute);
