@@ -28,7 +28,7 @@ function withReadOnlyProperty(ActiveForm $form, ContactModel $model): void
     $form->field($model, 'fullName');
 }
 
-function withSetterProperty(ActiveForm $form, ContactModel $model): void
+function withGetterAndSetterProperty(ActiveForm $form, ContactModel $model): void
 {
     $form->field($model, 'phone');
 }
