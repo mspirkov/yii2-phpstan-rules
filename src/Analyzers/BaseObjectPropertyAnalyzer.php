@@ -35,6 +35,20 @@ final class BaseObjectPropertyAnalyzer
         return $this->hasPropertySetter($classReflection, $propertyName);
     }
 
+    public function hasReadableAndWritableProperty(
+        ClassReflection $classReflection,
+        string $propertyName,
+        Scope $scope
+    ): bool {
+        $instanceProperty = $this->findInstanceProperty($classReflection, $propertyName, $scope);
+        if ($instanceProperty !== null && $instanceProperty->isReadable() && $instanceProperty->isWritable()) {
+            return true;
+        }
+
+        return $this->hasPropertyGetter($classReflection, $propertyName)
+            && $this->hasPropertySetter($classReflection, $propertyName);
+    }
+
     public function hasProperty(ClassReflection $classReflection, string $propertyName): bool
     {
         if ($classReflection->hasInstanceProperty($propertyName)) {

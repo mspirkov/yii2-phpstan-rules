@@ -18,8 +18,11 @@ final class ActiveFormFieldValidationRuleTest extends AbstractTestCase
         $this->analyse(
             [self::getDataFilePath('code')],
             [
-                [sprintf('Unknown attribute "nickname" for model %s.', ContactModel::class), 23],
-                [sprintf('Unknown attribute "nickname" for model %s.', Model::class), 59],
+                [sprintf('Attribute "nickname" is not readable and writable or does not exist on model %s.', ContactModel::class), 23],
+                [sprintf('Attribute "fullName" is not readable and writable or does not exist on model %s.', ContactModel::class), 28],
+                [sprintf('Attribute "status" is not readable and writable or does not exist on model %s.', ContactModel::class), 38],
+                [sprintf('Attribute "secret" is not readable and writable or does not exist on model %s.', ContactModel::class), 43],
+                [sprintf('Attribute "nickname" is not readable and writable or does not exist on model %s.', Model::class), 79],
             ],
         );
     }
