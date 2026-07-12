@@ -11,6 +11,7 @@ final class Identifiers
     public const COMPONENT_BEHAVIORS_VALIDATION = self::PREFIX . 'componentBehaviorsValidation';
     public const MODEL_ATTRIBUTE_LABELS_VALIDATION = self::PREFIX . 'modelAttributeLabelsValidation';
     public const MODEL_RULES_VALIDATION = self::PREFIX . 'modelRulesValidation';
+    public const WIDGET_PROPERTIES_VALIDATION = self::PREFIX . 'widgetPropertiesValidation';
     public const NO_COMPLEX_ACTION_CLASSES = self::PREFIX . 'noComplexActionClasses';
     public const NO_COMPLEX_CONTROLLER_ACTIONS = self::PREFIX . 'noComplexControllerActions';
     public const NO_CONTROLLER_ACTION_CALLS_VIA_THIS = self::PREFIX . 'noControllerActionCallsViaThis';
@@ -23,12 +24,14 @@ final class Identifiers
     public const NO_REDUNDANT_HTML_ENCODE = self::PREFIX . 'noRedundantHtmlEncode';
     public const NO_YII_APP_PROPERTY_MUTATION = self::PREFIX . 'noYiiAppPropertyMutation';
 
+    /** @var list<string> */
     public const LIST = [
         self::ACTIVE_FORM_FIELD_VALIDATION,
         self::ACTIVE_RECORD_RELATION_VALIDATION,
         self::COMPONENT_BEHAVIORS_VALIDATION,
         self::MODEL_ATTRIBUTE_LABELS_VALIDATION,
         self::MODEL_RULES_VALIDATION,
+        self::WIDGET_PROPERTIES_VALIDATION,
         self::NO_COMPLEX_ACTION_CLASSES,
         self::NO_COMPLEX_CONTROLLER_ACTIONS,
         self::NO_CONTROLLER_ACTION_CALLS_VIA_THIS,

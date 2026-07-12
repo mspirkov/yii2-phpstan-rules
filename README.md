@@ -23,6 +23,7 @@ A set of PHPStan rules for Yii2 projects that I put together for my own day-to-d
 | [`componentBehaviorsValidation`](#component-behaviors-validation)       | Malformed or invalid `behaviors()` in `yii\base\Component` — unknown behavior classes, bad config keys, and bad option types                 |
 | [`modelAttributeLabelsValidation`](#model-attribute-labels-validation)  | `attributeLabels()` entries in `yii\base\Model` that target attributes that don't exist, or use an empty attribute name                      |
 | [`modelRulesValidation`](#model-validation-rules-validation)            | Malformed or invalid `rules()` in `yii\base\Model` — unknown validators, missing required options, bad regexes, unknown attributes, and more |
+| [`widgetPropertiesValidation`](#widget-properties-validation)           | Unknown or mistyped option keys and bad option types in `Widget::begin()` / `Widget::widget()` config arrays                                 |
 | [`noComplexActionClasses`](#complexity-limits)                          | Standalone `yii\base\Action` classes with too much branching/looping — logic that belongs in a service                                       |
 | [`noComplexControllerActions`](#complexity-limits)                      | The same, for controller actions                                                                                                             |
 | [`noControllerActionCallsViaThis`](#no-calling-actions-via-this)        | `$this->actionFoo()` inside a controller instead of a redirect or shared method                                                              |
@@ -280,6 +281,20 @@ final class ContactModel extends Model
         ];
     }
 }
+```
+
+### Widget properties validation
+
+`Widget::begin($config)` / `Widget::widget($config)` configs are just arrays, like `behaviors()`, so a typo'd key or a wrong-typed value only fails once the widget renders. This rule checks config keys against the called widget's writable properties and literal values against their declared types.
+
+```php
+ActiveForm::begin([
+    'method' => 'get',             // ✓ declared property
+    'metod' => 'get',              // ✗ typo — unknown option "metod"
+    'encodeErrorSummary' => 'yes', // ✗ wrong type — bool expected, string given
+]);
+
+ActiveForm::end();
 ```
 
 ### Complexity limits
