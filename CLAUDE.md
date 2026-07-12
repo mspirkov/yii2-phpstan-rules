@@ -25,11 +25,11 @@ Every rule ships its own PHPStan error identifier (`mspirkovYii2Rules.<name>`) v
 
 Follow the existing rules as templates (`NoDirectSuperglobalsRule` for a minimal example, `NoDynamicQueryWhereRule` or `DbQueriesUsageAnalyzer` for one that inspects call targets/types). The moving parts, in order:
 
-1. **`src/Rules/Identifiers.php`** — add a `PREFIX . 'camelCaseName'` constant and append it to `LIST`.
+1. **`src/Rules/Identifiers.php`** — add a `PREFIX . 'camelCaseName'` constant and insert it (both the constant declaration and the `LIST` entry) in the right sorted spot: `*_VALIDATION` rules first, then `NO_*` rules, alphabetical by `camelCaseName` within each group. The same grouping + alphabetical order applies to `rules.neon` (`parameters`, `parametersSchema`, `conditionalTags`, `services`) and to the rules table in README.md — keep all of them in sync.
 2. **`src/Rules/<Name>Rule.php`** — implements `Rule<SomeNodeType>` (`@implements Rule<...>` docblock + matching `getNodeType()`). Return `[]` early for anything that doesn't match; build errors with `ErrorBuilder::build($message, Identifiers::X, $node->getStartLine())`.
    - Prefer composing existing `Analyzers/*` (especially `ExpressionTypeAnalyzer::isClassNameOf()` / `isObjectOf()`) over re-deriving class-reflection logic inline — most "is this expression an instance of X" checks already exist there.
    - To resolve a `Name` node (e.g. the class part of a `StaticCall`) to a string, use `$scope->resolveName($name)`, then check it with the analyzer above.
-3. **`rules.neon`** — four places to touch, all keyed by the same `camelCaseName`:
+3. **`rules.neon`** — four places to touch, all keyed by the same `camelCaseName`, each inserted at its sorted position (see step 1) rather than appended at the end:
    - `parameters.mspirkovYii2Rules.<name>.enabled: %mspirkovYii2Rules.enableAllRules%` (plus any rule-specific options)
    - matching block under `parametersSchema`
    - `conditionalTags` entry: `<FQCN>: { phpstan.rules.rule: %mspirkovYii2Rules.<name>.enabled% }`
@@ -37,7 +37,7 @@ Follow the existing rules as templates (`NoDirectSuperglobalsRule` for a minimal
 4. **Tests** — `tests/Rules/<Name>RuleTest.php` extends `AbstractTestCase`, asserts `[message, line]` pairs against `tests/Rules/Data/<Name>/code.php`.
    - Any class the fixture needs by name (not an anonymous class or an inline literal) must live in `tests/Rules/Source/<Name>/<ClassName>.php`, one class per file, matching PSR-4 (`MSpirkov\Yii2\PHPStan\Tests\Rules\Source\<Name>\<ClassName>`) — classes declared inline inside the `Data` fixture are **not** reflectable by PHPStan's test reflection provider (no autoload entry maps `code.php` to them), and referencing them by name will fail with "not found in ReflectionProvider".
    - Both `tests/*/Data/*` and `tests/*/Source/*` are excluded from this project's own `phpstan.dist.neon` / `rector.php` analysis — write fixtures that would normally fail PHPStan/type checks freely when the point is to exercise a code path (e.g. a call with a deliberately wrong argument count).
-5. **README.md** — add a row to the rules table and a `###` section under "The rules"; the table's link must match the GitHub-generated anchor slug of that heading.
+5. **README.md** — add a row to the rules table (same sorted position as step 1) and a `###` section under "The rules"; the table's link must match the GitHub-generated anchor slug of that heading. Rules that share one section (e.g. the two complexity rules, the three DB-access rules, the two `Yii::$app` rules) keep that section as a single block placed at the position of its alphabetically-first member — don't split it apart to chase strict alphabetical order.
 
 ## Verifying a change
 

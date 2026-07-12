@@ -20,18 +20,19 @@ A set of PHPStan rules for Yii2 projects that I put together for my own day-to-d
 | ----------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
 | [`activeRecordRelationValidation`](#active-record-relations-validation) | Invalid `hasOne()` / `hasMany()` link properties that do not exist on the current or related ActiveRecord model              |
 | [`componentBehaviorsValidation`](#component-behaviors-validation)       | Malformed or invalid `behaviors()` in `yii\base\Component` — unknown behavior classes, bad config keys, and bad option types |
-| [`modelRulesValidation`](#model-validation-rules-validation)            | Malformed or invalid `rules()` in `yii\base\Model` — unknown validators, missing required options, bad regexes, unknown attributes, and more |
 | [`modelAttributeLabelsValidation`](#model-attribute-labels-validation)  | `attributeLabels()` entries in `yii\base\Model` that target attributes that don't exist, or use an empty attribute name      |
-| [`noComplexControllerActions`](#complexity-limits)                      | Controller actions with too much branching/looping — logic that belongs in a service                                         |
-| [`noComplexActionClasses`](#complexity-limits)                          | The same, for standalone `yii\base\Action` classes                                                                           |
+| [`modelRulesValidation`](#model-validation-rules-validation)            | Malformed or invalid `rules()` in `yii\base\Model` — unknown validators, missing required options, bad regexes, unknown attributes, and more |
+| [`noComplexActionClasses`](#complexity-limits)                          | Standalone `yii\base\Action` classes with too much branching/looping — logic that belongs in a service                       |
+| [`noComplexControllerActions`](#complexity-limits)                      | The same, for controller actions                                                                                             |
 | [`noControllerActionCallsViaThis`](#no-calling-actions-via-this)        | `$this->actionFoo()` inside a controller instead of a redirect or shared method                                              |
-| [`noDbQueriesInControllers`](#no-database-access-outside-repositories)  | Direct DB/ActiveRecord access in controllers                                                                                 |
 | [`noDbQueriesInActions`](#no-database-access-outside-repositories)      | Direct DB/ActiveRecord access in `Action` classes                                                                            |
+| [`noDbQueriesInControllers`](#no-database-access-outside-repositories)  | Direct DB/ActiveRecord access in controllers                                                                                 |
 | [`noDbQueriesInViews`](#no-database-access-outside-repositories)        | Direct DB/ActiveRecord access in view files                                                                                  |
+| [`noDirectSuperglobals`](#no-raw-superglobals)                          | Direct use of `$_GET`, `$_POST`, `$_SESSION`, etc.                                                                           |
 | [`noDynamicQueryWhere`](#no-dynamic-sql-strings)                        | String-concatenated conditions passed to `Query::where()` / `andWhere()`                                                     |
 | [`noForbiddenYiiAppProperties`](#taming-yiiapp)                         | Reads of arbitrary `yii\base\Application` components, including `Yii::$app->*`                                                |
+| [`noRedundantHtmlEncode`](#no-redundant-htmlencode)                     | `Html::encode()` calls whose argument is always a `numeric-string`                                                          |
 | [`noYiiAppPropertyMutation`](#taming-yiiapp)                            | Writes to `yii\base\Application` properties, including `setComponents()`                                                     |
-| [`noDirectSuperglobals`](#no-raw-superglobals)                          | Direct use of `$_GET`, `$_POST`, `$_SESSION`, etc.                                                                           |
 
 Every rule ships with its own PHPStan error identifier (`mspirkovYii2Rules.*`), so you can target `ignoreErrors` precisely instead of silencing a whole rule.
 
@@ -178,6 +179,29 @@ public function behaviors(): array
 }
 ```
 
+### Model attribute labels validation
+
+`Model::attributeLabels()` is just as easy to get wrong as `rules()` — a typo'd key silently falls back to the default humanized attribute name instead of showing your label. This rule checks that every key is an existing property on the model (as a declared property or a PHPDoc `@property`, same resolution as `modelRulesValidation`) and isn't left empty:
+
+```php
+/**
+ * @property string $email
+ */
+final class ContactModel extends Model
+{
+    public $name;
+
+    public function attributeLabels(): array
+    {
+        return [
+            'name' => 'Name',
+            'emial' => 'E-mail',   // ✗ typo — "emial" is not a property on ContactModel
+            'email' => 'E-mail',   // ✓ declared via @property
+        ];
+    }
+}
+```
+
 ### Model validation rules validation
 
 `Model::rules()` is just a plain array — PHP will never tell you that you forgot a validator's required option, wrote an invalid regex, misconfigured one of its options, or targeted an attribute that doesn't even exist. For every rule entry the validator type resolves to (a built-in alias like `required`/`string`/`number`/`compare`/`date`/`match`/`in`/`unique`/`exist`/`file`/`image`/`ip`/`url`, a custom `Validator` subclass, a configured project alias, or an inline closure/method), this rule statically checks the option array against what that validator actually accepts and requires. A validator name it can't resolve is reported as an error; add project-specific aliases under `modelRulesValidation.customValidators`:
@@ -218,32 +242,9 @@ final class ContactModel extends Model
 }
 ```
 
-### Model attribute labels validation
-
-`Model::attributeLabels()` is just as easy to get wrong as `rules()` — a typo'd key silently falls back to the default humanized attribute name instead of showing your label. This rule checks that every key is an existing property on the model (as a declared property or a PHPDoc `@property`, same resolution as `modelRulesValidation`) and isn't left empty:
-
-```php
-/**
- * @property string $email
- */
-final class ContactModel extends Model
-{
-    public $name;
-
-    public function attributeLabels(): array
-    {
-        return [
-            'name' => 'Name',
-            'emial' => 'E-mail',   // ✗ typo — "emial" is not a property on ContactModel
-            'email' => 'E-mail',   // ✓ declared via @property
-        ];
-    }
-}
-```
-
 ### Complexity limits
 
-`noComplexControllerActions` and `noComplexActionClasses` count `if`, `foreach`, `for`, `while`, `do-while`, `switch`, `match`, ternaries, and `try/catch` blocks inside a controller action or `Action::run()`. Cross any configured threshold and the rule fires, pointing at the exact construct that pushed it over:
+`noComplexActionClasses` and `noComplexControllerActions` count `if`, `foreach`, `for`, `while`, `do-while`, `switch`, `match`, ternaries, and `try/catch` blocks inside a controller action or `Action::run()`. Cross any configured threshold and the rule fires, pointing at the exact construct that pushed it over:
 
 ```php
 // ✗ flagged: 4 `if` statements against a default limit of 3
@@ -292,7 +293,19 @@ Fires on `ActiveRecord::find()`/`findOne()`/`save()`, `Yii::$app->db`, `Yii::$ap
 <?php foreach ($posts as $post): ?>
 ```
 
-`noDbQueriesInControllers` / `noDbQueriesInActions` push the same query building into a repository or service instead. Query builder setup counts too: `new Query()`, `$query->where()`, and dynamic calls on a `Query` object are all treated as direct database access in these layers.
+`noDbQueriesInActions` / `noDbQueriesInControllers` push the same query building into a repository or service instead. Query builder setup counts too: `new Query()`, `$query->where()`, and dynamic calls on a `Query` object are all treated as direct database access in these layers.
+
+### No raw superglobals
+
+```php
+// ✗ flagged, with the fix suggested in the error message
+$id = $_GET['id'];
+
+// ✓ read through the injected yii\web\Request instead
+$id = $this->request->get('id');
+```
+
+Covers `$_GET`, `$_POST`, `$_REQUEST`, `$_SESSION`, `$_COOKIE`, `$_FILES`, and `$_SERVER`, each pointing at the matching `yii\web\Request` / `Session` / `UploadedFile` API.
 
 ### No dynamic SQL strings
 
@@ -332,14 +345,21 @@ public function __construct(private CacheInterface $cache) {}
 
 A short allowlist (`id`, `name`, `charset`, `language`, `timeZone` by default) stays available everywhere since those are effectively static configuration, not injectable services.
 
-### No raw superglobals
+### No redundant `Html::encode()`
+
+PHPStan already flags most nonsensical `Html::encode()` calls on its own (wrong argument types and the like). The one gap it doesn't cover is a `numeric-string` argument: a value PHPStan can already prove only ever holds digits, so escaping it can't do anything — `htmlspecialchars()` never touches a plain number. This rule fires only in that narrow case, on `yii\helpers\Html` / `BaseHtml` and their subclasses:
 
 ```php
-// ✗ flagged, with the fix suggested in the error message
-$id = $_GET['id'];
+/**
+ * @param numeric-string $id
+ */
+function renderId(string $id): string
+{
+    return Html::encode($id);   // ✗ flagged — $id can only ever be a numeric-string
+}
 
-// ✓ read through the injected yii\web\Request instead
-$id = $this->request->get('id');
+function renderName(string $name): string
+{
+    return Html::encode($name); // ✓ a plain string may still contain special characters
+}
 ```
-
-Covers `$_GET`, `$_POST`, `$_REQUEST`, `$_SESSION`, `$_COOKIE`, `$_FILES`, and `$_SERVER`, each pointing at the matching `yii\web\Request` / `Session` / `UploadedFile` API.
