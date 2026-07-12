@@ -11,6 +11,7 @@ final class Identifiers
     public const COMPONENT_BEHAVIORS_VALIDATION = self::PREFIX . 'componentBehaviorsValidation';
     public const MODEL_ATTRIBUTE_LABELS_VALIDATION = self::PREFIX . 'modelAttributeLabelsValidation';
     public const MODEL_RULES_VALIDATION = self::PREFIX . 'modelRulesValidation';
+    public const WIDGET_PROPERTIES_VALIDATION = self::PREFIX . 'widgetPropertiesValidation';
     public const NO_COMPLEX_ACTION_CLASSES = self::PREFIX . 'noComplexActionClasses';
     public const NO_COMPLEX_CONTROLLER_ACTIONS = self::PREFIX . 'noComplexControllerActions';
     public const NO_CONTROLLER_ACTION_CALLS_VIA_THIS = self::PREFIX . 'noControllerActionCallsViaThis';
@@ -29,6 +30,7 @@ final class Identifiers
         self::COMPONENT_BEHAVIORS_VALIDATION,
         self::MODEL_ATTRIBUTE_LABELS_VALIDATION,
         self::MODEL_RULES_VALIDATION,
+        self::WIDGET_PROPERTIES_VALIDATION,
         self::NO_COMPLEX_ACTION_CLASSES,
         self::NO_COMPLEX_CONTROLLER_ACTIONS,
         self::NO_CONTROLLER_ACTION_CALLS_VIA_THIS,
