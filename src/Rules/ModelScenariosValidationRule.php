@@ -148,7 +148,7 @@ final class ModelScenariosValidationRule implements Rule
 
     private function stripUnsafePrefix(string $attributeName): string
     {
-        return strncmp($attributeName, '!', 1) === 0 ? substr($attributeName, 1) : $attributeName;
+        return strncmp($attributeName, '!', 1) === 0 ? substr($attributeName, 1) . '' : $attributeName;
     }
 
     /**
