@@ -11,6 +11,7 @@ final class Identifiers
     public const COMPONENT_BEHAVIORS_VALIDATION = self::PREFIX . 'componentBehaviorsValidation';
     public const MODEL_ATTRIBUTE_LABELS_VALIDATION = self::PREFIX . 'modelAttributeLabelsValidation';
     public const MODEL_RULES_VALIDATION = self::PREFIX . 'modelRulesValidation';
+    public const MODEL_SCENARIOS_VALIDATION = self::PREFIX . 'modelScenariosValidation';
     public const WIDGET_PROPERTIES_VALIDATION = self::PREFIX . 'widgetPropertiesValidation';
     public const YII_CREATE_OBJECT_VALIDATION = self::PREFIX . 'yiiCreateObjectValidation';
     public const NO_COMPLEX_ACTION_CLASSES = self::PREFIX . 'noComplexActionClasses';
@@ -32,6 +33,7 @@ final class Identifiers
         self::COMPONENT_BEHAVIORS_VALIDATION,
         self::MODEL_ATTRIBUTE_LABELS_VALIDATION,
         self::MODEL_RULES_VALIDATION,
+        self::MODEL_SCENARIOS_VALIDATION,
         self::WIDGET_PROPERTIES_VALIDATION,
         self::YII_CREATE_OBJECT_VALIDATION,
         self::NO_COMPLEX_ACTION_CLASSES,
