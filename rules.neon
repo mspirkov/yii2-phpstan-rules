@@ -26,6 +26,8 @@ parameters:
 			customValidators: []
 		widgetPropertiesValidation:
 			enabled: %mspirkovYii2Rules.enableAllRules%
+		yiiCreateObjectValidation:
+			enabled: %mspirkovYii2Rules.enableAllRules%
 		noComplexActionClasses:
 			enabled: %mspirkovYii2Rules.enableAllRules%
 		noComplexControllerActions:
@@ -89,6 +91,9 @@ parametersSchema:
 		widgetPropertiesValidation: structure([
 			enabled: bool()
 		])
+		yiiCreateObjectValidation: structure([
+			enabled: bool()
+		])
 		noComplexActionClasses: structure([
 			enabled: bool()
 		])
@@ -138,6 +143,8 @@ conditionalTags:
 		phpstan.rules.rule: %mspirkovYii2Rules.modelRulesValidation.enabled%
 	MSpirkov\Yii2\PHPStan\Rules\WidgetPropertiesValidationRule:
 		phpstan.rules.rule: %mspirkovYii2Rules.widgetPropertiesValidation.enabled%
+	MSpirkov\Yii2\PHPStan\Rules\YiiCreateObjectValidationRule:
+		phpstan.rules.rule: %mspirkovYii2Rules.yiiCreateObjectValidation.enabled%
 	MSpirkov\Yii2\PHPStan\Rules\NoComplexActionClassesRule:
 		phpstan.rules.rule: %mspirkovYii2Rules.noComplexActionClasses.enabled%
 	MSpirkov\Yii2\PHPStan\Rules\NoComplexControllerActionsRule:
@@ -176,6 +183,8 @@ services:
 			customValidators: %mspirkovYii2Rules.modelRulesValidation.customValidators%
 	-
 		class: MSpirkov\Yii2\PHPStan\Rules\WidgetPropertiesValidationRule
+	-
+		class: MSpirkov\Yii2\PHPStan\Rules\YiiCreateObjectValidationRule
 	-
 		class: MSpirkov\Yii2\PHPStan\Rules\NoComplexActionClassesRule
 	-
