@@ -23,6 +23,7 @@ A set of PHPStan rules for Yii2 projects that I put together for my own day-to-d
 | [`componentBehaviorsValidation`](#component-behaviors-validation)       | Malformed or invalid `behaviors()` in `yii\base\Component` — unknown behavior classes, bad config keys, and bad option types                 |
 | [`modelAttributeLabelsValidation`](#model-attribute-labels-validation)  | `attributeLabels()` entries in `yii\base\Model` that target attributes that don't exist, or use an empty attribute name                      |
 | [`modelRulesValidation`](#model-validation-rules-validation)            | Malformed or invalid `rules()` in `yii\base\Model` — unknown validators, missing required options, bad regexes, unknown attributes, and more |
+| [`modelScenariosValidation`](#model-scenarios-validation)               | `scenarios()` entries in `yii\base\Model` with an empty name, a non-array attribute list, or an unknown attribute                            |
 | [`widgetPropertiesValidation`](#widget-properties-validation)           | Unknown or mistyped option keys and bad option types in `Widget::begin()` / `Widget::widget()` config arrays                                 |
 | [`yiiCreateObjectValidation`](#yiicreateobject-validation)              | `Yii::createObject()` config arrays missing `class`/`__class`, bad config keys, and bad option types                                         |
 | [`noComplexActionClasses`](#complexity-limits)                          | Standalone `yii\base\Action` classes with too much branching/looping — logic that belongs in a service                                       |
@@ -279,6 +280,28 @@ final class ContactModel extends Model
             ['name', 'required'],
             ['emial', 'required'],   // ✗ typo — "emial" is not a property on ContactModel
             ['email', 'string'],     // ✓ declared via @property
+        ];
+    }
+}
+```
+
+### Model scenarios validation
+
+`Model::scenarios()` maps scenario names to the attributes active in them, and PHP won't tell you that a scenario name is empty, an attribute list isn't actually an array, or an attribute doesn't exist on the model — the same way `modelAttributeLabelsValidation` checks `attributeLabels()`. An attribute prefixed with `!` (Yii's "unsafe" marker) is checked under its unprefixed name.
+
+```php
+final class ContactModel extends Model
+{
+    public $name;
+    public $email;
+
+    public function scenarios(): array
+    {
+        return [
+            'create' => ['name', 'email'],
+            'update' => ['name', '!emial'],  // ✗ typo — "emial" is not a property on ContactModel
+            '' => ['name'],                  // ✗ empty scenario name
+            'delete' => 'name',              // ✗ must be an array of attribute names
         ];
     }
 }
