@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace MSpirkov\Yii2\PHPStan\Tests\Rules;
 
-use MSpirkov\Yii2\PHPStan\Rules\CreateObjectValidationRule;
-use MSpirkov\Yii2\PHPStan\Tests\Rules\Source\CreateObjectValidation\CreatableComponent;
-use MSpirkov\Yii2\PHPStan\Tests\Rules\Source\CreateObjectValidation\PlainObject;
+use MSpirkov\Yii2\PHPStan\Rules\YiiCreateObjectValidationRule;
+use MSpirkov\Yii2\PHPStan\Tests\Rules\Source\YiiCreateObjectValidation\CreatableComponent;
+use MSpirkov\Yii2\PHPStan\Tests\Rules\Source\YiiCreateObjectValidation\PlainObject;
 
 /**
- * @extends AbstractTestCase<CreateObjectValidationRule>
+ * @extends AbstractTestCase<YiiCreateObjectValidationRule>
  */
-final class CreateObjectValidationRuleTest extends AbstractTestCase
+final class YiiCreateObjectValidationRuleTest extends AbstractTestCase
 {
     public function testRule(): void
     {
@@ -37,6 +37,6 @@ final class CreateObjectValidationRuleTest extends AbstractTestCase
 
     protected static function getRuleClass(): string
     {
-        return CreateObjectValidationRule::class;
+        return YiiCreateObjectValidationRule::class;
     }
 }

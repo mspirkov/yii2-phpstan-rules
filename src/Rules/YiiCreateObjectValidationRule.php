@@ -24,7 +24,7 @@ use yii\BaseYii;
 /**
  * @implements Rule<StaticCall>
  */
-final class CreateObjectValidationRule implements Rule
+final class YiiCreateObjectValidationRule implements Rule
 {
     private BaseObjectConfigAnalyzer $baseObjectConfigAnalyzer;
 
@@ -115,7 +115,7 @@ final class CreateObjectValidationRule implements Rule
             $options['items'],
             $scope,
             'object',
-            Identifiers::CREATE_OBJECT_VALIDATION
+            Identifiers::YII_CREATE_OBJECT_VALIDATION
         ));
 
         return array_merge($errors, $this->componentObjectConfigAnalyzer->validateObjectOptionValueTypes(
@@ -124,7 +124,7 @@ final class CreateObjectValidationRule implements Rule
             $scope,
             'Object',
             [],
-            Identifiers::CREATE_OBJECT_VALIDATION
+            Identifiers::YII_CREATE_OBJECT_VALIDATION
         ));
     }
 
@@ -147,6 +147,6 @@ final class CreateObjectValidationRule implements Rule
 
     private function buildError(string $message, Node $node): IdentifierRuleError
     {
-        return ErrorBuilder::build($message, Identifiers::CREATE_OBJECT_VALIDATION, $node->getStartLine());
+        return ErrorBuilder::build($message, Identifiers::YII_CREATE_OBJECT_VALIDATION, $node->getStartLine());
     }
 }

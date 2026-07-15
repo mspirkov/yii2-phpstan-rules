@@ -1,10 +1,10 @@
 <?php
 
-namespace MSpirkov\Yii2\PHPStan\Tests\Rules\Data\CreateObjectValidation;
+namespace MSpirkov\Yii2\PHPStan\Tests\Rules\Data\YiiCreateObjectValidation;
 
-use MSpirkov\Yii2\PHPStan\Tests\Rules\Source\CreateObjectValidation\CreatableComponent;
-use MSpirkov\Yii2\PHPStan\Tests\Rules\Source\CreateObjectValidation\NotYii;
-use MSpirkov\Yii2\PHPStan\Tests\Rules\Source\CreateObjectValidation\PlainObject;
+use MSpirkov\Yii2\PHPStan\Tests\Rules\Source\YiiCreateObjectValidation\CreatableComponent;
+use MSpirkov\Yii2\PHPStan\Tests\Rules\Source\YiiCreateObjectValidation\NotYii;
+use MSpirkov\Yii2\PHPStan\Tests\Rules\Source\YiiCreateObjectValidation\PlainObject;
 
 function withKnownStringClass(): void
 {
