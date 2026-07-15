@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace MSpirkov\Yii2\PHPStan\Analyzers;
 
 use PhpParser\Node\Expr;
+use PhpParser\Node\Expr\Array_;
 use PHPStan\Analyser\Scope;
 use PHPStan\Reflection\ClassReflection;
 use PHPStan\Reflection\ReflectionProvider;
@@ -19,9 +20,17 @@ final class ExpressionTypeAnalyzer
         $this->reflectionProvider = $reflectionProvider;
     }
 
+    /**
+     * @phpstan-assert-if-true class-string $className
+     */
     public function hasClass(string $className): bool
     {
         return $this->reflectionProvider->hasClass($className);
+    }
+
+    public function isCallableArray(Array_ $array, Scope $scope): bool
+    {
+        return $scope->getType($array)->isCallable()->yes();
     }
 
     /**

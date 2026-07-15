@@ -21,6 +21,7 @@ A set of PHPStan rules for Yii2 projects that I put together for my own day-to-d
 | [`activeFormFieldValidation`](#active-form-field-validation)            | `ActiveForm::field()` calls targeting an attribute that is missing, read-only, or write-only on the given model                              |
 | [`activeRecordRelationValidation`](#active-record-relations-validation) | Invalid `hasOne()` / `hasMany()` link properties that do not exist on the current or related ActiveRecord model                              |
 | [`componentBehaviorsValidation`](#component-behaviors-validation)       | Malformed or invalid `behaviors()` in `yii\base\Component` — unknown behavior classes, bad config keys, and bad option types                 |
+| [`createObjectValidation`](#yiicreateobject-validation)                 | `Yii::createObject()` config arrays missing `class`/`__class`, bad config keys, and bad option types                                         |
 | [`modelAttributeLabelsValidation`](#model-attribute-labels-validation)  | `attributeLabels()` entries in `yii\base\Model` that target attributes that don't exist, or use an empty attribute name                      |
 | [`modelRulesValidation`](#model-validation-rules-validation)            | Malformed or invalid `rules()` in `yii\base\Model` — unknown validators, missing required options, bad regexes, unknown attributes, and more |
 | [`widgetPropertiesValidation`](#widget-properties-validation)           | Unknown or mistyped option keys and bad option types in `Widget::begin()` / `Widget::widget()` config arrays                                 |
@@ -218,6 +219,27 @@ public function behaviors(): array
         ],
     ];
 }
+```
+
+### `Yii::createObject()` validation
+
+`Yii::createObject()`'s `class` / `__class` config array is declared as an open, all-optional PHPStan array shape (`array{class?: class-string<T>, __class?: class-string<T>, ...}`), so PHPStan itself already flags an unknown or wrong-typed `class` value — but it stays silent about a missing `class`/`__class` key entirely (just an unhelpful "unable to resolve the template type" note) and about every other key in the array, since `...` accepts anything. This rule fills exactly those two gaps on calls to `createObject()` on `Yii` (or any class extending `yii\BaseYii`): a clear "must specify class or __class" message, plus config keys checked against the resolved class's writable properties and value types, the same way `componentBehaviorsValidation` checks behaviors. Callables (a `Closure`, or a `[$target, 'method']` array) are left alone, since they are not object configs.
+
+```php
+Yii::createObject([
+    'traceLevel' => 3,        // ✗ missing "class" or "__class"
+]);
+
+Yii::createObject([
+    'class' => Logger::class,
+    'traceLevel' => '3',      // ✗ wrong type — int expected
+    'flushInteval' => 1000,   // ✗ typo — unknown option (should be "flushInterval")
+]);
+
+Yii::createObject([
+    'class' => Logger::class,
+    'traceLevel' => 3,        // ✓
+]);
 ```
 
 ### Model attribute labels validation

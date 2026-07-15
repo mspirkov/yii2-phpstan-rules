@@ -19,6 +19,8 @@ parameters:
 			enabled: %mspirkovYii2Rules.enableAllRules%
 		componentBehaviorsValidation:
 			enabled: %mspirkovYii2Rules.enableAllRules%
+		createObjectValidation:
+			enabled: %mspirkovYii2Rules.enableAllRules%
 		modelAttributeLabelsValidation:
 			enabled: %mspirkovYii2Rules.enableAllRules%
 		modelRulesValidation:
@@ -79,6 +81,9 @@ parametersSchema:
 		componentBehaviorsValidation: structure([
 			enabled: bool()
 		])
+		createObjectValidation: structure([
+			enabled: bool()
+		])
 		modelAttributeLabelsValidation: structure([
 			enabled: bool()
 		])
@@ -132,6 +137,8 @@ conditionalTags:
 		phpstan.rules.rule: %mspirkovYii2Rules.activeRecordRelationValidation.enabled%
 	MSpirkov\Yii2\PHPStan\Rules\ComponentBehaviorsValidationRule:
 		phpstan.rules.rule: %mspirkovYii2Rules.componentBehaviorsValidation.enabled%
+	MSpirkov\Yii2\PHPStan\Rules\CreateObjectValidationRule:
+		phpstan.rules.rule: %mspirkovYii2Rules.createObjectValidation.enabled%
 	MSpirkov\Yii2\PHPStan\Rules\ModelAttributeLabelsValidationRule:
 		phpstan.rules.rule: %mspirkovYii2Rules.modelAttributeLabelsValidation.enabled%
 	MSpirkov\Yii2\PHPStan\Rules\ModelRulesValidationRule:
@@ -168,6 +175,8 @@ services:
 		class: MSpirkov\Yii2\PHPStan\Rules\ActiveRecordRelationValidationRule
 	-
 		class: MSpirkov\Yii2\PHPStan\Rules\ComponentBehaviorsValidationRule
+	-
+		class: MSpirkov\Yii2\PHPStan\Rules\CreateObjectValidationRule
 	-
 		class: MSpirkov\Yii2\PHPStan\Rules\ModelAttributeLabelsValidationRule
 	-
