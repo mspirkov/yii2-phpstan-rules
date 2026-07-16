@@ -18,6 +18,7 @@ final class ActiveRecordRelationAnalyzer
 {
     /** @var list<class-string> */
     private const GENERIC_DEFAULT_CLASSES = [ActiveRecord::class, BaseActiveRecord::class];
+    private const ACTIVE_QUERY_MODEL_TEMPLATE_NAME = 'T';
 
     private BaseObjectPropertyAnalyzer $baseObjectPropertyAnalyzer;
 
@@ -33,12 +34,20 @@ final class ActiveRecordRelationAnalyzer
 
     public function resolveQueryModelClass(Type $queryType): ?ClassReflection
     {
+        $templateType = $queryType->getTemplateType(
+            ActiveQuery::class,
+            self::ACTIVE_QUERY_MODEL_TEMPLATE_NAME
+        );
+
         $classReflection = $this->expressionTypeAnalyzer->getSingleClassReflectionOfType(
-            $queryType->getTemplateType(ActiveQuery::class, 'T'),
+            $templateType,
             BaseActiveRecord::class
         );
 
-        if ($classReflection === null || in_array($classReflection->getName(), self::GENERIC_DEFAULT_CLASSES, true)) {
+        if (
+            $classReflection === null
+            || in_array($classReflection->getName(), self::GENERIC_DEFAULT_CLASSES, true)
+        ) {
             return null;
         }
 
@@ -55,9 +64,9 @@ final class ActiveRecordRelationAnalyzer
             return false;
         }
 
-        return !(new ObjectType(ActiveQueryInterface::class))
-            ->isSuperTypeOf($this->getMethodReturnType($classReflection, $methodName, $scope))
-            ->no();
+        $methodReturnType = $this->getMethodReturnType($classReflection, $methodName, $scope);
+
+        return !(new ObjectType(ActiveQueryInterface::class))->isSuperTypeOf($methodReturnType)->no();
     }
 
     public function resolveRelatedClass(
@@ -75,7 +84,12 @@ final class ActiveRecordRelationAnalyzer
             return $relatedClass;
         }
 
-        $property = $this->baseObjectPropertyAnalyzer->findInstanceProperty($classReflection, $relationName, $scope);
+        $property = $this->baseObjectPropertyAnalyzer->findInstanceProperty(
+            $classReflection,
+            $relationName,
+            $scope
+        );
+
         if ($property === null) {
             return null;
         }
@@ -85,11 +99,17 @@ final class ActiveRecordRelationAnalyzer
             $propertyType = $propertyType->getIterableValueType();
         }
 
-        return $this->expressionTypeAnalyzer->getSingleClassReflectionOfType($propertyType, BaseActiveRecord::class);
+        return $this->expressionTypeAnalyzer->getSingleClassReflectionOfType(
+            $propertyType,
+            BaseActiveRecord::class
+        );
     }
 
-    private function getMethodReturnType(ClassReflection $classReflection, string $methodName, Scope $scope): Type
-    {
+    private function getMethodReturnType(
+        ClassReflection $classReflection,
+        string $methodName,
+        Scope $scope
+    ): Type {
         return ParametersAcceptorSelector::selectFromTypes(
             [],
             $classReflection->getMethod($methodName, $scope)->getVariants(),
