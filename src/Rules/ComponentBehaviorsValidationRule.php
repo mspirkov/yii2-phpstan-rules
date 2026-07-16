@@ -85,7 +85,7 @@ final class ComponentBehaviorsValidationRule implements Rule
                 continue;
             }
 
-            $errors = array_merge($errors, $this->validateBehaviorClassExpression($item->value, $scope));
+            $errors = array_merge($errors, $this->checkBehaviorClass($item->value, $scope)['errors']);
         }
 
         return $errors;
@@ -106,31 +106,17 @@ final class ComponentBehaviorsValidationRule implements Rule
 
         $classItem = $items['__class'] ?? $items['class'] ?? null;
         if (!$classItem instanceof ArrayItem) {
-            $errors[] = $this->buildError('Component behavior configuration must specify "class" or "__class".', $behaviorConfig);
-
             return $errors;
         }
 
-        $classExpr = $classItem->value;
-        if ($this->expressionValueResolver->isNullExpression($classExpr)) {
-            $errors[] = $this->buildError('Component behavior class cannot be null.', $classExpr);
-
-            return $errors;
-        }
-
-        if ($this->expressionTypeAnalyzer->isDefinitelyNotString($classExpr, $scope)) {
-            $errors[] = $this->buildError('Component behavior class must be a string.', $classExpr);
-
-            return $errors;
-        }
-
-        $behaviorClass = $this->resolveBehaviorClass($classExpr, $scope, $errors);
-        if ($behaviorClass === null) {
+        $result = $this->checkBehaviorClass($classItem->value, $scope);
+        $errors = array_merge($errors, $result['errors']);
+        if ($result['class'] === null) {
             return $errors;
         }
 
         $errors = array_merge($errors, $this->baseObjectConfigAnalyzer->validateObjectOptionNames(
-            $behaviorClass,
+            $result['class'],
             $options['items'],
             $scope,
             'behavior',
@@ -138,7 +124,7 @@ final class ComponentBehaviorsValidationRule implements Rule
         ));
 
         return array_merge($errors, $this->baseObjectConfigAnalyzer->validateObjectOptionValueTypes(
-            $behaviorClass,
+            $result['class'],
             $options['items'],
             $scope,
             'Behavior',
@@ -148,55 +134,28 @@ final class ComponentBehaviorsValidationRule implements Rule
     }
 
     /**
-     * @return list<IdentifierRuleError>
+     * @return array{class: class-string<Behavior>|null, errors: list<IdentifierRuleError>}
      */
-    private function validateBehaviorClassExpression(Expr $expr, Scope $scope): array
-    {
-        if ($this->expressionTypeAnalyzer->isDefinitelyNotString($expr, $scope)) {
-            return $this->expressionTypeAnalyzer->isDefinitelyNotArrayOrObjectOf($expr, $scope, Behavior::class)
-                ? [
-                    $this->buildError(
-                        'Component behavior must be a class string, configuration array, or yii\base\Behavior instance.',
-                        $expr
-                    ),
-                ]
-                : [];
-        }
-
-        $errors = [];
-        $this->resolveBehaviorClass($expr, $scope, $errors);
-
-        return $errors;
-    }
-
-    /**
-     * @param list<IdentifierRuleError> $errors
-     *
-     * @return class-string<Behavior>|null
-     */
-    private function resolveBehaviorClass(Expr $expr, Scope $scope, array &$errors): ?string
+    private function checkBehaviorClass(Expr $expr, Scope $scope): array
     {
         $className = $this->expressionValueResolver->getSingleStringValue($expr, $scope);
-        if ($className === null) {
-            return null;
-        }
-
-        if (!$this->expressionTypeAnalyzer->hasClass($className)) {
-            $errors[] = $this->buildError(sprintf('Unknown behavior class "%s".', $className), $expr);
-
-            return null;
+        if ($className === null || !$this->expressionTypeAnalyzer->hasClass($className)) {
+            return ['class' => null, 'errors' => []];
         }
 
         if (!$this->expressionTypeAnalyzer->isClassNameOf($className, Behavior::class)) {
-            $errors[] = $this->buildError(
-                sprintf('Component behavior class "%s" must be yii\base\Behavior or its subclass.', $className),
-                $expr
-            );
-
-            return null;
+            return [
+                'class' => null,
+                'errors' => [
+                    $this->buildError(
+                        sprintf('Component behavior class "%s" must be yii\base\Behavior or its subclass.', $className),
+                        $expr
+                    ),
+                ],
+            ];
         }
 
-        return $className;
+        return ['class' => $className, 'errors' => []];
     }
 
     private function buildError(string $message, Node $node): IdentifierRuleError

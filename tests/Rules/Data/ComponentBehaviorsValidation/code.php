@@ -62,17 +62,8 @@ final class InvalidComponent extends Component
     public function behaviors(): array
     {
         return [
-            100,
-            static function (): ProjectBehavior {
-                return new ProjectBehavior();
-            },
             NotBehavior::class,
-            'MissingBehavior',
-            [],
-            ['class' => null],
-            ['class' => 100],
             ['class' => NotBehavior::class],
-            ['class' => 'MissingBehavior'],
             ['class' => ProjectBehavior::class, 'unexpected numeric option'],
             ['class' => ProjectBehavior::class, 'unknown' => 1],
             ['class' => ProjectBehavior::class, 'on beforeValidate' => static function (): void {
@@ -81,6 +72,18 @@ final class InvalidComponent extends Component
             ['class' => ProjectBehavior::class, 'enabled' => 1],
             ['__class' => ProjectBehavior::class, 'enabled' => 'yes'],
             ['class' => ProjectBehavior::class, 'threshold' => 'high'],
+        ];
+    }
+}
+
+final class SkippedUnknownClassComponent extends Component
+{
+    public function behaviors(): array
+    {
+        return [
+            'MissingBehavior',
+            [],
+            ['class' => 'MissingBehavior'],
         ];
     }
 }
