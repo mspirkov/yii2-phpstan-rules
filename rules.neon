@@ -1,6 +1,7 @@
 parameters:
 	mspirkovYii2Rules:
 		enableAllRules: true
+		enableValidationRules: %mspirkovYii2Rules.enableAllRules%
 		yiiAppDbProperties:
 			- db
 		actionComplexity:
@@ -14,26 +15,26 @@ parameters:
 			ternaryCount: 1
 			tryCatchCount: 1
 		activeFormFieldValidation:
-			enabled: %mspirkovYii2Rules.enableAllRules%
+			enabled: %mspirkovYii2Rules.enableValidationRules%
 		activeQueryWithValidation:
-			enabled: %mspirkovYii2Rules.enableAllRules%
+			enabled: %mspirkovYii2Rules.enableValidationRules%
 		activeRecordRelationValidation:
-			enabled: %mspirkovYii2Rules.enableAllRules%
+			enabled: %mspirkovYii2Rules.enableValidationRules%
 		componentBehaviorsValidation:
-			enabled: %mspirkovYii2Rules.enableAllRules%
+			enabled: %mspirkovYii2Rules.enableValidationRules%
 		controllerActionsValidation:
-			enabled: %mspirkovYii2Rules.enableAllRules%
+			enabled: %mspirkovYii2Rules.enableValidationRules%
 		modelAttributeLabelsValidation:
-			enabled: %mspirkovYii2Rules.enableAllRules%
+			enabled: %mspirkovYii2Rules.enableValidationRules%
 		modelRulesValidation:
-			enabled: %mspirkovYii2Rules.enableAllRules%
+			enabled: %mspirkovYii2Rules.enableValidationRules%
 			customValidators: []
 		modelScenariosValidation:
-			enabled: %mspirkovYii2Rules.enableAllRules%
+			enabled: %mspirkovYii2Rules.enableValidationRules%
 		widgetPropertiesValidation:
-			enabled: %mspirkovYii2Rules.enableAllRules%
+			enabled: %mspirkovYii2Rules.enableValidationRules%
 		yiiCreateObjectValidation:
-			enabled: %mspirkovYii2Rules.enableAllRules%
+			enabled: %mspirkovYii2Rules.enableValidationRules%
 		noComplexActionClasses:
 			enabled: %mspirkovYii2Rules.enableAllRules%
 		noComplexControllerActions:
@@ -66,6 +67,7 @@ parameters:
 parametersSchema:
 	mspirkovYii2Rules: structure([
 		enableAllRules: bool()
+		enableValidationRules: bool()
 		yiiAppDbProperties: arrayOf(string())
 		actionComplexity: structure([
 			ifCount: int()

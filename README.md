@@ -59,11 +59,20 @@ includes:
 
 ## Configuration
 
-All rules are on by default. Turn the whole set off, or tune individual rules, under `parameters.mspirkovYii2Rules`:
+All rules are on by default. Turn the whole set off, turn off just one of the two rule groups, or tune individual rules, under `parameters.mspirkovYii2Rules`:
 
 ```neon
 parameters:
     mspirkovYii2Rules:
+        # Master switch — false disables every rule below
+        enableAllRules: false
+
+        # Covers just the `*Validation` rules (config/shape checks like modelRulesValidation,
+        # componentBehaviorsValidation, activeQueryWithValidation, ...) — defaults to
+        # enableAllRules, so setting it only makes sense when it should differ. Here it keeps
+        # static config validation on while the architectural `no*` rules stay off.
+        enableValidationRules: true
+
         # Component IDs treated as "the database" by the DB-access rules
         yiiAppDbProperties:
             - db
