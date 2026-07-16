@@ -74,10 +74,6 @@ final class ActiveRecordRelationAnalyzer
         string $relationName,
         Scope $scope
     ): ?ClassReflection {
-        if (!$this->hasRelation($classReflection, $relationName, $scope)) {
-            return null;
-        }
-
         $returnType = $this->getMethodReturnType($classReflection, 'get' . ucfirst($relationName), $scope);
         $relatedClass = $this->resolveQueryModelClass($returnType);
         if ($relatedClass !== null) {

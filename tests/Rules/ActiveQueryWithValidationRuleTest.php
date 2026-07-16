@@ -7,6 +7,7 @@ namespace MSpirkov\Yii2\PHPStan\Tests\Rules;
 use MSpirkov\Yii2\PHPStan\Rules\ActiveQueryWithValidationRule;
 use MSpirkov\Yii2\PHPStan\Tests\Rules\Source\ActiveQueryWithValidation\Customer;
 use MSpirkov\Yii2\PHPStan\Tests\Rules\Source\ActiveQueryWithValidation\Order;
+use MSpirkov\Yii2\PHPStan\Tests\Rules\Source\ActiveQueryWithValidation\Tag;
 
 /**
  * @extends AbstractTestCase<ActiveQueryWithValidationRule>
@@ -24,6 +25,7 @@ final class ActiveQueryWithValidationRuleTest extends AbstractTestCase
                 [sprintf('Unknown relation "bogus" for %s in with() call.', Customer::class), 69],
                 [sprintf('Unknown relation "bogus" for %s in joinWith() call.', Customer::class), 75],
                 [sprintf('Unknown relation "bogus" for %s in with() call.', Customer::class), 80],
+                [sprintf('Unknown relation "bogus" for %s in with() call.', Tag::class), 85],
             ],
         );
     }

@@ -80,6 +80,11 @@ function invalidVariadicSecondArg(): void
     Customer::find()->with('orders', 'bogus')->all();
 }
 
+function invalidNestedViaPropertyReadArray(): void
+{
+    Customer::find()->with('tags.bogus')->all();
+}
+
 function skippedUnresolvedBaseClass(ActiveQuery $query): void
 {
     $query->with('bogus')->all();
@@ -93,4 +98,32 @@ function skippedUnresolvedNestedRelation(): void
 function skippedDynamicRelationName(string $relation): void
 {
     Customer::find()->with($relation)->all();
+}
+
+function skippedDynamicMethodName(): void
+{
+    $method = 'with';
+    Customer::find()->$method('bogus')->all();
+}
+
+function skippedZeroArgsWith(): void
+{
+    Customer::find()->with()->all();
+}
+
+function skippedVariadicUnpackedArgs(): void
+{
+    $relations = ['orders'];
+    Customer::find()->with(...$relations)->all();
+}
+
+function skippedArrayUnpackedItem(): void
+{
+    $extra = ['country'];
+    Customer::find()->with([...$extra, 'orders'])->all();
+}
+
+function skippedDynamicArrayItemName(string $relation): void
+{
+    Customer::find()->with([$relation])->all();
 }
