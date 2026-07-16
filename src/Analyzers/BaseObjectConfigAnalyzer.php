@@ -19,9 +19,12 @@ use PHPStan\Type\VerbosityLevel;
 
 final class BaseObjectConfigAnalyzer
 {
+    private const CONSTRUCT_OPTION_KEY = '__construct()';
+
     /** @var list<string> */
     private const SPECIAL_CONFIG_KEYS = [
         '__class',
+        self::CONSTRUCT_OPTION_KEY,
         'class',
     ];
 
@@ -144,6 +147,15 @@ final class BaseObjectConfigAnalyzer
         $classReflection = $this->reflectionProvider->getClass($className);
 
         foreach ($options as $optionName => $item) {
+            if ($optionName === self::CONSTRUCT_OPTION_KEY) {
+                $errors = array_merge(
+                    $errors,
+                    $this->validateConstructOptionType($optionLabel, $className, $item, $scope, $identifier)
+                );
+
+                continue;
+            }
+
             if (
                 in_array($optionName, self::SPECIAL_CONFIG_KEYS, true)
                 || in_array($optionName, $typeCheckSkippedOptions, true)
@@ -186,6 +198,40 @@ final class BaseObjectConfigAnalyzer
         }
 
         return $errors;
+    }
+
+    /**
+     * @param class-string $className
+     * @param value-of<Identifiers::LIST> $identifier
+     *
+     * @return list<IdentifierRuleError>
+     */
+    private function validateConstructOptionType(
+        string $optionLabel,
+        string $className,
+        ArrayItem $item,
+        Scope $scope,
+        string $identifier
+    ): array {
+        $actualType = $scope->getType($item->value);
+        if ($actualType instanceof MixedType || !$actualType->isArray()->no()) {
+            return [];
+        }
+
+        return [
+            ErrorBuilder::build(
+                sprintf(
+                    '%s option "%s" for %s must be %s, %s given.',
+                    $optionLabel,
+                    self::CONSTRUCT_OPTION_KEY,
+                    $className,
+                    'array',
+                    $actualType->describe(VerbosityLevel::typeOnly())
+                ),
+                $identifier,
+                $item->value->getStartLine()
+            ),
+        ];
     }
 
     /**
