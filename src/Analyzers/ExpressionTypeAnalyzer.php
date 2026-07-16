@@ -10,6 +10,7 @@ use PHPStan\Analyser\Scope;
 use PHPStan\Reflection\ClassReflection;
 use PHPStan\Reflection\ReflectionProvider;
 use PHPStan\Type\ObjectType;
+use PHPStan\Type\Type;
 
 final class ExpressionTypeAnalyzer
 {
@@ -99,9 +100,17 @@ final class ExpressionTypeAnalyzer
      */
     public function getSingleClassReflectionOf(Expr $expr, Scope $scope, string $parentClass): ?ClassReflection
     {
+        return $this->getSingleClassReflectionOfType($scope->getType($expr), $parentClass);
+    }
+
+    /**
+     * @param class-string $parentClass
+     */
+    public function getSingleClassReflectionOfType(Type $type, string $parentClass): ?ClassReflection
+    {
         $classReflections = [];
 
-        foreach ($scope->getType($expr)->getObjectClassReflections() as $classReflection) {
+        foreach ($type->getObjectClassReflections() as $classReflection) {
             if ($this->isClassReflectionOf($classReflection, $parentClass)) {
                 $classReflections[$classReflection->getName()] = $classReflection;
             }

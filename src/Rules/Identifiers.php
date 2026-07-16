@@ -7,6 +7,7 @@ namespace MSpirkov\Yii2\PHPStan\Rules;
 final class Identifiers
 {
     public const ACTIVE_FORM_FIELD_VALIDATION = self::PREFIX . 'activeFormFieldValidation';
+    public const ACTIVE_QUERY_WITH_VALIDATION = self::PREFIX . 'activeQueryWithValidation';
     public const ACTIVE_RECORD_RELATION_VALIDATION = self::PREFIX . 'activeRecordRelationValidation';
     public const COMPONENT_BEHAVIORS_VALIDATION = self::PREFIX . 'componentBehaviorsValidation';
     public const CONTROLLER_ACTIONS_VALIDATION = self::PREFIX . 'controllerActionsValidation';
@@ -30,6 +31,7 @@ final class Identifiers
     /** @var list<string> */
     public const LIST = [
         self::ACTIVE_FORM_FIELD_VALIDATION,
+        self::ACTIVE_QUERY_WITH_VALIDATION,
         self::ACTIVE_RECORD_RELATION_VALIDATION,
         self::COMPONENT_BEHAVIORS_VALIDATION,
         self::CONTROLLER_ACTIONS_VALIDATION,
