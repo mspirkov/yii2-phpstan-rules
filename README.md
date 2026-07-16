@@ -182,8 +182,8 @@ class Address extends ActiveRecord
     }
 }
 
-class Item extends ActiveRecord { /** ... */ }
-class Country extends ActiveRecord  { /** ... */ }
+class Item extends ActiveRecord { /* ... */ }
+class Country extends ActiveRecord  { /* ... */ }
 ```
 
 ```php
@@ -406,7 +406,7 @@ ActiveForm::end();
 
 ### `Yii::createObject()` validation
 
-`Yii::createObject()`'s `class` / `__class` config array is declared as an open, all-optional PHPStan array shape (`array{class?: class-string<T>, __class?: class-string<T>, ...}`), so PHPStan itself already flags an unknown or wrong-typed `class` value — but it stays silent about a missing `class`/`__class` key entirely (just an unhelpful "unable to resolve the template type" note) and about every other key in the array, since `...` accepts anything. This rule fills exactly those two gaps on calls to `createObject()` on `Yii` (or any class extending `yii\BaseYii`): a clear "must specify class or __class" message, plus config keys checked against the resolved class's writable properties and value types, the same way `componentBehaviorsValidation` checks behaviors. Callables (a `Closure`, or a `[$target, 'method']` array) are left alone, since they are not object configs.
+`Yii::createObject()`'s `class` / `__class` config array is declared as an open, all-optional PHPStan array shape (`array{class?: class-string<T>, __class?: class-string<T>, ...}`), so PHPStan itself already flags an unknown or wrong-typed `class` value — but it stays silent about a missing `class`/`__class` key entirely (just an unhelpful "unable to resolve the template type" note) and about every other key in the array, since `...` accepts anything. This rule fills exactly those two gaps on calls to `createObject()` on `Yii` (or any class extending `yii\BaseYii`): a clear "must specify class or \_\_class" message, plus config keys checked against the resolved class's writable properties and value types, the same way `componentBehaviorsValidation` checks behaviors. Callables (a `Closure`, or a `[$target, 'method']` array) are left alone, since they are not object configs.
 
 ```php
 Yii::createObject([
