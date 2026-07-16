@@ -45,6 +45,23 @@ function withEventAndBehaviorKeys(): void
     ]);
 }
 
+function withConstructKey(): void
+{
+    \Yii::createObject([
+        'class' => CreatableComponent::class,
+        '__construct()' => ['Hello', 5],
+        'label' => 'Hi',
+    ]);
+}
+
+function withNonArrayConstructKey(): void
+{
+    \Yii::createObject([
+        'class' => CreatableComponent::class,
+        '__construct()' => 'not-an-array',
+    ]);
+}
+
 function withMissingClassKey(): void
 {
     \Yii::createObject([
