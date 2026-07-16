@@ -31,16 +31,6 @@ final class ActiveRecordRelationAnalyzer
         $this->expressionTypeAnalyzer = $expressionTypeAnalyzer;
     }
 
-    /**
-     * Resolves the concrete ActiveRecord class an `ActiveQuery<T>`-shaped type is querying
-     * (e.g. `Customer::find()` statically returns `ActiveQuery<Customer>`), returning null if
-     * the type isn't a generic `ActiveQuery`/`ActiveQueryInterface` bound to a single AR class.
-     *
-     * `ActiveQuery`'s `@template T` declares a default (`ActiveRecord|array<array-key, mixed>`)
-     * for when no concrete type argument is given (e.g. a plain `ActiveQuery $query` parameter
-     * with no user-specified subclass), so a resolved class of exactly `ActiveRecord` or
-     * `BaseActiveRecord` means "unbound", not "a real model" — treat it the same as null.
-     */
     public function resolveQueryModelClass(Type $queryType): ?ClassReflection
     {
         $classReflection = $this->expressionTypeAnalyzer->getSingleClassReflectionOfType(
@@ -55,17 +45,11 @@ final class ActiveRecordRelationAnalyzer
         return $classReflection;
     }
 
-    /**
-     * Whether $classReflection declares a relation named $relationName: a `getXxx()` method
-     * (Yii's relation naming convention) whose return type isn't definitely incompatible with
-     * `ActiveQueryInterface`, mirroring `BaseActiveRecord::getRelation()`'s own check. Many
-     * relation getters have no return type declared at all (a common, long-standing Yii2
-     * pattern), which resolves to `mixed` rather than a confirmed `ActiveQueryInterface` — so
-     * this only rules a method out when its return type is *known* to be something else
-     * entirely (e.g. a plain property getter returning `string`).
-     */
-    public function hasRelation(ClassReflection $classReflection, string $relationName, Scope $scope): bool
-    {
+    public function hasRelation(
+        ClassReflection $classReflection,
+        string $relationName,
+        Scope $scope
+    ): bool {
         $methodName = 'get' . ucfirst($relationName);
         if (!$classReflection->hasMethod($methodName)) {
             return false;
@@ -76,14 +60,11 @@ final class ActiveRecordRelationAnalyzer
             ->no();
     }
 
-    /**
-     * Resolves the related ActiveRecord class for a given relation, if statically known: either
-     * via the relation getter's `ActiveQuery<X>` return type, or via a `@property-read X` /
-     * `@property-read X[]` PHPDoc property of the same name. Returns null when the relation
-     * doesn't exist, or its related class can't be determined with confidence.
-     */
-    public function resolveRelatedClass(ClassReflection $classReflection, string $relationName, Scope $scope): ?ClassReflection
-    {
+    public function resolveRelatedClass(
+        ClassReflection $classReflection,
+        string $relationName,
+        Scope $scope
+    ): ?ClassReflection {
         if (!$this->hasRelation($classReflection, $relationName, $scope)) {
             return null;
         }
