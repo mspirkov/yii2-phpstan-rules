@@ -74,7 +74,7 @@ final class InvalidController extends Controller
     }
 }
 
-final class SkippedUnknownClassController extends Controller
+final class SkippedController extends Controller
 {
     public function actions(): array
     {

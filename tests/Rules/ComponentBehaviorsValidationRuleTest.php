@@ -30,7 +30,7 @@ final class ComponentBehaviorsValidationRuleTest extends AbstractTestCase
                 [sprintf('Behavior option "enabled" for %s must be bool, int given.', $projectBehaviorClass), 72],
                 [sprintf('Behavior option "enabled" for %s must be bool, string given.', $projectBehaviorClass), 73],
                 [sprintf('Behavior option "threshold" for %s must be int, string given.', $projectBehaviorClass), 74],
-                [sprintf('Behavior option "enabled" for %s must be bool, int given.', $projectBehaviorClass), 96],
+                [sprintf('Behavior option "enabled" for %s must be bool, int given.', $projectBehaviorClass), 84],
             ],
         );
     }
