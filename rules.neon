@@ -15,6 +15,8 @@ parameters:
 			tryCatchCount: 1
 		activeFormFieldValidation:
 			enabled: %mspirkovYii2Rules.enableAllRules%
+		activeQueryWithValidation:
+			enabled: %mspirkovYii2Rules.enableAllRules%
 		activeRecordRelationValidation:
 			enabled: %mspirkovYii2Rules.enableAllRules%
 		componentBehaviorsValidation:
@@ -77,6 +79,9 @@ parametersSchema:
 			tryCatchCount: int()
 		])
 		activeFormFieldValidation: structure([
+			enabled: bool()
+		])
+		activeQueryWithValidation: structure([
 			enabled: bool()
 		])
 		activeRecordRelationValidation: structure([
@@ -143,6 +148,8 @@ parametersSchema:
 conditionalTags:
 	MSpirkov\Yii2\PHPStan\Rules\ActiveFormFieldValidationRule:
 		phpstan.rules.rule: %mspirkovYii2Rules.activeFormFieldValidation.enabled%
+	MSpirkov\Yii2\PHPStan\Rules\ActiveQueryWithValidationRule:
+		phpstan.rules.rule: %mspirkovYii2Rules.activeQueryWithValidation.enabled%
 	MSpirkov\Yii2\PHPStan\Rules\ActiveRecordRelationValidationRule:
 		phpstan.rules.rule: %mspirkovYii2Rules.activeRecordRelationValidation.enabled%
 	MSpirkov\Yii2\PHPStan\Rules\ComponentBehaviorsValidationRule:
@@ -185,6 +192,8 @@ conditionalTags:
 services:
 	-
 		class: MSpirkov\Yii2\PHPStan\Rules\ActiveFormFieldValidationRule
+	-
+		class: MSpirkov\Yii2\PHPStan\Rules\ActiveQueryWithValidationRule
 	-
 		class: MSpirkov\Yii2\PHPStan\Rules\ActiveRecordRelationValidationRule
 	-
@@ -246,6 +255,8 @@ services:
 			yiiAppDbProperties: %mspirkovYii2Rules.yiiAppDbProperties%
 	-
 		class: MSpirkov\Yii2\PHPStan\Analyzers\YiiAppAnalyzer
+	-
+		class: MSpirkov\Yii2\PHPStan\Analyzers\ActiveRecordRelationAnalyzer
 	-
 		class: MSpirkov\Yii2\PHPStan\Analyzers\BaseObjectConfigAnalyzer
 	-

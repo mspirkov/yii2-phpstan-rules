@@ -19,6 +19,7 @@ A set of PHPStan rules for Yii2 projects that I put together for my own day-to-d
 | Rule                                                                    | Catches                                                                                                                                      |
 | ----------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
 | [`activeFormFieldValidation`](#active-form-field-validation)            | `ActiveForm::field()` calls targeting an attribute that is missing, read-only, or write-only on the given model                              |
+| [`activeQueryWithValidation`](#activequery-with-validation)             | `with()` / `joinWith()` / `innerJoinWith()` calls referencing a relation that doesn't exist on the queried ActiveRecord model                |
 | [`activeRecordRelationValidation`](#active-record-relations-validation) | Invalid `hasOne()` / `hasMany()` link properties that do not exist on the current or related ActiveRecord model                              |
 | [`componentBehaviorsValidation`](#component-behaviors-validation)       | Malformed or invalid `behaviors()` in `yii\base\Component` — unknown behavior classes, bad config keys, and bad option types                 |
 | [`controllerActionsValidation`](#controller-actions-validation)         | Malformed or invalid `actions()` in `yii\base\Controller` — unknown action classes, bad config keys, and bad option types                    |
@@ -137,6 +138,61 @@ echo $form->field($model, 'fullName'); // ✗ read-only — declared via @proper
 echo $form->field($model, 'nickname'); // ✗ typo — "nickname" is not a property on ContactModel
 
 ActiveForm::end();
+```
+
+### `ActiveQuery` `with()` validation
+
+`with()`, `joinWith()`, and `innerJoinWith()` take relation names as plain strings, so a typo (or a relation that got renamed) silently returns no related data instead of failing. This rule checks that every relation name passed to these methods — including a `joinWith()`/`innerJoinWith()` alias (`'orders o'` or `'orders AS o'`) and a dotted sub-relation path (`'orders.items'`) — resolves to an actual relation (a `getXxx()` method returning something compatible with `yii\db\ActiveQueryInterface`) on the queried model.
+
+Validating a sub-relation requires knowing which model the parent relation points to. This rule can work that out two ways: from the relation getter's own `@return ActiveQuery<T>` PHPDoc, or from a `@property-read T` / `@property-read T[]` PHPDoc property of the same name on the model (the same resolution `activeFormFieldValidation` and friends already rely on). A relation whose target model can't be determined either way is still checked for existence at its own level, but any further sub-relation path past it is left unchecked rather than guessed at.
+
+```php
+/**
+ * @property-read Address $address
+ */
+class Customer extends ActiveRecord
+{
+    /** @return ActiveQuery<Order> */
+    public function getOrders()
+    {
+        return $this->hasMany(Order::class, ['customer_id' => 'id']);
+    }
+
+    public function getAddress()
+    {
+        return $this->hasOne(Address::class, ['id' => 'address_id']);
+    }
+}
+
+class Order extends ActiveRecord
+{
+    /** @return ActiveQuery<Item> */
+    public function getItems()
+    {
+        return $this->hasMany(Item::class, ['order_id' => 'id']);
+    }
+}
+
+class Address extends ActiveRecord
+{
+    /** @return ActiveQuery<Country> */
+    public function getCountry()
+    {
+        return $this->hasOne(Country::class, ['id' => 'country_id']);
+    }
+}
+
+class Item extends ActiveRecord { /** ... */ }
+class Country extends ActiveRecord  { /** ... */ }
+```
+
+```php
+Customer::find()->with('orders')->all();           // ✓
+Customer::find()->with('orders.items')->all();     // ✓ Order declares its own "items" relation
+Customer::find()->with('address.country')->all();  // ✓ related model resolved via @property-read
+Customer::find()->joinWith('orders o')->all();     // ✓ alias is stripped before the relation is checked
+Customer::find()->with('oders')->all();             // ✗ typo — no such relation on Customer
+Customer::find()->with('orders.oops')->all();       // ✗ typo — no such relation on Order
 ```
 
 ### Active Record relations validation
