@@ -76,18 +76,6 @@ final class InvalidComponent extends Component
     }
 }
 
-final class SkippedUnknownClassComponent extends Component
-{
-    public function behaviors(): array
-    {
-        return [
-            'MissingBehavior',
-            [],
-            ['class' => 'MissingBehavior'],
-        ];
-    }
-}
-
 final class InvalidMergeComponent extends Component
 {
     public function behaviors(): array
@@ -116,7 +104,7 @@ final class NotComponent
     }
 }
 
-final class SkippedDynamicComponent extends Component
+final class SkippedComponent extends Component
 {
     public function behaviors(): array
     {
@@ -126,6 +114,9 @@ final class SkippedDynamicComponent extends Component
         ];
 
         return [
+            'MissingBehavior',
+            [],
+            ['class' => 'MissingBehavior'],
             $dynamicArrayBehavior,
         ];
     }

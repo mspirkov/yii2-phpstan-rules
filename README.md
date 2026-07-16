@@ -21,6 +21,7 @@ A set of PHPStan rules for Yii2 projects that I put together for my own day-to-d
 | [`activeFormFieldValidation`](#active-form-field-validation)            | `ActiveForm::field()` calls targeting an attribute that is missing, read-only, or write-only on the given model                              |
 | [`activeRecordRelationValidation`](#active-record-relations-validation) | Invalid `hasOne()` / `hasMany()` link properties that do not exist on the current or related ActiveRecord model                              |
 | [`componentBehaviorsValidation`](#component-behaviors-validation)       | Malformed or invalid `behaviors()` in `yii\base\Component` — unknown behavior classes, bad config keys, and bad option types                 |
+| [`controllerActionsValidation`](#controller-actions-validation)         | Malformed or invalid `actions()` in `yii\base\Controller` — unknown action classes, bad config keys, and bad option types                    |
 | [`modelAttributeLabelsValidation`](#model-attribute-labels-validation)  | `attributeLabels()` entries in `yii\base\Model` that target attributes that don't exist, or use an empty attribute name                      |
 | [`modelRulesValidation`](#model-validation-rules-validation)            | Malformed or invalid `rules()` in `yii\base\Model` — unknown validators, missing required options, bad regexes, unknown attributes, and more |
 | [`modelScenariosValidation`](#model-scenarios-validation)               | `scenarios()` entries in `yii\base\Model` with an empty name, a non-array attribute list, or an unknown attribute                            |
@@ -194,7 +195,7 @@ final class OrderItem extends ActiveRecord
 
 ### Component behaviors validation
 
-`Component::behaviors()` uses Yii object configs, so typos usually wait until runtime. This rule checks statically visible behavior definitions on `yii\base\Component` subclasses, including models: class strings, `class` / `__class` config arrays, direct `Behavior` instances, unknown classes, classes that do not extend `yii\base\Behavior`, unknown config options, and option value types inferred from public properties or setters.
+`Component::behaviors()` uses Yii object configs, so typos usually wait until runtime. This rule checks statically visible behavior definitions on `yii\base\Component` subclasses, including models: classes that do not extend `yii\base\Behavior`, bad config keys, unknown config options, and option value types inferred from public properties or setters.
 
 ```php
 public function behaviors(): array
@@ -217,6 +218,32 @@ public function behaviors(): array
         'slug' => [
             'class' => SluggableBehavior::class,
             'attribute' => 'title',                  // ✓
+        ],
+    ];
+}
+```
+
+### Controller actions validation
+
+`Controller::actions()` shares the same object-config shape as `Component::behaviors()` — this rule checks statically visible action definitions on `yii\base\Controller` subclasses: classes that do not extend `yii\base\Action`, an empty action ID, bad config keys, unknown config options, and option value types inferred from public properties or setters.
+
+```php
+public function actions(): array
+{
+    return [
+        'error' => [
+            'class' => ErrorAction::class,
+            'vieww' => 'error',            // ✗ typo — unknown option
+        ],
+        'captcha' => [
+            'class' => CaptchaAction::class,
+            'fixedVerifyCode' => 1,        // ✗ string expected
+        ],
+        'invalid' => stdClass::class,      // ✗ not a yii\base\Action
+
+        'download' => [
+            'class' => DownloadAction::class,
+            'path' => '@app/uploads',      // ✓
         ],
     ];
 }
