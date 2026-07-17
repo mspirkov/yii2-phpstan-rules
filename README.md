@@ -550,3 +550,7 @@ PHPStan already flags most nonsensical `Html::encode()` calls on its own (wrong 
 echo Html::encode($id);   // ✗ flagged — $id can only ever be a numeric-string
 echo Html::encode($name); // ✓ a plain string may still contain special characters
 ```
+
+## Support
+
+If this project is useful to you, consider giving it a ⭐ on [GitHub](https://github.com/mspirkov/yii2-phpstan-rules) — it helps others discover it.
