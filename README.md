@@ -23,6 +23,7 @@ A set of PHPStan rules for Yii2 projects that I put together for my own day-to-d
 | [`activeRecordRelationValidation`](#active-record-relations-validation) | Invalid `hasOne()` / `hasMany()` link properties that do not exist on the current or related ActiveRecord model                              |
 | [`componentBehaviorsValidation`](#component-behaviors-validation)       | Malformed or invalid `behaviors()` in `yii\base\Component` — unknown behavior classes, bad config keys, and bad option types                 |
 | [`controllerActionsValidation`](#controller-actions-validation)         | Malformed or invalid `actions()` in `yii\base\Controller` — unknown action classes, bad config keys, and bad option types                    |
+| [`modelAttributeHintsValidation`](#model-attribute-hints-validation)    | `attributeHints()` entries in `yii\base\Model` that target attributes that don't exist, or use an empty attribute name                       |
 | [`modelAttributeLabelsValidation`](#model-attribute-labels-validation)  | `attributeLabels()` entries in `yii\base\Model` that target attributes that don't exist, or use an empty attribute name                      |
 | [`modelRulesValidation`](#model-validation-rules-validation)            | Malformed or invalid `rules()` in `yii\base\Model` — unknown validators, missing required options, bad regexes, unknown attributes, and more |
 | [`modelScenariosValidation`](#model-scenarios-validation)               | `scenarios()` entries in `yii\base\Model` with an empty name, a non-array attribute list, or an unknown attribute                            |
@@ -311,6 +312,29 @@ public function actions(): array
             'path' => '@app/uploads',      // ✓
         ],
     ];
+}
+```
+
+### Model attribute hints validation
+
+`Model::attributeHints()` is just as easy to get wrong as `attributeLabels()` — a typo'd key silently means the hint is never shown for the intended attribute. This rule checks that every key is an existing property on the model (as a declared property or a PHPDoc `@property`, same resolution as `modelRulesValidation`) and isn't left empty:
+
+```php
+/**
+ * @property string $email
+ */
+final class ContactModel extends Model
+{
+    public $name;
+
+    public function attributeHints(): array
+    {
+        return [
+            'name' => 'Your full name',
+            'emial' => 'We will reply here',   // ✗ typo — "emial" is not a property on ContactModel
+            'email' => 'We will reply here',   // ✓ declared via @property
+        ];
+    }
 }
 ```
 
