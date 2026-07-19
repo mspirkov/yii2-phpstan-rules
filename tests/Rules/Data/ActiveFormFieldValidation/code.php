@@ -5,6 +5,7 @@ namespace MSpirkov\Yii2\PHPStan\Tests\Rules\Data\ActiveFormFieldValidation;
 use MSpirkov\Yii2\PHPStan\Tests\Rules\Source\ActiveFormFieldValidation\ContactModel;
 use MSpirkov\Yii2\PHPStan\Tests\Rules\Source\ActiveFormFieldValidation\NotActiveForm;
 use MSpirkov\Yii2\PHPStan\Tests\Rules\Source\ActiveFormFieldValidation\OtherModel;
+use yii\base\DynamicModel;
 use yii\base\Model;
 use yii\widgets\ActiveForm;
 
@@ -83,6 +84,11 @@ function withBaseModelType(ActiveForm $form, Model $model): void
  * @param ContactModel|OtherModel $model
  */
 function withAmbiguousModelType(ActiveForm $form, $model): void
+{
+    $form->field($model, 'nickname');
+}
+
+function withDynamicModel(ActiveForm $form, DynamicModel $model): void
 {
     $form->field($model, 'nickname');
 }

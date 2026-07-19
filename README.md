@@ -113,7 +113,7 @@ parameters:
 
 ### Active Form field validation
 
-`ActiveForm::field($model, $attribute)` binds an editable input to the attribute: it reads the current value to render the input, and writes the submitted value back to the model on `load()`. This rule checks that the attribute is both readable and writable — a declared (non-readonly) property, a PHPDoc `@property`, or a matching getter/setter pair — and reports it whether it's missing entirely or only exists as read-only or write-only.
+`ActiveForm::field($model, $attribute)` binds an editable input to the attribute: it reads the current value to render the input, and writes the submitted value back to the model on `load()`. This rule checks that the attribute is both readable and writable — a declared (non-readonly) property, a PHPDoc `@property`, or a matching getter/setter pair — and reports it whether it's missing entirely or only exists as read-only or write-only. `yii\base\DynamicModel` instances (and subclasses) are skipped entirely, since their attributes are defined at runtime via `defineAttribute()` and can't be resolved statically.
 
 ```php
 /**

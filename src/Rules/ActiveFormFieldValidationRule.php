@@ -14,6 +14,7 @@ use PhpParser\Node\Identifier;
 use PHPStan\Analyser\Scope;
 use PHPStan\Rules\IdentifierRuleError;
 use PHPStan\Rules\Rule;
+use yii\base\DynamicModel;
 use yii\base\Model;
 use yii\widgets\ActiveForm;
 
@@ -67,6 +68,10 @@ final class ActiveFormFieldValidationRule implements Rule
         );
 
         if ($modelClassReflection === null) {
+            return [];
+        }
+
+        if ($this->expressionTypeAnalyzer->isClassReflectionOf($modelClassReflection, DynamicModel::class)) {
             return [];
         }
 
