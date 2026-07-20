@@ -31,8 +31,5 @@ final class ContactModel extends Model
         return 'active';
     }
 
-    public function setSecret(string $secret): void
-    {
-        // ...
-    }
+    public function setSecret(string $secret): void {}
 }
