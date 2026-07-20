@@ -514,6 +514,8 @@ Fires on `ActiveRecord::find()`/`findOne()`/`save()`, `Yii::$app->db`, `Yii::$ap
 
 #### No raw superglobals
 
+Covers `$_GET`, `$_POST`, `$_REQUEST`, `$_SESSION`, `$_COOKIE`, `$_FILES`, and `$_SERVER`, each pointing at the matching `yii\web\Request` / `Session` / `UploadedFile` API.
+
 ```php
 // ✗ flagged, with the fix suggested in the error message
 $id = $_GET['id'];
@@ -521,8 +523,6 @@ $id = $_GET['id'];
 // ✓ read through the injected yii\web\Request instead
 $id = $this->request->get('id');
 ```
-
-Covers `$_GET`, `$_POST`, `$_REQUEST`, `$_SESSION`, `$_COOKIE`, `$_FILES`, and `$_SERVER`, each pointing at the matching `yii\web\Request` / `Session` / `UploadedFile` API.
 
 #### No dynamic SQL strings
 
@@ -537,17 +537,11 @@ $query->where(['status' => $status]);
 
 #### No forbidden `Yii::$app` properties
 
-`Yii::$app` is a global container: reading an arbitrary property off it pulls a runtime-configured component into the code without going through the constructor. This rule flags that read on any expression typed as `yii\base\Application` — direct `Yii::$app` usage, a variable holding it, or an explicit `new Application($config)` — outside a short allowlist (`id`, `name`, `charset`, `language`, `timeZone` by default) of properties that are effectively static configuration rather than injectable services.
+Checks any expression typed as `yii\base\Application`, not just `Yii::$app` directly. A short allowlist (`id`, `name`, `charset`, `language`, `timeZone` by default) stays available everywhere since those are effectively static configuration, not injectable services.
 
 ```php
 // ✗ arbitrary component access
 $cache = Yii::$app->cache;
-
-$app = Yii::$app;
-$request = $app->request;
-
-$application = new Application($config);
-$session = $application->session;
 
 // ✓ inject the component instead
 public function __construct(private CacheInterface $cache) {}
@@ -569,17 +563,14 @@ echo Html::encode($name); // ✓ a plain string may still contain special charac
 
 #### No `Yii::$app` property mutation
 
-The same `yii\base\Application`-typed expressions are also checked on the write side: reassigning a property, or calling `setComponents()`, mutates global runtime configuration from anywhere in the codebase.
+Checks the same `yii\base\Application`-typed expressions as `noForbiddenYiiAppProperties`, on the write side.
 
 ```php
 // ✗ mutating the container at runtime
 Yii::$app->params = [];
 Yii::$app->setComponents([...]);
 
-$app->language = 'ru-RU';
-$application->setComponents([...]);
-
-// ✓ inject the component instead, or configure it once at bootstrap
+// ✓ inject the component instead
 public function __construct(private CacheInterface $cache) {}
 ```
 
