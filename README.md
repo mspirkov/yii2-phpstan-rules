@@ -5,7 +5,7 @@
     <h1 align="center">Yii2 PHPStan rules</h1>
 </p>
 
-A set of PHPStan rules for Yii2 projects that I put together for my own day-to-day work. Yii2 leans heavily on loosely-typed config arrays and magic properties/methods that PHPStan can't see through on its own, and on conventions — like keeping business logic and database access out of controllers and views — that are easy to drift from without anyone noticing. These rules catch both: they validate Yii2-specific config and structure statically, and they enforce the architectural boundaries I try to keep in a codebase. In my experience they help keep a Yii2 codebase a bit cleaner and more maintainable, but they're just my opinions turned into checks, not a universal standard — use what's useful, ignore or disable the rest.
+A set of PHPStan rules for Yii2 projects that I put together for my own day-to-day work. Yii2 leans heavily on loosely-typed config arrays and magic properties/methods that PHPStan can't see through on its own, and on conventions — like keeping business logic and database access out of controllers and views — that are easy to drift from without anyone noticing. These rules catch both: they validate Yii2-specific config and structure statically, and they enforce the architectural boundaries and other code-quality checks I try to keep in a codebase. In my experience they help keep a Yii2 codebase a bit cleaner and more maintainable, but they're just my opinions turned into checks, not a universal standard — use what's useful, ignore or disable the rest.
 
 [![PHP](https://img.shields.io/badge/%3E%3D7.4-7A86B8.svg?style=for-the-badge&logo=php&logoColor=white&label=PHP)](https://www.php.net/releases/7_4_0.php)
 [![Yii 2.0.x](https://img.shields.io/badge/%3E%3D2.0.53-247BA0.svg?style=for-the-badge&logo=yii&logoColor=white&label=Yii)](https://github.com/yiisoft/yii2/tree/2.0.53)
@@ -42,7 +42,7 @@ parameters:
         # Covers just the `*Validation` rules (config/shape checks like modelRulesValidation,
         # componentBehaviorsValidation, activeQueryWithValidation, ...) — defaults to
         # enableAllRules, so setting it only makes sense when it should differ. Here it keeps
-        # static config validation on while the architectural `no*` rules stay off.
+        # static config validation on while the `no*` code-quality rules stay off.
         enableValidationRules: true
 
         # Component IDs treated as "the database" by the DB-access rules
@@ -435,9 +435,9 @@ Yii::createObject([
 ]);
 ```
 
-### Architectural rules
+### Code quality rules
 
-Enforce the architectural boundaries and complexity limits that are easy to drift from without anyone noticing — business logic and database access staying out of controllers and views, actions calling other actions directly, superglobals, dynamic SQL, and an `Application` object that anything can read from or write to.
+Catch architectural drift, complexity, and other code-quality issues that are easy to miss without anyone noticing — business logic and database access staying out of controllers and views, actions calling other actions directly, superglobals, dynamic SQL, an `Application` object that anything can read from or write to, and calls that are provably redundant.
 
 | Rule                                                                   | Catches                                                                                                |
 | ---------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
