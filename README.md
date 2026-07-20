@@ -455,9 +455,9 @@ Enforce the architectural boundaries and complexity limits that are easy to drif
 | [`noDbQueriesInViews`](#no-database-access-outside-repositories)       | Direct DB/ActiveRecord access in view files                                                            |
 | [`noDirectSuperglobals`](#no-raw-superglobals)                         | Direct use of `$_GET`, `$_POST`, `$_SESSION`, etc.                                                     |
 | [`noDynamicQueryWhere`](#no-dynamic-sql-strings)                       | String-concatenated conditions passed to `Query::where()` / `andWhere()`                               |
-| [`noForbiddenYiiAppProperties`](#taming-yiiapp)                        | Reads of arbitrary `yii\base\Application` components, including `Yii::$app->*`                         |
+| [`noForbiddenYiiAppProperties`](#no-forbidden-yiiapp-properties)       | Reads of arbitrary `yii\base\Application` components, including `Yii::$app->*`                         |
 | [`noRedundantHtmlEncode`](#no-redundant-htmlencode)                    | `Html::encode()` calls whose argument is always a `numeric-string`                                     |
-| [`noYiiAppPropertyMutation`](#taming-yiiapp)                           | Writes to `yii\base\Application` properties, including `setComponents()`                               |
+| [`noYiiAppPropertyMutation`](#no-yiiapp-property-mutation)             | Writes to `yii\base\Application` properties, including `setComponents()`                               |
 
 #### Complexity limits
 
@@ -535,12 +535,12 @@ $query->where('status = ' . $status);
 $query->where(['status' => $status]);
 ```
 
-#### Taming `Yii::$app`
+#### No forbidden `Yii::$app` properties
 
-Two rules keep the application object from becoming a place where any property can be read or reassigned from anywhere. They check expressions typed as `yii\base\Application`, so the same restrictions apply to direct `Yii::$app` usage, variables holding it, and explicit `Application` instances:
+`Yii::$app` is a global container: reading an arbitrary property off it pulls a runtime-configured component into the code without going through the constructor. This rule flags that read on any expression typed as `yii\base\Application` — direct `Yii::$app` usage, a variable holding it, or an explicit `new Application($config)` — outside a short allowlist (`id`, `name`, `charset`, `language`, `timeZone` by default) of properties that are effectively static configuration rather than injectable services.
 
 ```php
-// ✗ noForbiddenYiiAppProperties: arbitrary component access
+// ✗ arbitrary component access
 $cache = Yii::$app->cache;
 
 $app = Yii::$app;
@@ -549,18 +549,9 @@ $request = $app->request;
 $application = new Application($config);
 $session = $application->session;
 
-// ✗ noYiiAppPropertyMutation: mutating the container at runtime
-Yii::$app->params = [];
-Yii::$app->setComponents([...]);
-
-$app->language = 'ru-RU';
-$application->setComponents([...]);
-
 // ✓ inject the component instead
 public function __construct(private CacheInterface $cache) {}
 ```
-
-A short allowlist (`id`, `name`, `charset`, `language`, `timeZone` by default) stays available everywhere since those are effectively static configuration, not injectable services.
 
 #### No redundant `Html::encode()`
 
@@ -574,6 +565,22 @@ PHPStan already flags most nonsensical `Html::encode()` calls on its own (wrong 
 
 echo Html::encode($id);   // ✗ flagged — $id can only ever be a numeric-string
 echo Html::encode($name); // ✓ a plain string may still contain special characters
+```
+
+#### No `Yii::$app` property mutation
+
+The same `yii\base\Application`-typed expressions are also checked on the write side: reassigning a property, or calling `setComponents()`, mutates global runtime configuration from anywhere in the codebase.
+
+```php
+// ✗ mutating the container at runtime
+Yii::$app->params = [];
+Yii::$app->setComponents([...]);
+
+$app->language = 'ru-RU';
+$application->setComponents([...]);
+
+// ✓ inject the component instead, or configure it once at bootstrap
+public function __construct(private CacheInterface $cache) {}
 ```
 
 ## Support
