@@ -6,6 +6,4 @@ namespace MSpirkov\Yii2\PHPStan\Tests\Rules\Source\NoRedundantHtmlEncode;
 
 use yii\helpers\Html;
 
-final class CustomHtml extends Html
-{
-}
+final class CustomHtml extends Html {}

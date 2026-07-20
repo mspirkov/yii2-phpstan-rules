@@ -222,24 +222,18 @@ final class Order extends ActiveRecord
 /**
  * @property int $id
  */
-final class Customer extends ActiveRecord
-{
-}
+final class Customer extends ActiveRecord { /* ... */ }
 
 /**
  * @property int $id
  */
-final class Address extends ActiveRecord
-{
-}
+final class Address extends ActiveRecord { /* ... */ }
 
 /**
  * @property int $id
  * @property int $order_id
  */
-final class OrderItem extends ActiveRecord
-{
-}
+final class OrderItem extends ActiveRecord { /* ... */ }
 ```
 
 #### Component behaviors validation
