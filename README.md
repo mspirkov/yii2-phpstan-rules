@@ -560,12 +560,9 @@ echo Html::encode($name); // ✓ a plain string may still contain special charac
 Checks the same `yii\base\Application`-typed expressions as `noForbiddenYiiAppProperties`, on the write side.
 
 ```php
-// ✗ mutating the container at runtime
+// ✗ mutation of properties
 Yii::$app->params = [];
 Yii::$app->setComponents([...]);
-
-// ✓ inject the component instead
-public function __construct(private CacheInterface $cache) {}
 ```
 
 ## Support
