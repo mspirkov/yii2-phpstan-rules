@@ -561,7 +561,7 @@ Checks the same `yii\base\Application`-typed expressions as `noForbiddenYiiAppPr
 
 ```php
 // ✗ mutation of properties
-Yii::$app->params = [];
+Yii::$app->params = [...];
 Yii::$app->setComponents([...]);
 ```
 
