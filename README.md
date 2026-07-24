@@ -80,7 +80,7 @@ parameters:
             enabled: false
 ```
 
-## What's inside
+## Rules at a glance
 
 ### Validation rules
 
@@ -99,6 +99,28 @@ Statically validate Yii2's loosely-typed config arrays and array-driven conventi
 | [`modelScenariosValidation`](#model-scenarios-validation)               | `scenarios()` entries in `yii\base\Model` with an empty name, a non-array attribute list, or an unknown attribute                            |
 | [`widgetPropertiesValidation`](#widget-properties-validation)           | Unknown or mistyped option keys and bad option types in `Widget::begin()` / `Widget::widget()` config arrays                                 |
 | [`yiiCreateObjectValidation`](#yiicreateobject-validation)              | `Yii::createObject()` config arrays missing `class`/`__class`, bad config keys, and bad option types                                         |
+
+### Code quality rules
+
+Catch architectural drift, complexity, and other code-quality issues that are easy to miss without anyone noticing — business logic and database access staying out of controllers and views, actions calling other actions directly, superglobals, dynamic SQL, an `Application` object that anything can read from or write to, and calls that are provably redundant.
+
+| Rule                                                                   | Catches                                                                                                |
+| ---------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| [`noComplexActionClasses`](#complexity-limits)                         | Standalone `yii\base\Action` classes with too much branching/looping — logic that belongs in a service |
+| [`noComplexControllerActions`](#complexity-limits)                     | The same, for controller actions                                                                       |
+| [`noControllerActionCallsViaThis`](#no-calling-actions-via-this)       | `$this->actionFoo()` inside a controller instead of a redirect or shared method                        |
+| [`noDbQueriesInActions`](#no-database-access-outside-repositories)     | Direct DB/ActiveRecord access in `Action` classes                                                      |
+| [`noDbQueriesInControllers`](#no-database-access-outside-repositories) | Direct DB/ActiveRecord access in controllers                                                           |
+| [`noDbQueriesInViews`](#no-database-access-outside-repositories)       | Direct DB/ActiveRecord access in view files                                                            |
+| [`noDirectSuperglobals`](#no-raw-superglobals)                         | Direct use of `$_GET`, `$_POST`, `$_SESSION`, etc.                                                     |
+| [`noDynamicQueryWhere`](#no-dynamic-sql-strings)                       | String-concatenated conditions passed to `Query::where()` / `andWhere()`                               |
+| [`noForbiddenYiiAppProperties`](#no-forbidden-yiiapp-properties)       | Reads of arbitrary `yii\base\Application` components, including `Yii::$app->*`                         |
+| [`noRedundantHtmlEncode`](#no-redundant-htmlencode)                    | `Html::encode()` calls whose argument is always a `numeric-string`                                     |
+| [`noYiiAppPropertyMutation`](#no-yiiapp-property-mutation)             | Writes to `yii\base\Application` properties, including `setComponents()`                               |
+
+## Rule reference
+
+### Validation rules
 
 #### Active Form field validation
 
@@ -436,22 +458,6 @@ Yii::createObject([
 ```
 
 ### Code quality rules
-
-Catch architectural drift, complexity, and other code-quality issues that are easy to miss without anyone noticing — business logic and database access staying out of controllers and views, actions calling other actions directly, superglobals, dynamic SQL, an `Application` object that anything can read from or write to, and calls that are provably redundant.
-
-| Rule                                                                   | Catches                                                                                                |
-| ---------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
-| [`noComplexActionClasses`](#complexity-limits)                         | Standalone `yii\base\Action` classes with too much branching/looping — logic that belongs in a service |
-| [`noComplexControllerActions`](#complexity-limits)                     | The same, for controller actions                                                                       |
-| [`noControllerActionCallsViaThis`](#no-calling-actions-via-this)       | `$this->actionFoo()` inside a controller instead of a redirect or shared method                        |
-| [`noDbQueriesInActions`](#no-database-access-outside-repositories)     | Direct DB/ActiveRecord access in `Action` classes                                                      |
-| [`noDbQueriesInControllers`](#no-database-access-outside-repositories) | Direct DB/ActiveRecord access in controllers                                                           |
-| [`noDbQueriesInViews`](#no-database-access-outside-repositories)       | Direct DB/ActiveRecord access in view files                                                            |
-| [`noDirectSuperglobals`](#no-raw-superglobals)                         | Direct use of `$_GET`, `$_POST`, `$_SESSION`, etc.                                                     |
-| [`noDynamicQueryWhere`](#no-dynamic-sql-strings)                       | String-concatenated conditions passed to `Query::where()` / `andWhere()`                               |
-| [`noForbiddenYiiAppProperties`](#no-forbidden-yiiapp-properties)       | Reads of arbitrary `yii\base\Application` components, including `Yii::$app->*`                         |
-| [`noRedundantHtmlEncode`](#no-redundant-htmlencode)                    | `Html::encode()` calls whose argument is always a `numeric-string`                                     |
-| [`noYiiAppPropertyMutation`](#no-yiiapp-property-mutation)             | Writes to `yii\base\Application` properties, including `setComponents()`                               |
 
 #### Complexity limits
 
