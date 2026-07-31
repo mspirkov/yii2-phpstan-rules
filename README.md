@@ -99,6 +99,7 @@ Statically validate Yii2's loosely-typed config arrays and array-driven conventi
 | [`modelAttributeLabelsValidation`](#model-attribute-labels-validation)          | `attributeLabels()` entries in `yii\base\Model` that target attributes that don't exist, or use an empty attribute name                                 |
 | [`modelRulesValidation`](#model-validation-rules-validation)                    | Malformed or invalid `rules()` in `yii\base\Model` — unknown validators, missing required options, bad regexes, unknown attributes, and more            |
 | [`modelScenariosValidation`](#model-scenarios-validation)                       | `scenarios()` entries in `yii\base\Model` with an empty name, a non-array attribute list, or an unknown attribute                                       |
+| [`uploadedFileInstanceValidation`](#uploadedfile-instance-validation)           | `UploadedFile::getInstance()` / `getInstances()` calls referencing an attribute that does not exist on the given model                                  |
 | [`widgetPropertiesValidation`](#widget-properties-validation)                   | Unknown or mistyped option keys and bad option types in `Widget::begin()` / `Widget::widget()` config arrays                                            |
 | [`yiiCreateObjectValidation`](#yiicreateobject-validation)                      | `Yii::createObject()` config arrays missing `class`/`__class`, bad config keys, and bad option types                                                    |
 
@@ -461,6 +462,30 @@ final class ContactModel extends Model
         ];
     }
 }
+```
+
+#### `UploadedFile` instance validation
+
+`UploadedFile::getInstance($model, $attribute)` and `getInstances($model, $attribute)` build the file input's name from `$model` and a plain attribute-name string, the same way `ActiveForm::field()` does — so a typo silently returns `null` (or an empty array) instead of the uploaded file. This rule checks that the attribute exists on the given model, the same `@property`-aware resolution used elsewhere (e.g. `activeFormFieldValidation`, `modelAttributeLabelsValidation`). `yii\base\DynamicModel` instances are skipped, since their attributes are defined at runtime via `defineAttribute()` and can't be resolved statically.
+
+```php
+final class UploadForm extends Model
+{
+    public $imageFile;
+    public $imageFiles;
+
+    public function rules(): array
+    {
+        return [[['imageFile', 'imageFiles'], 'file']];
+    }
+}
+
+/** @var UploadForm $model */
+
+$model->imageFile = UploadedFile::getInstance($model, 'imageFile');    // ✓
+$model->imageFiles = UploadedFile::getInstances($model, 'imageFiles'); // ✓
+$model->imageFile = UploadedFile::getInstance($model, 'imagefile');    // ✗ typo — "imagefile" is not a property on UploadForm
+$files = UploadedFile::getInstances($model, 'imagefiles');             // ✗ typo — "imagefiles" is not a property on UploadForm
 ```
 
 #### Widget properties validation
