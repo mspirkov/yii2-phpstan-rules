@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace MSpirkov\Yii2\PHPStan\Rules;
 
+use MSpirkov\Yii2\PHPStan\Analyzers\ExpressionTypeAnalyzer;
 use PhpParser\Node;
 use PhpParser\Node\Arg;
 use PhpParser\Node\Expr;
@@ -15,7 +16,6 @@ use PhpParser\Node\Scalar\String_;
 use PHPStan\Analyser\Scope;
 use PHPStan\Rules\IdentifierRuleError;
 use PHPStan\Rules\Rule;
-use PHPStan\Type\Type;
 use yii\db\ActiveQueryInterface;
 use yii\db\QueryInterface;
 
@@ -29,6 +29,13 @@ final class NoDynamicQueryWhereRule implements Rule
         ActiveQueryInterface::class,
         QueryInterface::class,
     ];
+
+    private ExpressionTypeAnalyzer $expressionTypeAnalyzer;
+
+    public function __construct(ExpressionTypeAnalyzer $expressionTypeAnalyzer)
+    {
+        $this->expressionTypeAnalyzer = $expressionTypeAnalyzer;
+    }
 
     public function getNodeType(): string
     {
@@ -48,7 +55,7 @@ final class NoDynamicQueryWhereRule implements Rule
             return [];
         }
 
-        if (!$this->isQueryType($scope->getType($node->var))) {
+        if (!$this->expressionTypeAnalyzer->isTypeAnyOf($scope->getType($node->var), self::QUERY_CLASSES)) {
             return [];
         }
 
@@ -80,22 +87,5 @@ final class NoDynamicQueryWhereRule implements Rule
         }
 
         return !$expr->left instanceof String_ || !$expr->right instanceof String_;
-    }
-
-    private function isQueryType(Type $type): bool
-    {
-        foreach ($type->getObjectClassReflections() as $classReflection) {
-            foreach (self::QUERY_CLASSES as $className) {
-                if (
-                    $classReflection->is($className)
-                    || $classReflection->isSubclassOf($className)
-                    || $classReflection->implementsInterface($className)
-                ) {
-                    return true;
-                }
-            }
-        }
-
-        return false;
     }
 }

@@ -18,6 +18,7 @@ final class Identifiers
     public const MODEL_ATTRIBUTE_LABELS_VALIDATION = self::PREFIX . 'modelAttributeLabelsValidation';
     public const MODEL_RULES_VALIDATION = self::PREFIX . 'modelRulesValidation';
     public const MODEL_SCENARIOS_VALIDATION = self::PREFIX . 'modelScenariosValidation';
+    public const QUERY_CONDITION_VALIDATION = self::PREFIX . 'queryConditionValidation';
     public const UPLOADED_FILE_INSTANCE_VALIDATION = self::PREFIX . 'uploadedFileInstanceValidation';
     public const WIDGET_PROPERTIES_VALIDATION = self::PREFIX . 'widgetPropertiesValidation';
     public const YII_CREATE_OBJECT_VALIDATION = self::PREFIX . 'yiiCreateObjectValidation';
@@ -47,6 +48,7 @@ final class Identifiers
         self::MODEL_ATTRIBUTE_LABELS_VALIDATION,
         self::MODEL_RULES_VALIDATION,
         self::MODEL_SCENARIOS_VALIDATION,
+        self::QUERY_CONDITION_VALIDATION,
         self::UPLOADED_FILE_INSTANCE_VALIDATION,
         self::WIDGET_PROPERTIES_VALIDATION,
         self::YII_CREATE_OBJECT_VALIDATION,

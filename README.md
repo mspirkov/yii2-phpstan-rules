@@ -100,6 +100,7 @@ Statically validate Yii2's loosely-typed config arrays and array-driven conventi
 | [`modelAttributeLabelsValidation`](#model-attribute-labels-validation)          | `attributeLabels()` entries in `yii\base\Model` that target attributes that don't exist, or use an empty attribute name                                 |
 | [`modelRulesValidation`](#model-validation-rules-validation)                    | Malformed or invalid `rules()` in `yii\base\Model` — unknown validators, missing required options, bad regexes, unknown attributes, and more            |
 | [`modelScenariosValidation`](#model-scenarios-validation)                       | `scenarios()` entries in `yii\base\Model` with an empty name, a non-array attribute list, or an unknown attribute                                       |
+| [`queryConditionValidation`](#query-condition-validation)                       | `where()` / `andWhere()` / `orWhere()` operator-format conditions (`in`, `between`, `like`, etc.) with the wrong number of operands                     |
 | [`uploadedFileInstanceValidation`](#uploadedfile-instance-validation)           | `UploadedFile::getInstance()` / `getInstances()` calls referencing an attribute that does not exist on the given model                                  |
 | [`widgetPropertiesValidation`](#widget-properties-validation)                   | Unknown or mistyped option keys and bad option types in `Widget::begin()` / `Widget::widget()` config arrays                                            |
 | [`yiiCreateObjectValidation`](#yiicreateobject-validation)                      | `Yii::createObject()` config arrays missing `class`/`__class`, bad config keys, and bad option types                                                    |
@@ -484,6 +485,22 @@ final class ContactModel extends Model
         ];
     }
 }
+```
+
+#### Query condition validation
+
+`Query::where()` / `andWhere()` / `orWhere()` accept an "operator format" array (`[operator, operand1, operand2, ...]`), and Yii only discovers a missing operand at query-build time — each `yii\db\conditions\*Condition::fromArrayDefinition()` throws an `InvalidArgumentException` if its required operands aren't present. This rule checks the operand count against those same rules: `not`, `between` / `not between`, `in` / `not in`, `like` and its variants, and `exists` / `not exists` each need a specific minimum (or, for `not`, an exact) number of operands, and the standard comparison operators (`=`, `!=`, `<>`, `>`, `>=`, `<`, `<=`) need exactly 2, Yii's documented "arbitrary operator" case. `and` / `or` operands are recursed into, since they typically wrap further operator-format sub-conditions; `yii\db\conditions\ConjunctionCondition` itself never validates their count, but a zero-operand `and`/`or` can never produce a meaningful condition, so this rule still requires at least one. Any other operator string — a genuinely custom one registered via `QueryBuilder::setConditionClasses()` — is left unchecked rather than guessed at, and so is anything built dynamically or in hash format (`['status' => 1]`, never operator-format to begin with).
+
+```php
+$query->where(['in', 'status']);                                    // ✗ missing the values operand — needs 2
+$query->andWhere(['between', 'age', 18]);                           // ✗ missing the upper bound — needs 3
+$query->orWhere(['not', ['in', 'status']]);                         // ✗ same as above, nested inside "not"
+$query->where(['>=', 'age', 18, 30]);                               // ✗ arbitrary operator, extra operand — needs exactly 2
+$query->where(['and']);                                             // ✗ empty "and" — needs at least 1 operand
+
+$query->where(['in', 'status', [1, 2]]);                            // ✓
+$query->andWhere(['between', 'age', 18, 65]);                       // ✓
+$query->orWhere(['and', ['status' => 1], ['in', 'type', [1, 2]]]);  // ✓
 ```
 
 #### `UploadedFile` instance validation

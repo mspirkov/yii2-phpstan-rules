@@ -122,4 +122,20 @@ final class ExpressionTypeAnalyzer
 
         return array_values($classReflections)[0];
     }
+
+    /**
+     * @param list<class-string> $classNames
+     */
+    public function isTypeAnyOf(Type $type, array $classNames): bool
+    {
+        foreach ($type->getObjectClassReflections() as $classReflection) {
+            foreach ($classNames as $className) {
+                if ($this->isClassReflectionOf($classReflection, $className) || $classReflection->implementsInterface($className)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
 }
