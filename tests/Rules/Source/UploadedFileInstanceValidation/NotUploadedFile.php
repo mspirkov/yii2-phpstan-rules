@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace MSpirkov\Yii2\PHPStan\Tests\Rules\Source\UploadedFileInstanceValidation;
 
+use yii\base\Model;
+
 final class NotUploadedFile
 {
     /**
-     * @param \yii\base\Model $model
+     * @param Model $model
      * @param string $attribute
      * @return static|null
      */

@@ -14,13 +14,11 @@ final class UploadedFileInstanceValidationRuleTest extends AbstractTestCase
 {
     public function testRule(): void
     {
-        $uploadFormClass = UploadForm::class;
-
         $this->analyse(
             [self::getDataFilePath('code')],
             [
-                [sprintf('Unknown attribute "imagefile" for model %s in getInstance() call.', $uploadFormClass), 25],
-                [sprintf('Unknown attribute "imageFiles" for model %s in getInstances() call.', $uploadFormClass), 26],
+                [sprintf('Unknown attribute "imagefile" for model %s in getInstance() call.', UploadForm::class), 25],
+                [sprintf('Unknown attribute "imageFiles" for model %s in getInstances() call.', UploadForm::class), 26],
             ],
         );
     }
