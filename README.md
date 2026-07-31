@@ -95,6 +95,7 @@ Statically validate Yii2's loosely-typed config arrays and array-driven conventi
 | [`activeRecordUpdateValuesValidation`](#active-record-update-values-validation) | `updateAll()` / `updateAllCounters()` attribute or counter values with an unknown attribute or a mismatched value type                                  |
 | [`componentBehaviorsValidation`](#component-behaviors-validation)               | Malformed or invalid `behaviors()` in `yii\base\Component` — unknown behavior classes, bad config keys, and bad option types                            |
 | [`controllerActionsValidation`](#controller-actions-validation)                 | Malformed or invalid `actions()` in `yii\base\Controller` — unknown action classes, bad config keys, and bad option types                               |
+| [`htmlActiveAttributeValidation`](#html-active-attribute-validation)            | `Html::activeInput()` / `activeTextInput()` / etc. calls referencing an attribute that does not exist on the given model                                |
 | [`modelAttributeHintsValidation`](#model-attribute-hints-validation)            | `attributeHints()` entries in `yii\base\Model` that target attributes that don't exist, or use an empty attribute name                                  |
 | [`modelAttributeLabelsValidation`](#model-attribute-labels-validation)          | `attributeLabels()` entries in `yii\base\Model` that target attributes that don't exist, or use an empty attribute name                                 |
 | [`modelRulesValidation`](#model-validation-rules-validation)                    | Malformed or invalid `rules()` in `yii\base\Model` — unknown validators, missing required options, bad regexes, unknown attributes, and more            |
@@ -354,6 +355,27 @@ public function actions(): array
         ],
     ];
 }
+```
+
+#### `Html` active attribute validation
+
+`Html::activeInput()`, `activeTextInput()`, and the rest of the `active*()` family (`activeHiddenInput`, `activePasswordInput`, `activeFileInput`, `activeTextarea`, `activeRadio`, `activeCheckbox`, `activeDropDownList`, `activeListBox`, `activeCheckboxList`, `activeRadioList`, `activeLabel`, `activeHint`) all take a model and a plain attribute-name string, the same as `ActiveForm::field()`. This rule checks that the attribute exists on the given model, the same `@property`-aware resolution used by `activeFormFieldValidation` and `uploadedFileInstanceValidation`. `yii\base\DynamicModel` instances are skipped, since their attributes are defined at runtime via `defineAttribute()` and can't be resolved statically.
+
+```php
+/**
+ * @property string $email
+ */
+final class ContactModel extends Model
+{
+    public $name;
+}
+
+/** @var ContactModel $model */
+
+echo Html::activeLabel($model, 'name');    // ✓ declared property
+echo Html::activeInput('text', $model, 'email');  // ✓ declared via @property
+echo Html::activeTextInput($model, 'nema');       // ✗ typo — "nema" is not a property on ContactModel
+echo Html::activeHint($model, 'nickname');        // ✗ typo — "nickname" is not a property on ContactModel
 ```
 
 #### Model attribute hints validation
