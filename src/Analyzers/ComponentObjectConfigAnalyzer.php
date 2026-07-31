@@ -30,14 +30,16 @@ final class ComponentObjectConfigAnalyzer
         array $options,
         Scope $scope,
         string $objectLabel,
-        string $identifier
+        string $identifier,
+        bool $allowSpecialKeys = true
     ): array {
         return $this->baseObjectConfigAnalyzer->validateObjectOptionNames(
             $className,
             $this->filterComponentConfigOptions($options),
             $scope,
             $objectLabel,
-            $identifier
+            $identifier,
+            $allowSpecialKeys
         );
     }
 
@@ -55,7 +57,8 @@ final class ComponentObjectConfigAnalyzer
         Scope $scope,
         string $optionLabel,
         array $typeCheckSkippedOptions,
-        string $identifier
+        string $identifier,
+        bool $allowSpecialKeys = true
     ): array {
         return $this->baseObjectConfigAnalyzer->validateObjectOptionValueTypes(
             $className,
@@ -63,7 +66,8 @@ final class ComponentObjectConfigAnalyzer
             $scope,
             $optionLabel,
             $typeCheckSkippedOptions,
-            $identifier
+            $identifier,
+            $allowSpecialKeys
         );
     }
 

@@ -21,7 +21,8 @@ final class BaseObjectInstantiationValidationRuleTest extends AbstractTestCase
                 [sprintf('Unknown option "namee" for object %s.', SimpleObject::class), 25],
                 [sprintf('Object option "age" for %s must be int, string given.', SimpleObject::class), 26],
                 ['Object configuration option keys must be strings.', 27],
-                [sprintf('Unknown option "statuss" for object %s.', PositionalObject::class), 28],
+                [sprintf('Unknown option "class" for object %s.', SimpleObject::class), 28],
+                [sprintf('Unknown option "statuss" for object %s.', PositionalObject::class), 29],
             ],
         );
     }

@@ -25,6 +25,7 @@ final class InvalidObjectUsage
         new SimpleObject(['namee' => 'x']);
         new SimpleObject(['age' => 'five']);
         new SimpleObject(['name' => 'x', 'oops']);
+        new SimpleObject(['class' => SimpleObject::class]);
         new PositionalObject(5, ['statuss' => 'active']);
     }
 }

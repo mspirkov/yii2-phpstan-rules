@@ -124,7 +124,8 @@ final class BaseObjectInstantiationValidationRule implements Rule
             $options['items'],
             $scope,
             'object',
-            Identifiers::BASE_OBJECT_INSTANTIATION_VALIDATION
+            Identifiers::BASE_OBJECT_INSTANTIATION_VALIDATION,
+            false
         ));
 
         return array_merge($errors, $this->componentObjectConfigAnalyzer->validateObjectOptionValueTypes(
@@ -133,7 +134,8 @@ final class BaseObjectInstantiationValidationRule implements Rule
             $scope,
             'Object',
             [],
-            Identifiers::BASE_OBJECT_INSTANTIATION_VALIDATION
+            Identifiers::BASE_OBJECT_INSTANTIATION_VALIDATION,
+            false
         ));
     }
 }
