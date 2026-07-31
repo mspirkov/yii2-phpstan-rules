@@ -29,6 +29,8 @@ includes:
     - vendor/mspirkov/yii2-phpstan-rules/rules.neon
 ```
 
+> **Compatibility:** works with Yii2 `>=2.0.53`, but is best tested against — and works best with — the latest Yii2 releases.
+
 ## Configuration
 
 All rules are on by default. Turn the whole set off, turn off just one of the two rule groups, or tune individual rules, under `parameters.mspirkovYii2Rules`:
