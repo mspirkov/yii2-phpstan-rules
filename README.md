@@ -86,19 +86,21 @@ parameters:
 
 Statically validate Yii2's loosely-typed config arrays and array-driven conventions — shapes PHPStan can't check on its own because they only take effect at runtime. Toggle all of them at once with `enableValidationRules`.
 
-| Rule                                                                    | Catches                                                                                                                                      |
-| ----------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
-| [`activeFormFieldValidation`](#active-form-field-validation)            | `ActiveForm::field()` calls targeting an attribute that is missing, read-only, or write-only on the given model                              |
-| [`activeQueryWithValidation`](#activequery-with-validation)             | `with()` / `joinWith()` / `innerJoinWith()` calls referencing a relation that doesn't exist on the queried ActiveRecord model                |
-| [`activeRecordRelationValidation`](#active-record-relations-validation) | Invalid `hasOne()` / `hasMany()` link properties that do not exist on the current or related ActiveRecord model                              |
-| [`componentBehaviorsValidation`](#component-behaviors-validation)       | Malformed or invalid `behaviors()` in `yii\base\Component` — unknown behavior classes, bad config keys, and bad option types                 |
-| [`controllerActionsValidation`](#controller-actions-validation)         | Malformed or invalid `actions()` in `yii\base\Controller` — unknown action classes, bad config keys, and bad option types                    |
-| [`modelAttributeHintsValidation`](#model-attribute-hints-validation)    | `attributeHints()` entries in `yii\base\Model` that target attributes that don't exist, or use an empty attribute name                       |
-| [`modelAttributeLabelsValidation`](#model-attribute-labels-validation)  | `attributeLabels()` entries in `yii\base\Model` that target attributes that don't exist, or use an empty attribute name                      |
-| [`modelRulesValidation`](#model-validation-rules-validation)            | Malformed or invalid `rules()` in `yii\base\Model` — unknown validators, missing required options, bad regexes, unknown attributes, and more |
-| [`modelScenariosValidation`](#model-scenarios-validation)               | `scenarios()` entries in `yii\base\Model` with an empty name, a non-array attribute list, or an unknown attribute                            |
-| [`widgetPropertiesValidation`](#widget-properties-validation)           | Unknown or mistyped option keys and bad option types in `Widget::begin()` / `Widget::widget()` config arrays                                 |
-| [`yiiCreateObjectValidation`](#yiicreateobject-validation)              | `Yii::createObject()` config arrays missing `class`/`__class`, bad config keys, and bad option types                                         |
+| Rule                                                                            | Catches                                                                                                                                                 |
+| ------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [`activeFormFieldValidation`](#active-form-field-validation)                    | `ActiveForm::field()` calls targeting an attribute that is missing, read-only, or write-only on the given model                                         |
+| [`activeQueryWithValidation`](#activequery-with-validation)                     | `with()` / `joinWith()` / `innerJoinWith()` calls referencing a relation that doesn't exist on the queried ActiveRecord model                           |
+| [`activeRecordConditionValidation`](#active-record-condition-validation)        | `findOne()` / `findAll()` / `deleteAll()` / `updateAll()` / `updateAllCounters()` WHERE conditions with an unknown attribute or a mismatched value type |
+| [`activeRecordRelationValidation`](#active-record-relations-validation)         | Invalid `hasOne()` / `hasMany()` link properties that do not exist on the current or related ActiveRecord model                                         |
+| [`activeRecordUpdateValuesValidation`](#active-record-update-values-validation) | `updateAll()` / `updateAllCounters()` attribute or counter values with an unknown attribute or a mismatched value type                                  |
+| [`componentBehaviorsValidation`](#component-behaviors-validation)               | Malformed or invalid `behaviors()` in `yii\base\Component` — unknown behavior classes, bad config keys, and bad option types                            |
+| [`controllerActionsValidation`](#controller-actions-validation)                 | Malformed or invalid `actions()` in `yii\base\Controller` — unknown action classes, bad config keys, and bad option types                               |
+| [`modelAttributeHintsValidation`](#model-attribute-hints-validation)            | `attributeHints()` entries in `yii\base\Model` that target attributes that don't exist, or use an empty attribute name                                  |
+| [`modelAttributeLabelsValidation`](#model-attribute-labels-validation)          | `attributeLabels()` entries in `yii\base\Model` that target attributes that don't exist, or use an empty attribute name                                 |
+| [`modelRulesValidation`](#model-validation-rules-validation)                    | Malformed or invalid `rules()` in `yii\base\Model` — unknown validators, missing required options, bad regexes, unknown attributes, and more            |
+| [`modelScenariosValidation`](#model-scenarios-validation)                       | `scenarios()` entries in `yii\base\Model` with an empty name, a non-array attribute list, or an unknown attribute                                       |
+| [`widgetPropertiesValidation`](#widget-properties-validation)                   | Unknown or mistyped option keys and bad option types in `Widget::begin()` / `Widget::widget()` config arrays                                            |
+| [`yiiCreateObjectValidation`](#yiicreateobject-validation)                      | `Yii::createObject()` config arrays missing `class`/`__class`, bad config keys, and bad option types                                                    |
 
 ### Code quality rules
 
@@ -210,6 +212,26 @@ Customer::find()->with('oders')->all();             // ✗ typo — no such rela
 Customer::find()->with('orders.oops')->all();       // ✗ typo — no such relation on Order
 ```
 
+#### Active Record condition validation
+
+`findOne()`, `findAll()`, and `deleteAll()` take a plain array condition (`['attribute' => value]`, with an array value matched as an `IN (...)` condition) — and so does the second, condition argument of `updateAll()` / `updateAllCounters()`. Like `attributeLabels()` and `scenarios()`, this is never checked against the model until the query actually runs. This rule checks that every attribute name in a condition array exists on the queried ActiveRecord model (the same `@property`-aware resolution as `activeRecordRelationValidation`) and that its value's type is compatible with the attribute's declared type. Only array literals with a resolvable string key are checked; primary-key-only lookups (`findOne(1)`, `findOne([1, 2])`) and dynamically-built condition arrays are left alone.
+
+```php
+/**
+ * @property int $id
+ * @property int $status
+ */
+final class Customer extends ActiveRecord { /* ... */ }
+
+Customer::findOne(1);                                // ✓ primary key lookup, not a condition hash
+Customer::findOne(['status' => 1]);                  // ✓
+Customer::findOne(['status' => [1, 2]]);             // ✓ IN (1, 2)
+Customer::findOne(['statuss' => 1]);                 // ✗ typo — unknown attribute
+Customer::findOne(['status' => '1']);                // ✗ wrong type — int expected
+Customer::deleteAll(['statuss' => 1]);               // ✗ typo — unknown attribute
+Customer::updateAll(['status' => 1], ['idd' => 5]);  // ✗ typo — unknown attribute in the condition
+```
+
 #### Active Record relations validation
 
 `hasOne()` and `hasMany()` relation links are plain string arrays: the array keys belong to the related AR class, and the values belong to the current AR class. This rule checks that those properties exist, including properties declared through PHPDoc `@property`.
@@ -256,6 +278,25 @@ final class Address extends ActiveRecord { /* ... */ }
  * @property int $order_id
  */
 final class OrderItem extends ActiveRecord { /* ... */ }
+```
+
+#### Active Record update values validation
+
+`updateAll()`'s attribute values and `updateAllCounters()`'s counter values are the other plain array these two methods take — the values written into the row, as opposed to the WHERE condition `activeRecordConditionValidation` checks. This rule checks that every attribute name exists on the ActiveRecord model and that its value's type is compatible with the attribute's declared type; unlike a condition, these values are written as-is, so (unlike `activeRecordConditionValidation`) an array value is not treated as an `IN (...)` shorthand and is always a type mismatch.
+
+```php
+/**
+ * @property int $id
+ * @property int $status
+ * @property int $age
+ */
+final class Customer extends ActiveRecord { /* ... */ }
+
+Customer::updateAll(['status' => 1], ['id' => 5]);   // ✓
+Customer::updateAll(['statuss' => 1]);               // ✗ typo — unknown attribute
+Customer::updateAll(['status' => 'active']);         // ✗ wrong type — int expected
+Customer::updateAllCounters(['age' => 1]);           // ✓
+Customer::updateAllCounters(['agee' => 1]);          // ✗ typo — unknown attribute
 ```
 
 #### Component behaviors validation
