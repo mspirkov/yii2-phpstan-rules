@@ -23,6 +23,12 @@ use yii\db\BaseActiveRecord;
  */
 final class ActiveRecordUpdateValuesValidationRule implements Rule
 {
+    /** @var array<string, int> */
+    private const VALUE_ARG_INDEXES = [
+        'updateall' => 0,
+        'updateallcounters' => 0,
+    ];
+
     /** @var array<string, string> */
     private const VALUE_ARG_LABELS = [
         'updateall' => 'attributes',
@@ -60,7 +66,7 @@ final class ActiveRecordUpdateValuesValidationRule implements Rule
         }
 
         $methodName = strtolower($node->name->name);
-        if (!array_key_exists($methodName, self::VALUE_ARG_LABELS)) {
+        if (!array_key_exists($methodName, self::VALUE_ARG_INDEXES)) {
             return [];
         }
 
@@ -69,11 +75,12 @@ final class ActiveRecordUpdateValuesValidationRule implements Rule
             return [];
         }
 
-        if (!isset($node->args[0]) || !$node->args[0] instanceof Arg) {
+        $argIndex = self::VALUE_ARG_INDEXES[$methodName];
+        if (!isset($node->args[$argIndex]) || !$node->args[$argIndex] instanceof Arg) {
             return [];
         }
 
-        $values = $node->args[0]->value;
+        $values = $node->args[$argIndex]->value;
         if (!$values instanceof Array_) {
             return [];
         }
