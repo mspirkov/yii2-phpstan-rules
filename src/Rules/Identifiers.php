@@ -8,7 +8,9 @@ final class Identifiers
 {
     public const ACTIVE_FORM_FIELD_VALIDATION = self::PREFIX . 'activeFormFieldValidation';
     public const ACTIVE_QUERY_WITH_VALIDATION = self::PREFIX . 'activeQueryWithValidation';
+    public const ACTIVE_RECORD_CONDITION_VALIDATION = self::PREFIX . 'activeRecordConditionValidation';
     public const ACTIVE_RECORD_RELATION_VALIDATION = self::PREFIX . 'activeRecordRelationValidation';
+    public const ACTIVE_RECORD_UPDATE_VALUES_VALIDATION = self::PREFIX . 'activeRecordUpdateValuesValidation';
     public const COMPONENT_BEHAVIORS_VALIDATION = self::PREFIX . 'componentBehaviorsValidation';
     public const CONTROLLER_ACTIONS_VALIDATION = self::PREFIX . 'controllerActionsValidation';
     public const MODEL_ATTRIBUTE_HINTS_VALIDATION = self::PREFIX . 'modelAttributeHintsValidation';
@@ -33,7 +35,9 @@ final class Identifiers
     public const LIST = [
         self::ACTIVE_FORM_FIELD_VALIDATION,
         self::ACTIVE_QUERY_WITH_VALIDATION,
+        self::ACTIVE_RECORD_CONDITION_VALIDATION,
         self::ACTIVE_RECORD_RELATION_VALIDATION,
+        self::ACTIVE_RECORD_UPDATE_VALUES_VALIDATION,
         self::COMPONENT_BEHAVIORS_VALIDATION,
         self::CONTROLLER_ACTIONS_VALIDATION,
         self::MODEL_ATTRIBUTE_HINTS_VALIDATION,

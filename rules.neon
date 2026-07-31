@@ -18,7 +18,11 @@ parameters:
 			enabled: %mspirkovYii2Rules.enableValidationRules%
 		activeQueryWithValidation:
 			enabled: %mspirkovYii2Rules.enableValidationRules%
+		activeRecordConditionValidation:
+			enabled: %mspirkovYii2Rules.enableValidationRules%
 		activeRecordRelationValidation:
+			enabled: %mspirkovYii2Rules.enableValidationRules%
+		activeRecordUpdateValuesValidation:
 			enabled: %mspirkovYii2Rules.enableValidationRules%
 		componentBehaviorsValidation:
 			enabled: %mspirkovYii2Rules.enableValidationRules%
@@ -88,7 +92,13 @@ parametersSchema:
 		activeQueryWithValidation: structure([
 			enabled: bool()
 		])
+		activeRecordConditionValidation: structure([
+			enabled: bool()
+		])
 		activeRecordRelationValidation: structure([
+			enabled: bool()
+		])
+		activeRecordUpdateValuesValidation: structure([
 			enabled: bool()
 		])
 		componentBehaviorsValidation: structure([
@@ -157,8 +167,12 @@ conditionalTags:
 		phpstan.rules.rule: %mspirkovYii2Rules.activeFormFieldValidation.enabled%
 	MSpirkov\Yii2\PHPStan\Rules\ActiveQueryWithValidationRule:
 		phpstan.rules.rule: %mspirkovYii2Rules.activeQueryWithValidation.enabled%
+	MSpirkov\Yii2\PHPStan\Rules\ActiveRecordConditionValidationRule:
+		phpstan.rules.rule: %mspirkovYii2Rules.activeRecordConditionValidation.enabled%
 	MSpirkov\Yii2\PHPStan\Rules\ActiveRecordRelationValidationRule:
 		phpstan.rules.rule: %mspirkovYii2Rules.activeRecordRelationValidation.enabled%
+	MSpirkov\Yii2\PHPStan\Rules\ActiveRecordUpdateValuesValidationRule:
+		phpstan.rules.rule: %mspirkovYii2Rules.activeRecordUpdateValuesValidation.enabled%
 	MSpirkov\Yii2\PHPStan\Rules\ComponentBehaviorsValidationRule:
 		phpstan.rules.rule: %mspirkovYii2Rules.componentBehaviorsValidation.enabled%
 	MSpirkov\Yii2\PHPStan\Rules\ControllerActionsValidationRule:
@@ -204,7 +218,11 @@ services:
 	-
 		class: MSpirkov\Yii2\PHPStan\Rules\ActiveQueryWithValidationRule
 	-
+		class: MSpirkov\Yii2\PHPStan\Rules\ActiveRecordConditionValidationRule
+	-
 		class: MSpirkov\Yii2\PHPStan\Rules\ActiveRecordRelationValidationRule
+	-
+		class: MSpirkov\Yii2\PHPStan\Rules\ActiveRecordUpdateValuesValidationRule
 	-
 		class: MSpirkov\Yii2\PHPStan\Rules\ComponentBehaviorsValidationRule
 	-
@@ -268,6 +286,8 @@ services:
 		class: MSpirkov\Yii2\PHPStan\Analyzers\YiiAppAnalyzer
 	-
 		class: MSpirkov\Yii2\PHPStan\Analyzers\ActiveRecordRelationAnalyzer
+	-
+		class: MSpirkov\Yii2\PHPStan\Analyzers\ActiveRecordAttributeArrayAnalyzer
 	-
 		class: MSpirkov\Yii2\PHPStan\Analyzers\BaseObjectConfigAnalyzer
 	-
