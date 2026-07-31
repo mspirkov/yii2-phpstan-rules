@@ -28,6 +28,8 @@ parameters:
 			enabled: %mspirkovYii2Rules.enableValidationRules%
 		controllerActionsValidation:
 			enabled: %mspirkovYii2Rules.enableValidationRules%
+		htmlActiveAttributeValidation:
+			enabled: %mspirkovYii2Rules.enableValidationRules%
 		modelAttributeHintsValidation:
 			enabled: %mspirkovYii2Rules.enableValidationRules%
 		modelAttributeLabelsValidation:
@@ -109,6 +111,9 @@ parametersSchema:
 		controllerActionsValidation: structure([
 			enabled: bool()
 		])
+		htmlActiveAttributeValidation: structure([
+			enabled: bool()
+		])
 		modelAttributeHintsValidation: structure([
 			enabled: bool()
 		])
@@ -182,6 +187,8 @@ conditionalTags:
 		phpstan.rules.rule: %mspirkovYii2Rules.componentBehaviorsValidation.enabled%
 	MSpirkov\Yii2\PHPStan\Rules\ControllerActionsValidationRule:
 		phpstan.rules.rule: %mspirkovYii2Rules.controllerActionsValidation.enabled%
+	MSpirkov\Yii2\PHPStan\Rules\HtmlActiveAttributeValidationRule:
+		phpstan.rules.rule: %mspirkovYii2Rules.htmlActiveAttributeValidation.enabled%
 	MSpirkov\Yii2\PHPStan\Rules\ModelAttributeHintsValidationRule:
 		phpstan.rules.rule: %mspirkovYii2Rules.modelAttributeHintsValidation.enabled%
 	MSpirkov\Yii2\PHPStan\Rules\ModelAttributeLabelsValidationRule:
@@ -234,6 +241,8 @@ services:
 		class: MSpirkov\Yii2\PHPStan\Rules\ComponentBehaviorsValidationRule
 	-
 		class: MSpirkov\Yii2\PHPStan\Rules\ControllerActionsValidationRule
+	-
+		class: MSpirkov\Yii2\PHPStan\Rules\HtmlActiveAttributeValidationRule
 	-
 		class: MSpirkov\Yii2\PHPStan\Rules\ModelAttributeHintsValidationRule
 	-

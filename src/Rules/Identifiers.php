@@ -13,6 +13,7 @@ final class Identifiers
     public const ACTIVE_RECORD_UPDATE_VALUES_VALIDATION = self::PREFIX . 'activeRecordUpdateValuesValidation';
     public const COMPONENT_BEHAVIORS_VALIDATION = self::PREFIX . 'componentBehaviorsValidation';
     public const CONTROLLER_ACTIONS_VALIDATION = self::PREFIX . 'controllerActionsValidation';
+    public const HTML_ACTIVE_ATTRIBUTE_VALIDATION = self::PREFIX . 'htmlActiveAttributeValidation';
     public const MODEL_ATTRIBUTE_HINTS_VALIDATION = self::PREFIX . 'modelAttributeHintsValidation';
     public const MODEL_ATTRIBUTE_LABELS_VALIDATION = self::PREFIX . 'modelAttributeLabelsValidation';
     public const MODEL_RULES_VALIDATION = self::PREFIX . 'modelRulesValidation';
@@ -41,6 +42,7 @@ final class Identifiers
         self::ACTIVE_RECORD_UPDATE_VALUES_VALIDATION,
         self::COMPONENT_BEHAVIORS_VALIDATION,
         self::CONTROLLER_ACTIONS_VALIDATION,
+        self::HTML_ACTIVE_ATTRIBUTE_VALIDATION,
         self::MODEL_ATTRIBUTE_HINTS_VALIDATION,
         self::MODEL_ATTRIBUTE_LABELS_VALIDATION,
         self::MODEL_RULES_VALIDATION,
