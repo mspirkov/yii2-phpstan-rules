@@ -24,12 +24,7 @@ use yii\helpers\BaseHtml;
  */
 final class HtmlActiveAttributeValidationRule implements Rule
 {
-    /**
-     * Maps each checked Html::active*() method to the argument index holding the model
-     * (the attribute name argument always immediately follows it).
-     *
-     * @var array<string, int>
-     */
+    /** @var array<string, int> */
     private const MODEL_ARG_INDEXES = [
         'activecheckbox' => 0,
         'activecheckboxlist' => 0,
