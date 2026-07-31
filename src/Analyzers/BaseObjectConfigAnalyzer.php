@@ -107,13 +107,14 @@ final class BaseObjectConfigAnalyzer
         array $options,
         Scope $scope,
         string $objectLabel,
-        string $identifier
+        string $identifier,
+        bool $allowSpecialKeys = true
     ): array {
         $errors = [];
         $classReflection = $this->reflectionProvider->getClass($className);
 
         foreach ($options as $optionName => $item) {
-            if ($this->isWritableOption($classReflection, $optionName, $scope)) {
+            if ($this->isWritableOption($classReflection, $optionName, $scope, $allowSpecialKeys)) {
                 continue;
             }
 
@@ -141,13 +142,14 @@ final class BaseObjectConfigAnalyzer
         Scope $scope,
         string $optionLabel,
         array $typeCheckSkippedOptions,
-        string $identifier
+        string $identifier,
+        bool $allowSpecialKeys = true
     ): array {
         $errors = [];
         $classReflection = $this->reflectionProvider->getClass($className);
 
         foreach ($options as $optionName => $item) {
-            if ($optionName === self::CONSTRUCT_OPTION_KEY) {
+            if ($allowSpecialKeys && $optionName === self::CONSTRUCT_OPTION_KEY) {
                 $errors = array_merge(
                     $errors,
                     $this->validateConstructOptionType($optionLabel, $className, $item, $scope, $identifier)
@@ -157,7 +159,7 @@ final class BaseObjectConfigAnalyzer
             }
 
             if (
-                in_array($optionName, self::SPECIAL_CONFIG_KEYS, true)
+                ($allowSpecialKeys && in_array($optionName, self::SPECIAL_CONFIG_KEYS, true))
                 || in_array($optionName, $typeCheckSkippedOptions, true)
             ) {
                 continue;
@@ -270,9 +272,13 @@ final class BaseObjectConfigAnalyzer
         return ['found' => false];
     }
 
-    private function isWritableOption(ClassReflection $classReflection, string $propertyName, Scope $scope): bool
-    {
-        if (in_array($propertyName, self::SPECIAL_CONFIG_KEYS, true)) {
+    private function isWritableOption(
+        ClassReflection $classReflection,
+        string $propertyName,
+        Scope $scope,
+        bool $allowSpecialKeys
+    ): bool {
+        if ($allowSpecialKeys && in_array($propertyName, self::SPECIAL_CONFIG_KEYS, true)) {
             return true;
         }
 

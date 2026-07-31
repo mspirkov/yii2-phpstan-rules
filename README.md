@@ -93,6 +93,7 @@ Statically validate Yii2's loosely-typed config arrays and array-driven conventi
 | [`activeRecordConditionValidation`](#active-record-condition-validation)        | `findOne()` / `findAll()` / `deleteAll()` / `updateAll()` / `updateAllCounters()` WHERE conditions with an unknown attribute or a mismatched value type |
 | [`activeRecordRelationValidation`](#active-record-relations-validation)         | Invalid `hasOne()` / `hasMany()` link properties that do not exist on the current or related ActiveRecord model                                         |
 | [`activeRecordUpdateValuesValidation`](#active-record-update-values-validation) | `updateAll()` / `updateAllCounters()` attribute or counter values with an unknown attribute or a mismatched value type                                  |
+| [`baseObjectInstantiationValidation`](#baseobject-instantiation-validation)     | `new` on a `yii\base\BaseObject` subclass whose last constructor argument is a `$config` array, with bad config keys and bad option types               |
 | [`componentBehaviorsValidation`](#component-behaviors-validation)               | Malformed or invalid `behaviors()` in `yii\base\Component` — unknown behavior classes, bad config keys, and bad option types                            |
 | [`controllerActionsValidation`](#controller-actions-validation)                 | Malformed or invalid `actions()` in `yii\base\Controller` — unknown action classes, bad config keys, and bad option types                               |
 | [`htmlActiveAttributeValidation`](#html-active-attribute-validation)            | `Html::activeInput()` / `activeTextInput()` / etc. calls referencing an attribute that does not exist on the given model                                |
@@ -300,6 +301,18 @@ Customer::updateAll(['statuss' => 1]);               // ✗ typo — unknown att
 Customer::updateAll(['status' => 'active']);         // ✗ wrong type — int expected
 Customer::updateAllCounters(['age' => 1]);           // ✓
 Customer::updateAllCounters(['agee' => 1]);          // ✗ typo — unknown attribute
+```
+
+#### `BaseObject` instantiation validation
+
+`yii\base\BaseObject::__construct($config = [])` applies `$config` via `Yii::configure($this, $config)`, the same mechanism `Yii::createObject()` uses to apply its own config array — so a typo'd key or wrong-typed value in a plain `new SomeObject([...])` call is just as invisible to PHPStan as it is in a `createObject()` config array. This rule checks a `new` call the same way `yiiCreateObjectValidation` checks `Yii::createObject()`: config keys against the target class's writable properties, and literal values against their declared types. It only looks at classes extending `yii\base\BaseObject`, and only at a literal array passed as the constructor's last argument when that argument is exactly the one named `$config` — the Yii2 convention for opting into array-config construction. A subclass whose last parameter isn't named `config` (or is variadic) doesn't follow that convention, so its last argument is left alone.
+
+```php
+$countQuery = Article::find()->where(['status' => 1]);
+
+new Pagination(['totalCount' => $countQuery->count()]);  // ✓
+new Pagination(['totalCoutn' => 100]);                   // ✗ typo — unknown option "totalCoutn"
+new Pagination(['defaultPageSize' => '20']);             // ✗ wrong type — int expected
 ```
 
 #### Component behaviors validation
