@@ -37,6 +37,8 @@ parameters:
 			customValidators: []
 		modelScenariosValidation:
 			enabled: %mspirkovYii2Rules.enableValidationRules%
+		uploadedFileInstanceValidation:
+			enabled: %mspirkovYii2Rules.enableValidationRules%
 		widgetPropertiesValidation:
 			enabled: %mspirkovYii2Rules.enableValidationRules%
 		yiiCreateObjectValidation:
@@ -120,6 +122,9 @@ parametersSchema:
 		modelScenariosValidation: structure([
 			enabled: bool()
 		])
+		uploadedFileInstanceValidation: structure([
+			enabled: bool()
+		])
 		widgetPropertiesValidation: structure([
 			enabled: bool()
 		])
@@ -185,6 +190,8 @@ conditionalTags:
 		phpstan.rules.rule: %mspirkovYii2Rules.modelRulesValidation.enabled%
 	MSpirkov\Yii2\PHPStan\Rules\ModelScenariosValidationRule:
 		phpstan.rules.rule: %mspirkovYii2Rules.modelScenariosValidation.enabled%
+	MSpirkov\Yii2\PHPStan\Rules\UploadedFileInstanceValidationRule:
+		phpstan.rules.rule: %mspirkovYii2Rules.uploadedFileInstanceValidation.enabled%
 	MSpirkov\Yii2\PHPStan\Rules\WidgetPropertiesValidationRule:
 		phpstan.rules.rule: %mspirkovYii2Rules.widgetPropertiesValidation.enabled%
 	MSpirkov\Yii2\PHPStan\Rules\YiiCreateObjectValidationRule:
@@ -237,6 +244,8 @@ services:
 			customValidators: %mspirkovYii2Rules.modelRulesValidation.customValidators%
 	-
 		class: MSpirkov\Yii2\PHPStan\Rules\ModelScenariosValidationRule
+	-
+		class: MSpirkov\Yii2\PHPStan\Rules\UploadedFileInstanceValidationRule
 	-
 		class: MSpirkov\Yii2\PHPStan\Rules\WidgetPropertiesValidationRule
 	-
