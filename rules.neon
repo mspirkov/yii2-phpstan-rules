@@ -24,6 +24,8 @@ parameters:
 			enabled: %mspirkovYii2Rules.enableValidationRules%
 		activeRecordUpdateValuesValidation:
 			enabled: %mspirkovYii2Rules.enableValidationRules%
+		baseObjectInstantiationValidation:
+			enabled: %mspirkovYii2Rules.enableValidationRules%
 		componentBehaviorsValidation:
 			enabled: %mspirkovYii2Rules.enableValidationRules%
 		controllerActionsValidation:
@@ -107,6 +109,9 @@ parametersSchema:
 		activeRecordUpdateValuesValidation: structure([
 			enabled: bool()
 		])
+		baseObjectInstantiationValidation: structure([
+			enabled: bool()
+		])
 		componentBehaviorsValidation: structure([
 			enabled: bool()
 		])
@@ -188,6 +193,8 @@ conditionalTags:
 		phpstan.rules.rule: %mspirkovYii2Rules.activeRecordRelationValidation.enabled%
 	MSpirkov\Yii2\PHPStan\Rules\ActiveRecordUpdateValuesValidationRule:
 		phpstan.rules.rule: %mspirkovYii2Rules.activeRecordUpdateValuesValidation.enabled%
+	MSpirkov\Yii2\PHPStan\Rules\BaseObjectInstantiationValidationRule:
+		phpstan.rules.rule: %mspirkovYii2Rules.baseObjectInstantiationValidation.enabled%
 	MSpirkov\Yii2\PHPStan\Rules\ComponentBehaviorsValidationRule:
 		phpstan.rules.rule: %mspirkovYii2Rules.componentBehaviorsValidation.enabled%
 	MSpirkov\Yii2\PHPStan\Rules\ControllerActionsValidationRule:
@@ -244,6 +251,8 @@ services:
 		class: MSpirkov\Yii2\PHPStan\Rules\ActiveRecordRelationValidationRule
 	-
 		class: MSpirkov\Yii2\PHPStan\Rules\ActiveRecordUpdateValuesValidationRule
+	-
+		class: MSpirkov\Yii2\PHPStan\Rules\BaseObjectInstantiationValidationRule
 	-
 		class: MSpirkov\Yii2\PHPStan\Rules\ComponentBehaviorsValidationRule
 	-
