@@ -64,11 +64,7 @@ final class ActiveRecordConditionValidationRule implements Rule
 
         $methodName = strtolower($node->name->name);
         $argIndex = self::CONDITION_ARG_INDEXES[$methodName] ?? null;
-        if ($argIndex === null) {
-            return [];
-        }
-
-        if (!isset($node->args[$argIndex]) || !$node->args[$argIndex] instanceof Arg) {
+        if ($argIndex === null || !isset($node->args[$argIndex]) || !$node->args[$argIndex] instanceof Arg) {
             return [];
         }
 

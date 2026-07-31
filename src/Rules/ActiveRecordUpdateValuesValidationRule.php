@@ -60,7 +60,8 @@ final class ActiveRecordUpdateValuesValidationRule implements Rule
         }
 
         $methodName = strtolower($node->name->name);
-        if (!array_key_exists($methodName, self::VALUE_ARG_LABELS)) {
+        $valueArgLabel = self::VALUE_ARG_LABELS[$methodName] ?? null;
+        if ($valueArgLabel === null) {
             return [];
         }
 
@@ -82,7 +83,7 @@ final class ActiveRecordUpdateValuesValidationRule implements Rule
             $values,
             $this->reflectionProvider->getClass($className),
             $scope,
-            $node->name->name . '() ' . self::VALUE_ARG_LABELS[$methodName],
+            $node->name->name . "() {$valueArgLabel}",
             false,
             Identifiers::ACTIVE_RECORD_UPDATE_VALUES_VALIDATION
         );
