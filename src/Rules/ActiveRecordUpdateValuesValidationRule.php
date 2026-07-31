@@ -64,17 +64,17 @@ final class ActiveRecordUpdateValuesValidationRule implements Rule
             return [];
         }
 
-        $className = $scope->resolveName($node->class);
-        if (!$this->expressionTypeAnalyzer->isClassNameOf($className, BaseActiveRecord::class)) {
-            return [];
-        }
-
         if (!isset($node->args[0]) || !$node->args[0] instanceof Arg) {
             return [];
         }
 
         $values = $node->args[0]->value;
         if (!$values instanceof Array_) {
+            return [];
+        }
+
+        $className = $scope->resolveName($node->class);
+        if (!$this->expressionTypeAnalyzer->isClassNameOf($className, BaseActiveRecord::class)) {
             return [];
         }
 

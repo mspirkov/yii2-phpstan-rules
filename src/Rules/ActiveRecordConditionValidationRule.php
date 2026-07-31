@@ -63,22 +63,22 @@ final class ActiveRecordConditionValidationRule implements Rule
         }
 
         $methodName = strtolower($node->name->name);
-        if (!array_key_exists($methodName, self::CONDITION_ARG_INDEXES)) {
+        $argIndex = self::CONDITION_ARG_INDEXES[$methodName] ?? null;
+        if ($argIndex === null) {
             return [];
         }
 
-        $className = $scope->resolveName($node->class);
-        if (!$this->expressionTypeAnalyzer->isClassNameOf($className, BaseActiveRecord::class)) {
-            return [];
-        }
-
-        $argIndex = self::CONDITION_ARG_INDEXES[$methodName];
         if (!isset($node->args[$argIndex]) || !$node->args[$argIndex] instanceof Arg) {
             return [];
         }
 
         $condition = $node->args[$argIndex]->value;
         if (!$condition instanceof Array_) {
+            return [];
+        }
+
+        $className = $scope->resolveName($node->class);
+        if (!$this->expressionTypeAnalyzer->isClassNameOf($className, BaseActiveRecord::class)) {
             return [];
         }
 
