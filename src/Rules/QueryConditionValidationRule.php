@@ -32,26 +32,10 @@ final class QueryConditionValidationRule implements Rule
         QueryInterface::class,
     ];
 
-    /**
-     * Operators that combine nested conditions: their operands are recursed into, in addition to
-     * being checked against the operand-count rule below.
-     *
-     * @var list<string>
-     */
+    /** @var list<string> */
     private const CONJUNCTION_OPERATORS = ['AND', 'OR', 'NOT'];
 
-    /**
-     * Minimum/exact operand counts mirroring each condition class's own fromArrayDefinition()
-     * check (see yii\db\conditions\*). "and"/"or" are not validated by
-     * yii\db\conditions\ConjunctionCondition itself, but an empty one can never produce a
-     * meaningful condition, so at least one operand is still required. The comparison operators
-     * (`=`, `>=`, ...) are Yii's documented "arbitrary operator" case, all falling back to
-     * yii\db\conditions\SimpleCondition, which requires exactly 2 operands. Any operator not
-     * listed here — a genuinely custom one registered via QueryBuilder::setConditionClasses() —
-     * is left unchecked rather than guessed at.
-     *
-     * @var array<string, array{exact: int}|array{atLeast: int}>
-     */
+    /** @var array<string, array{exact: int}|array{atLeast: int}> */
     private const OPERAND_REQUIREMENTS = [
         'AND' => ['atLeast' => 1],
         'OR' => ['atLeast' => 1],
@@ -137,16 +121,15 @@ final class QueryConditionValidationRule implements Rule
         }
 
         $operator = strtoupper($operatorName);
-        /** @var list<ArrayItem> $operandItems */
-        $operandItems = array_slice($array->items, 1);
-
-        if (!isset(self::OPERAND_REQUIREMENTS[$operator])) {
+        $requirement = self::OPERAND_REQUIREMENTS[$operator] ?? null;
+        if ($requirement === null) {
             return [];
         }
 
+        $operandItems = array_slice($array->items, 1);
         $errors = $this->validateOperandCount(
             $operator,
-            self::OPERAND_REQUIREMENTS[$operator],
+            $requirement,
             count($operandItems),
             $methodName,
             $array
@@ -158,7 +141,11 @@ final class QueryConditionValidationRule implements Rule
 
         foreach ($operandItems as $operandItem) {
             if ($operandItem->value instanceof Array_) {
-                $errors = array_merge($errors, $this->validateConditionArray($operandItem->value, $methodName, $scope));
+                $errors = array_merge($errors, $this->validateConditionArray(
+                    $operandItem->value,
+                    $methodName,
+                    $scope
+                ));
             }
         }
 
