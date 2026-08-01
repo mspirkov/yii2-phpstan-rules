@@ -14,6 +14,11 @@ A set of PHPStan rules for Yii2 projects that I put together for my own day-to-d
 [![Coverage](https://img.shields.io/codecov/c/github/mspirkov/yii2-phpstan-rules.svg?branch=main&style=for-the-badge&logo=codecov&logoColor=white&label=Coverage)](https://codecov.io/github/mspirkov/yii2-phpstan-rules)
 ![PHPStan Level Max](https://img.shields.io/badge/Max-7A86B8.svg?style=for-the-badge&label=PHPStan%20Level)
 
+## Support
+
+If you like this project, give it a ⭐ on [GitHub](https://github.com/mspirkov/yii2-phpstan-rules) — it helps others
+discover it.
+
 ## Installation
 
 > [!IMPORTANT]
@@ -693,7 +698,3 @@ Checks the same `yii\base\Application`-typed expressions as `noForbiddenYiiAppPr
 Yii::$app->params = [...];
 Yii::$app->setComponents([...]);
 ```
-
-## Support
-
-If this project is useful to you, consider giving it a ⭐ on [GitHub](https://github.com/mspirkov/yii2-phpstan-rules) — it helps others discover it.
