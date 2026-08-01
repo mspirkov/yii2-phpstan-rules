@@ -4,6 +4,7 @@ namespace MSpirkov\Yii2\PHPStan\Tests\Rules\Data\ActiveRecordConditionValidation
 
 use MSpirkov\Yii2\PHPStan\Tests\Rules\Source\ActiveRecordConditionValidation\Customer;
 use MSpirkov\Yii2\PHPStan\Tests\Rules\Source\ActiveRecordConditionValidation\NotActiveRecord;
+use yii\db\Expression;
 
 final class ValidCustomerUsage
 {
@@ -75,6 +76,14 @@ final class SkippedCustomerUsage
 
         // Attribute type is mixed — nothing meaningful to compare against.
         Customer::findOne(['extra' => 5]);
+
+        // ExpressionInterface bypasses dbTypecast in HashConditionBuilder::build(), so it's
+        // valid for any attribute regardless of its declared type.
+        Customer::findOne(['updated_at' => new Expression('NOW()')]);
+
+        // Same bypass applies per-value inside an IN condition — e.g. matching either
+        // a dynamically configured default status or one of two explicit ones.
+        Customer::findOne(['status' => [new Expression('(SELECT default_status FROM settings)'), 1, 2]]);
     }
 
     private function findByDynamicKey(string $dynamicKey): void

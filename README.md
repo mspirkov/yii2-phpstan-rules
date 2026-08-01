@@ -228,22 +228,24 @@ Customer::find()->with('orders.oops')->all();       // ✗ typo — no such rela
 
 #### Active Record condition validation
 
-`findOne()`, `findAll()`, and `deleteAll()` take a plain array condition (`['attribute' => value]`, with an array value matched as an `IN (...)` condition) — and so does the second, condition argument of `updateAll()` / `updateAllCounters()`. Like `attributeLabels()` and `scenarios()`, this is never checked against the model until the query actually runs. This rule checks that every attribute name in a condition array exists on the queried ActiveRecord model (the same `@property`-aware resolution as `activeRecordRelationValidation`) and that its value's type is compatible with the attribute's declared type. Only array literals with a resolvable string key are checked; primary-key-only lookups (`findOne(1)`, `findOne([1, 2])`) and dynamically-built condition arrays are left alone.
+`findOne()`, `findAll()`, and `deleteAll()` take a plain array condition (`['attribute' => value]`, with an array value matched as an `IN (...)` condition) — and so does the second, condition argument of `updateAll()` / `updateAllCounters()`. Like `attributeLabels()` and `scenarios()`, this is never checked against the model until the query actually runs. This rule checks that every attribute name in a condition array exists on the queried ActiveRecord model (the same `@property`-aware resolution as `activeRecordRelationValidation`) and that its value's type is compatible with the attribute's declared type. Only array literals with a resolvable string key are checked; primary-key-only lookups (`findOne(1)`, `findOne([1, 2])`) and dynamically-built condition arrays are left alone. A value implementing `yii\db\ExpressionInterface` (e.g. `new Expression('NOW()')`) is accepted for any attribute regardless of its declared type — `yii\db\conditions\HashConditionBuilder` builds it as raw SQL instead of type-casting it, and does so per-value inside an `IN (...)` array too.
 
 ```php
 /**
  * @property int $id
  * @property int $status
+ * @property string $updated_at
  */
 final class Customer extends ActiveRecord { /* ... */ }
 
-Customer::findOne(1);                                // ✓ primary key lookup, not a condition hash
-Customer::findOne(['status' => 1]);                  // ✓
-Customer::findOne(['status' => [1, 2]]);             // ✓ IN (1, 2)
-Customer::findOne(['statuss' => 1]);                 // ✗ typo — unknown attribute
-Customer::findOne(['status' => '1']);                // ✗ wrong type — int expected
-Customer::deleteAll(['statuss' => 1]);               // ✗ typo — unknown attribute
-Customer::updateAll(['status' => 1], ['idd' => 5]);  // ✗ typo — unknown attribute in the condition
+Customer::findOne(1);                                         // ✓ primary key lookup, not a condition hash
+Customer::findOne(['status' => 1]);                           // ✓
+Customer::findOne(['status' => [1, 2]]);                      // ✓ IN (1, 2)
+Customer::findOne(['updated_at' => new Expression('NOW()')]); // ✓ raw SQL, not type-checked
+Customer::findOne(['statuss' => 1]);                          // ✗ typo — unknown attribute
+Customer::findOne(['status' => '1']);                         // ✗ wrong type — int expected
+Customer::deleteAll(['statuss' => 1]);                        // ✗ typo — unknown attribute
+Customer::updateAll(['status' => 1], ['idd' => 5]);           // ✗ typo — unknown attribute in the condition
 ```
 
 #### Active Record relations validation
@@ -296,21 +298,23 @@ final class OrderItem extends ActiveRecord { /* ... */ }
 
 #### Active Record update values validation
 
-`updateAll()`'s attribute values and `updateAllCounters()`'s counter values are the other plain array these two methods take — the values written into the row, as opposed to the WHERE condition `activeRecordConditionValidation` checks. This rule checks that every attribute name exists on the ActiveRecord model and that its value's type is compatible with the attribute's declared type; unlike a condition, these values are written as-is, so (unlike `activeRecordConditionValidation`) an array value is not treated as an `IN (...)` shorthand and is always a type mismatch.
+`updateAll()`'s attribute values and `updateAllCounters()`'s counter values are the other plain array these two methods take — the values written into the row, as opposed to the WHERE condition `activeRecordConditionValidation` checks. This rule checks that every attribute name exists on the ActiveRecord model and that its value's type is compatible with the attribute's declared type; unlike a condition, these values are written as-is, so (unlike `activeRecordConditionValidation`) an array value is not treated as an `IN (...)` shorthand and is always a type mismatch. As with a condition, a value implementing `yii\db\ExpressionInterface` is accepted for any attribute regardless of its declared type — `yii\db\QueryBuilder::prepareUpdateSets()` builds it as raw SQL instead of type-casting it.
 
 ```php
 /**
  * @property int $id
  * @property int $status
  * @property int $age
+ * @property string $updated_at
  */
 final class Customer extends ActiveRecord { /* ... */ }
 
-Customer::updateAll(['status' => 1], ['id' => 5]);   // ✓
-Customer::updateAll(['statuss' => 1]);               // ✗ typo — unknown attribute
-Customer::updateAll(['status' => 'active']);         // ✗ wrong type — int expected
-Customer::updateAllCounters(['age' => 1]);           // ✓
-Customer::updateAllCounters(['agee' => 1]);          // ✗ typo — unknown attribute
+Customer::updateAll(['status' => 1], ['id' => 5]);              // ✓
+Customer::updateAll(['updated_at' => new Expression('NOW()')]); // ✓ raw SQL, not type-checked
+Customer::updateAll(['statuss' => 1]);                          // ✗ typo — unknown attribute
+Customer::updateAll(['status' => 'active']);                    // ✗ wrong type — int expected
+Customer::updateAllCounters(['age' => 1]);                      // ✓
+Customer::updateAllCounters(['agee' => 1]);                     // ✗ typo — unknown attribute
 ```
 
 #### `BaseObject` instantiation validation

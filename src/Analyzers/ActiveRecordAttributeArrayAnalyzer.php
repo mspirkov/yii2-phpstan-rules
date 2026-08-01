@@ -13,7 +13,10 @@ use PHPStan\Analyser\Scope;
 use PHPStan\Reflection\ClassReflection;
 use PHPStan\Rules\IdentifierRuleError;
 use PHPStan\Type\MixedType;
+use PHPStan\Type\ObjectType;
+use PHPStan\Type\TypeCombinator;
 use PHPStan\Type\VerbosityLevel;
+use yii\db\ExpressionInterface;
 
 final class ActiveRecordAttributeArrayAnalyzer
 {
@@ -121,7 +124,9 @@ final class ActiveRecordAttributeArrayAnalyzer
             return [];
         }
 
-        if (!$expectedType->accepts($actualType, true)->no()) {
+        $acceptedType = TypeCombinator::union($expectedType, new ObjectType(ExpressionInterface::class));
+
+        if (!$acceptedType->accepts($actualType, true)->no()) {
             return [];
         }
 
