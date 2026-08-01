@@ -11,6 +11,7 @@ use yii\db\ActiveRecord;
  * @property string $email
  * @property int $status
  * @property int $age
+ * @property string $updated_at
  * @property-read string $displayName
  * @property mixed $extra
  */

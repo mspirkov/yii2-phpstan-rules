@@ -10,6 +10,7 @@ use yii\db\ActiveRecord;
  * @property int $id
  * @property int $status
  * @property int $age
+ * @property string $updated_at
  */
 final class Customer extends ActiveRecord
 {

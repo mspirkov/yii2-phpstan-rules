@@ -4,6 +4,7 @@ namespace MSpirkov\Yii2\PHPStan\Tests\Rules\Data\ActiveRecordUpdateValuesValidat
 
 use MSpirkov\Yii2\PHPStan\Tests\Rules\Source\ActiveRecordUpdateValuesValidation\Customer;
 use MSpirkov\Yii2\PHPStan\Tests\Rules\Source\ActiveRecordUpdateValuesValidation\NotActiveRecord;
+use yii\db\Expression;
 
 final class ValidCustomerUsage
 {
@@ -48,5 +49,9 @@ final class SkippedCustomerUsage
         $className::updateAll(['statuss' => 1]);
         $methodName = 'updateAll';
         Customer::$methodName(['statuss' => 1]);
+
+        // ExpressionInterface bypasses dbTypecast in QueryBuilder::prepareUpdateSets(), so
+        // it's valid for any attribute regardless of its declared type.
+        Customer::updateAll(['updated_at' => new Expression('NOW()')]);
     }
 }
