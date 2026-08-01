@@ -18,8 +18,8 @@ A set of PHPStan rules for Yii2 projects that I put together for my own day-to-d
 
 > [!IMPORTANT]
 >
-> Works with Yii2 versions starting from `2.0.53`, but it works best with the latest versions. The more
-> up-to-date the Yii2 version is, the fewer false positives there are.
+> It works better with the latest versions of PHP, Yii2, and PHPStan. The more up-to-date the versions
+> are, the more accurate the analysis is.
 
 ```bash
 php composer.phar require --dev mspirkov/yii2-phpstan-rules
