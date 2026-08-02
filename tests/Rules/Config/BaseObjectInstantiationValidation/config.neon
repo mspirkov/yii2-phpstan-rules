@@ -1,0 +1,10 @@
+parameters:
+	mspirkovYii2Rules:
+		baseObjectConfigValidation:
+			skippedClasses:
+				-
+					class: MSpirkov\Yii2\PHPStan\Tests\Rules\Source\BaseObjectInstantiationValidation\ConfigProcessingObject
+					attributes:
+						- extraOption
+				-
+					class: MSpirkov\Yii2\PHPStan\Tests\Rules\Source\BaseObjectInstantiationValidation\ThirdPartyObject

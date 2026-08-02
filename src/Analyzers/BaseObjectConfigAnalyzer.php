@@ -32,12 +32,26 @@ final class BaseObjectConfigAnalyzer
 
     private BaseObjectPropertyAnalyzer $baseObjectPropertyAnalyzer;
 
+    /** @var array<string, list<string>|null> */
+    private array $skippedAttributesByClass;
+
+    /**
+     * @param list<array{class: string, attributes?: list<string>}> $skippedClasses
+     */
     public function __construct(
         ReflectionProvider $reflectionProvider,
-        BaseObjectPropertyAnalyzer $baseObjectPropertyAnalyzer
+        BaseObjectPropertyAnalyzer $baseObjectPropertyAnalyzer,
+        array $skippedClasses
     ) {
         $this->reflectionProvider = $reflectionProvider;
         $this->baseObjectPropertyAnalyzer = $baseObjectPropertyAnalyzer;
+
+        $skippedAttributesByClass = [];
+        foreach ($skippedClasses as $entry) {
+            $skippedAttributesByClass[$entry['class']] = $entry['attributes'] ?? null;
+        }
+
+        $this->skippedAttributesByClass = $skippedAttributesByClass;
     }
 
     /**
@@ -113,7 +127,7 @@ final class BaseObjectConfigAnalyzer
         $errors = [];
         $classReflection = $this->reflectionProvider->getClass($className);
 
-        foreach ($options as $optionName => $item) {
+        foreach ($this->filterSkippedOptions($className, $options) as $optionName => $item) {
             if ($this->isWritableOption($classReflection, $optionName, $scope, $allowSpecialKeys)) {
                 continue;
             }
@@ -148,7 +162,7 @@ final class BaseObjectConfigAnalyzer
         $errors = [];
         $classReflection = $this->reflectionProvider->getClass($className);
 
-        foreach ($options as $optionName => $item) {
+        foreach ($this->filterSkippedOptions($className, $options) as $optionName => $item) {
             if ($allowSpecialKeys && $optionName === self::CONSTRUCT_OPTION_KEY) {
                 $errors = array_merge(
                     $errors,
@@ -283,5 +297,24 @@ final class BaseObjectConfigAnalyzer
         }
 
         return $this->baseObjectPropertyAnalyzer->hasWritableProperty($classReflection, $propertyName, $scope);
+    }
+
+    /**
+     * @param array<string, ArrayItem> $options
+     *
+     * @return array<string, ArrayItem>
+     */
+    private function filterSkippedOptions(string $className, array $options): array
+    {
+        if (!array_key_exists($className, $this->skippedAttributesByClass)) {
+            return $options;
+        }
+
+        $skippedOptionNames = $this->skippedAttributesByClass[$className];
+        if ($skippedOptionNames === null) {
+            return [];
+        }
+
+        return array_diff_key($options, array_flip($skippedOptionNames));
     }
 }

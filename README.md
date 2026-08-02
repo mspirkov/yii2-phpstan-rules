@@ -59,6 +59,22 @@ parameters:
         yiiAppDbProperties:
             - db
 
+        # Classes to skip in config-array validation (unknown option / wrong option type
+        # checks) — shared by every rule that validates a class against a config array:
+        # baseObjectInstantiationValidation, yiiCreateObjectValidation,
+        # componentBehaviorsValidation, controllerActionsValidation,
+        # widgetPropertiesValidation, and modelRulesValidation. Useful for a class whose
+        # constructor consumes some config keys itself before they'd reach a real property.
+        # Omit "attributes" to skip the class entirely; list them to skip only those options.
+        baseObjectConfigValidation:
+            skippedClasses:
+                -
+                    class: app\services\PaymentGateway
+                    attributes:
+                        - retryPolicy
+                -
+                    class: app\vendor\ThirdPartySdkClient
+
         # Thresholds for the complexity rules — exceeding any one flags the method
         actionComplexity:
             ifCount: 3
