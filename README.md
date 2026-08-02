@@ -63,8 +63,9 @@ parameters:
         # checks) — shared by every rule that validates a class against a config array:
         # baseObjectInstantiationValidation, yiiCreateObjectValidation,
         # componentBehaviorsValidation, controllerActionsValidation,
-        # widgetPropertiesValidation, and modelRulesValidation. Useful for a class whose
-        # constructor consumes some config keys itself before they'd reach a real property.
+        # widgetPropertiesValidation, and modelRulesValidation. Useful when a class's
+        # constructor consumes some config keys itself instead of leaving them for
+        # Yii::configure() to apply to a public, checkable property.
         # Omit "attributes" to skip the class entirely; list them to skip only those options.
         baseObjectConfigValidation:
             skippedClasses:
