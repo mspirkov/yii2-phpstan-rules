@@ -4,6 +4,8 @@ parameters:
 		enableValidationRules: %mspirkovYii2Rules.enableAllRules%
 		yiiAppDbProperties:
 			- db
+		baseObjectConfigValidation:
+			skippedClasses: []
 		actionComplexity:
 			ifCount: 3
 			foreachCount: 0
@@ -83,6 +85,12 @@ parametersSchema:
 		enableAllRules: bool()
 		enableValidationRules: bool()
 		yiiAppDbProperties: arrayOf(string())
+		baseObjectConfigValidation: structure([
+			skippedClasses: listOf(structure([
+				class: string()
+				?attributes: listOf(string())
+			]))
+		])
 		actionComplexity: structure([
 			ifCount: int()
 			foreachCount: int()
@@ -326,6 +334,8 @@ services:
 		class: MSpirkov\Yii2\PHPStan\Analyzers\ActiveRecordAttributeArrayAnalyzer
 	-
 		class: MSpirkov\Yii2\PHPStan\Analyzers\BaseObjectConfigAnalyzer
+		arguments:
+			skippedClasses: %mspirkovYii2Rules.baseObjectConfigValidation.skippedClasses%
 	-
 		class: MSpirkov\Yii2\PHPStan\Analyzers\BaseObjectPropertyAnalyzer
 	-
