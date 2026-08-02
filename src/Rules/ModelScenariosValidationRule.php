@@ -8,6 +8,7 @@ use MSpirkov\Yii2\PHPStan\Analyzers\BaseObjectConfigAnalyzer;
 use MSpirkov\Yii2\PHPStan\Analyzers\BaseObjectPropertyAnalyzer;
 use MSpirkov\Yii2\PHPStan\Analyzers\ComponentConfigMethodAnalyzer;
 use MSpirkov\Yii2\PHPStan\Analyzers\ExpressionTypeAnalyzer;
+use MSpirkov\Yii2\PHPStan\Analyzers\ModelAnalyzer;
 use PhpParser\Node;
 use PhpParser\Node\Expr;
 use PhpParser\Node\Expr\Array_;
@@ -32,16 +33,20 @@ final class ModelScenariosValidationRule implements Rule
 
     private ExpressionTypeAnalyzer $expressionTypeAnalyzer;
 
+    private ModelAnalyzer $modelAnalyzer;
+
     public function __construct(
         BaseObjectConfigAnalyzer $baseObjectConfigAnalyzer,
         BaseObjectPropertyAnalyzer $baseObjectPropertyAnalyzer,
         ComponentConfigMethodAnalyzer $componentConfigMethodAnalyzer,
-        ExpressionTypeAnalyzer $expressionTypeAnalyzer
+        ExpressionTypeAnalyzer $expressionTypeAnalyzer,
+        ModelAnalyzer $modelAnalyzer
     ) {
         $this->baseObjectConfigAnalyzer = $baseObjectConfigAnalyzer;
         $this->baseObjectPropertyAnalyzer = $baseObjectPropertyAnalyzer;
         $this->componentConfigMethodAnalyzer = $componentConfigMethodAnalyzer;
         $this->expressionTypeAnalyzer = $expressionTypeAnalyzer;
+        $this->modelAnalyzer = $modelAnalyzer;
     }
 
     public function getNodeType(): string
@@ -160,7 +165,7 @@ final class ModelScenariosValidationRule implements Rule
         ?ClassReflection $classReflection
     ): array {
         if (
-            $classReflection === null
+            $this->modelAnalyzer->shouldSkipAttributeExistenceCheck($classReflection)
             || !$this->baseObjectPropertyAnalyzer->isUnknownAttribute($classReflection, $attributeName)
         ) {
             return [];

@@ -6,6 +6,7 @@ namespace MSpirkov\Yii2\PHPStan\Rules;
 
 use MSpirkov\Yii2\PHPStan\Analyzers\BaseObjectPropertyAnalyzer;
 use MSpirkov\Yii2\PHPStan\Analyzers\ExpressionTypeAnalyzer;
+use MSpirkov\Yii2\PHPStan\Analyzers\ModelAnalyzer;
 use MSpirkov\Yii2\PHPStan\Resolvers\ExpressionValueResolver;
 use PhpParser\Node;
 use PhpParser\Node\Arg;
@@ -15,8 +16,6 @@ use PhpParser\Node\Name;
 use PHPStan\Analyser\Scope;
 use PHPStan\Rules\IdentifierRuleError;
 use PHPStan\Rules\Rule;
-use yii\base\DynamicModel;
-use yii\base\Model;
 use yii\helpers\BaseHtml;
 
 /**
@@ -48,14 +47,18 @@ final class HtmlActiveAttributeValidationRule implements Rule
 
     private ExpressionValueResolver $expressionValueResolver;
 
+    private ModelAnalyzer $modelAnalyzer;
+
     public function __construct(
         BaseObjectPropertyAnalyzer $baseObjectPropertyAnalyzer,
         ExpressionTypeAnalyzer $expressionTypeAnalyzer,
-        ExpressionValueResolver $expressionValueResolver
+        ExpressionValueResolver $expressionValueResolver,
+        ModelAnalyzer $modelAnalyzer
     ) {
         $this->baseObjectPropertyAnalyzer = $baseObjectPropertyAnalyzer;
         $this->expressionTypeAnalyzer = $expressionTypeAnalyzer;
         $this->expressionValueResolver = $expressionValueResolver;
+        $this->modelAnalyzer = $modelAnalyzer;
     }
 
     public function getNodeType(): string
@@ -92,17 +95,12 @@ final class HtmlActiveAttributeValidationRule implements Rule
             return [];
         }
 
-        $modelClassReflection = $this->expressionTypeAnalyzer->getSingleClassReflectionOf(
+        $modelClassReflection = $this->modelAnalyzer->resolveModelClassForAttributeChecks(
             $node->args[$modelArgIndex]->value,
-            $scope,
-            Model::class
+            $scope
         );
 
         if ($modelClassReflection === null) {
-            return [];
-        }
-
-        if ($this->expressionTypeAnalyzer->isClassReflectionOf($modelClassReflection, DynamicModel::class)) {
             return [];
         }
 

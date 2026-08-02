@@ -18,11 +18,11 @@ final class ModelAttributeHintsValidationRuleTest extends AbstractTestCase
         $this->analyse(
             [self::getDataFilePath('code')],
             [
-                [sprintf('Unknown attribute "nickname" for model %s.', InvalidModel::class), 34],
-                ['Model attribute hint contains an empty attribute name.', 37],
-                [sprintf('Unknown attribute "unknownAndBadType" for model %s.', InvalidModel::class), 38],
-                [sprintf('Unknown attribute " login " for model %s.', AttributeNameShapeModel::class), 118],
-                [sprintf('Unknown attribute " nickname " for model %s.', AttributeNameShapeModel::class), 119],
+                [sprintf('Unknown attribute "nickname" for model %s.', InvalidModel::class), 35],
+                ['Model attribute hint contains an empty attribute name.', 38],
+                [sprintf('Unknown attribute "unknownAndBadType" for model %s.', InvalidModel::class), 39],
+                [sprintf('Unknown attribute " login " for model %s.', AttributeNameShapeModel::class), 119],
+                [sprintf('Unknown attribute " nickname " for model %s.', AttributeNameShapeModel::class), 120],
             ],
         );
     }

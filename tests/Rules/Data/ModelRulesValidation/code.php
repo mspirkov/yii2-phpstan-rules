@@ -2,6 +2,7 @@
 
 namespace MSpirkov\Yii2\PHPStan\Tests\Rules\Source\ModelRulesValidation;
 
+use yii\base\DynamicModel;
 use yii\base\Model;
 use yii\validators\RequiredValidator;
 
@@ -313,6 +314,16 @@ final class AttributeNameShapeModel extends Model
             ['COALESCE(map_id, 0)', 'safe'],
             [' login ', 'trim'],
             [' nickname ', 'trim'],
+        ];
+    }
+}
+
+final class SkippedDynamicModel extends DynamicModel
+{
+    public function rules(): array
+    {
+        return [
+            ['unknown', 'required'],
         ];
     }
 }
