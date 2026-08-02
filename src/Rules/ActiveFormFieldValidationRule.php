@@ -6,6 +6,7 @@ namespace MSpirkov\Yii2\PHPStan\Rules;
 
 use MSpirkov\Yii2\PHPStan\Analyzers\BaseObjectPropertyAnalyzer;
 use MSpirkov\Yii2\PHPStan\Analyzers\ExpressionTypeAnalyzer;
+use MSpirkov\Yii2\PHPStan\Analyzers\ModelAnalyzer;
 use MSpirkov\Yii2\PHPStan\Resolvers\ExpressionValueResolver;
 use PhpParser\Node;
 use PhpParser\Node\Arg;
@@ -14,8 +15,6 @@ use PhpParser\Node\Identifier;
 use PHPStan\Analyser\Scope;
 use PHPStan\Rules\IdentifierRuleError;
 use PHPStan\Rules\Rule;
-use yii\base\DynamicModel;
-use yii\base\Model;
 use yii\widgets\ActiveForm;
 
 /**
@@ -29,14 +28,18 @@ final class ActiveFormFieldValidationRule implements Rule
 
     private ExpressionValueResolver $expressionValueResolver;
 
+    private ModelAnalyzer $modelAnalyzer;
+
     public function __construct(
         BaseObjectPropertyAnalyzer $baseObjectPropertyAnalyzer,
         ExpressionTypeAnalyzer $expressionTypeAnalyzer,
-        ExpressionValueResolver $expressionValueResolver
+        ExpressionValueResolver $expressionValueResolver,
+        ModelAnalyzer $modelAnalyzer
     ) {
         $this->baseObjectPropertyAnalyzer = $baseObjectPropertyAnalyzer;
         $this->expressionTypeAnalyzer = $expressionTypeAnalyzer;
         $this->expressionValueResolver = $expressionValueResolver;
+        $this->modelAnalyzer = $modelAnalyzer;
     }
 
     public function getNodeType(): string
@@ -61,17 +64,9 @@ final class ActiveFormFieldValidationRule implements Rule
             return [];
         }
 
-        $modelClassReflection = $this->expressionTypeAnalyzer->getSingleClassReflectionOf(
-            $node->args[0]->value,
-            $scope,
-            Model::class
-        );
+        $modelClassReflection = $this->modelAnalyzer->resolveModelClassForAttributeChecks($node->args[0]->value, $scope);
 
         if ($modelClassReflection === null) {
-            return [];
-        }
-
-        if ($this->expressionTypeAnalyzer->isClassReflectionOf($modelClassReflection, DynamicModel::class)) {
             return [];
         }
 

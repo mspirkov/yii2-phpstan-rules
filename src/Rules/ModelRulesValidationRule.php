@@ -10,6 +10,7 @@ use MSpirkov\Yii2\PHPStan\Analyzers\BaseObjectPropertyAnalyzer;
 use MSpirkov\Yii2\PHPStan\Analyzers\ComponentConfigMethodAnalyzer;
 use MSpirkov\Yii2\PHPStan\Analyzers\ComponentObjectConfigAnalyzer;
 use MSpirkov\Yii2\PHPStan\Analyzers\ExpressionTypeAnalyzer;
+use MSpirkov\Yii2\PHPStan\Analyzers\ModelAnalyzer;
 use MSpirkov\Yii2\PHPStan\Resolvers\ExpressionValueResolver;
 use PhpParser\Node;
 use PhpParser\Node\ArrayItem;
@@ -68,6 +69,8 @@ final class ModelRulesValidationRule implements Rule
 
     private ExpressionValueResolver $expressionValueResolver;
 
+    private ModelAnalyzer $modelAnalyzer;
+
     /** @var array<string, string> */
     private array $customValidators;
 
@@ -81,6 +84,7 @@ final class ModelRulesValidationRule implements Rule
         ComponentObjectConfigAnalyzer $componentObjectConfigAnalyzer,
         ExpressionTypeAnalyzer $expressionTypeAnalyzer,
         ExpressionValueResolver $expressionValueResolver,
+        ModelAnalyzer $modelAnalyzer,
         array $customValidators
     ) {
         $this->baseObjectConfigAnalyzer = $baseObjectConfigAnalyzer;
@@ -89,6 +93,7 @@ final class ModelRulesValidationRule implements Rule
         $this->componentObjectConfigAnalyzer = $componentObjectConfigAnalyzer;
         $this->expressionTypeAnalyzer = $expressionTypeAnalyzer;
         $this->expressionValueResolver = $expressionValueResolver;
+        $this->modelAnalyzer = $modelAnalyzer;
         $this->customValidators = $customValidators;
     }
 
@@ -295,7 +300,7 @@ final class ModelRulesValidationRule implements Rule
     {
         $classReflection = $scope->getClassReflection();
         if (
-            $classReflection === null
+            $this->modelAnalyzer->shouldSkipAttributeExistenceCheck($classReflection)
             || !$this->baseObjectPropertyAnalyzer->isUnknownAttribute($classReflection, $attributeName)
         ) {
             return [];

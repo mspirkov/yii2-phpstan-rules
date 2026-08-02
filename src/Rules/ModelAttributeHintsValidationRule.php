@@ -7,6 +7,7 @@ namespace MSpirkov\Yii2\PHPStan\Rules;
 use MSpirkov\Yii2\PHPStan\Analyzers\BaseObjectConfigAnalyzer;
 use MSpirkov\Yii2\PHPStan\Analyzers\BaseObjectPropertyAnalyzer;
 use MSpirkov\Yii2\PHPStan\Analyzers\ComponentConfigMethodAnalyzer;
+use MSpirkov\Yii2\PHPStan\Analyzers\ModelAnalyzer;
 use PhpParser\Node;
 use PhpParser\Node\Expr\Array_;
 use PhpParser\Node\Stmt\ClassMethod;
@@ -26,14 +27,18 @@ final class ModelAttributeHintsValidationRule implements Rule
 
     private ComponentConfigMethodAnalyzer $componentConfigMethodAnalyzer;
 
+    private ModelAnalyzer $modelAnalyzer;
+
     public function __construct(
         BaseObjectConfigAnalyzer $baseObjectConfigAnalyzer,
         BaseObjectPropertyAnalyzer $baseObjectPropertyAnalyzer,
-        ComponentConfigMethodAnalyzer $componentConfigMethodAnalyzer
+        ComponentConfigMethodAnalyzer $componentConfigMethodAnalyzer,
+        ModelAnalyzer $modelAnalyzer
     ) {
         $this->baseObjectConfigAnalyzer = $baseObjectConfigAnalyzer;
         $this->baseObjectPropertyAnalyzer = $baseObjectPropertyAnalyzer;
         $this->componentConfigMethodAnalyzer = $componentConfigMethodAnalyzer;
+        $this->modelAnalyzer = $modelAnalyzer;
     }
 
     public function getNodeType(): string
@@ -86,7 +91,7 @@ final class ModelAttributeHintsValidationRule implements Rule
     {
         $classReflection = $scope->getClassReflection();
         if (
-            $classReflection === null
+            $this->modelAnalyzer->shouldSkipAttributeExistenceCheck($classReflection)
             || !$this->baseObjectPropertyAnalyzer->isUnknownAttribute($classReflection, $attributeName)
         ) {
             return [];

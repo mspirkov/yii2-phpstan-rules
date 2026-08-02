@@ -425,7 +425,7 @@ echo Html::activeHint($model, 'nickname');        // ✗ typo — "nickname" is 
 
 #### Model attribute hints validation
 
-`Model::attributeHints()` is just as easy to get wrong as `attributeLabels()` — a typo'd key silently means the hint is never shown for the intended attribute. This rule checks that every key is an existing property on the model (as a declared property or a PHPDoc `@property`, same resolution as `modelRulesValidation`) and isn't left empty:
+`Model::attributeHints()` is just as easy to get wrong as `attributeLabels()` — a typo'd key silently means the hint is never shown for the intended attribute. This rule checks that every key is an existing property on the model (as a declared property or a PHPDoc `@property`, same resolution as `modelRulesValidation`) and isn't left empty — though the existence check alone is skipped for `yii\base\DynamicModel` subclasses, since their attributes are defined at runtime via `defineAttribute()` and can't be resolved statically:
 
 ```php
 /**
@@ -448,7 +448,7 @@ final class ContactModel extends Model
 
 #### Model attribute labels validation
 
-`Model::attributeLabels()` is just as easy to get wrong as `rules()` — a typo'd key silently falls back to the default humanized attribute name instead of showing your label. This rule checks that every key is an existing property on the model (as a declared property or a PHPDoc `@property`, same resolution as `modelRulesValidation`) and isn't left empty:
+`Model::attributeLabels()` is just as easy to get wrong as `rules()` — a typo'd key silently falls back to the default humanized attribute name instead of showing your label. This rule checks that every key is an existing property on the model (as a declared property or a PHPDoc `@property`, same resolution as `modelRulesValidation`) and isn't left empty — though the existence check alone is skipped for `yii\base\DynamicModel` subclasses, since their attributes are defined at runtime via `defineAttribute()` and can't be resolved statically:
 
 ```php
 /**
@@ -488,7 +488,7 @@ public function rules(): array
 }
 ```
 
-This rule also checks that the attribute names at index 0 of each rule (including array lists of attributes) actually exist on the model, the same way `activeRecordRelationValidation` checks relation links — as a declared property or a PHPDoc `@property`. It only reports on attribute names it can resolve to a literal or constant string; anything built dynamically at runtime is left alone.
+This rule also checks that the attribute names at index 0 of each rule (including array lists of attributes) actually exist on the model, the same way `activeRecordRelationValidation` checks relation links — as a declared property or a PHPDoc `@property`. It only reports on attribute names it can resolve to a literal or constant string; anything built dynamically at runtime is left alone. This check alone is skipped for `yii\base\DynamicModel` subclasses, since their attributes are defined at runtime via `defineAttribute()` and can't be resolved statically.
 
 ```php
 /**
@@ -511,7 +511,7 @@ final class ContactModel extends Model
 
 #### Model scenarios validation
 
-`Model::scenarios()` maps scenario names to the attributes active in them, and PHP won't tell you that a scenario name is empty, an attribute list isn't actually an array, or an attribute doesn't exist on the model — the same way `modelAttributeLabelsValidation` checks `attributeLabels()`. An attribute prefixed with `!` (Yii's "unsafe" marker) is checked under its unprefixed name.
+`Model::scenarios()` maps scenario names to the attributes active in them, and PHP won't tell you that a scenario name is empty, an attribute list isn't actually an array, or an attribute doesn't exist on the model — the same way `modelAttributeLabelsValidation` checks `attributeLabels()`. An attribute prefixed with `!` (Yii's "unsafe" marker) is checked under its unprefixed name. The attribute-existence check alone is skipped for `yii\base\DynamicModel` subclasses, since their attributes are defined at runtime via `defineAttribute()` and can't be resolved statically.
 
 ```php
 final class ContactModel extends Model

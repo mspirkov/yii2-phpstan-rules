@@ -345,6 +345,8 @@ services:
 	-
 		class: MSpirkov\Yii2\PHPStan\Analyzers\ExpressionTypeAnalyzer
 	-
+		class: MSpirkov\Yii2\PHPStan\Analyzers\ModelAnalyzer
+	-
 		class: MSpirkov\Yii2\PHPStan\Finders\MethodReturnExpressionFinder
 	-
 		class: MSpirkov\Yii2\PHPStan\Visitors\MethodReturnExpressionVisitor

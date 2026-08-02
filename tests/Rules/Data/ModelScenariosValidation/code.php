@@ -2,6 +2,7 @@
 
 namespace MSpirkov\Yii2\PHPStan\Tests\Rules\Data\ModelScenariosValidation;
 
+use yii\base\DynamicModel;
 use yii\base\Model;
 
 final class ValidModel extends Model
@@ -86,6 +87,16 @@ final class NotInterestingMethod
     {
         return [
             'unrelated' => ['whatever'],
+        ];
+    }
+}
+
+final class SkippedDynamicModel extends DynamicModel
+{
+    public function scenarios(): array
+    {
+        return [
+            'default' => ['unknown'],
         ];
     }
 }

@@ -2,6 +2,7 @@
 
 namespace MSpirkov\Yii2\PHPStan\Tests\Rules\Source\ModelAttributeLabelsValidation;
 
+use yii\base\DynamicModel;
 use yii\base\Model;
 
 /**
@@ -117,6 +118,16 @@ final class AttributeNameShapeModel extends Model
             'COALESCE(map_id, 0)' => 'Map',
             ' login ' => 'Login',
             ' nickname ' => 'Nickname',
+        ];
+    }
+}
+
+final class SkippedDynamicModel extends DynamicModel
+{
+    public function attributeLabels(): array
+    {
+        return [
+            'unknown' => 'Unknown',
         ];
     }
 }
