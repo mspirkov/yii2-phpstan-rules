@@ -70,11 +70,11 @@ parameters:
         baseObjectConfigValidation:
             skippedClasses:
                 -
-                    class: app\services\PaymentGateway
+                    class: app\payment\PaymentGateway
                     attributes:
                         - retryPolicy
                 -
-                    class: app\vendor\ThirdPartySdkClient
+                    class: app\sdk\ThirdPartySdkClient
 
         # Thresholds for the complexity rules — exceeding any one flags the method
         actionComplexity:
