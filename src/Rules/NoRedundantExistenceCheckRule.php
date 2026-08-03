@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace MSpirkov\Yii2\PHPStan\Rules;
 
-use MSpirkov\Yii2\PHPStan\Analyzers\ExpressionTypeAnalyzer;
+use MSpirkov\Yii2\PHPStan\Analyzers\QueryAnalyzer;
 use MSpirkov\Yii2\PHPStan\Resolvers\ExpressionValueResolver;
 use PhpParser\Node;
 use PhpParser\Node\Expr;
@@ -18,29 +18,21 @@ use PhpParser\Node\Identifier;
 use PHPStan\Analyser\Scope;
 use PHPStan\Rules\IdentifierRuleError;
 use PHPStan\Rules\Rule;
-use yii\db\ActiveQueryInterface;
-use yii\db\QueryInterface;
 
 /**
  * @implements Rule<BinaryOp>
  */
 final class NoRedundantExistenceCheckRule implements Rule
 {
-    /** @var list<class-string> */
-    private const QUERY_CLASSES = [
-        ActiveQueryInterface::class,
-        QueryInterface::class,
-    ];
-
-    private ExpressionTypeAnalyzer $expressionTypeAnalyzer;
+    private QueryAnalyzer $queryAnalyzer;
 
     private ExpressionValueResolver $expressionValueResolver;
 
     public function __construct(
-        ExpressionTypeAnalyzer $expressionTypeAnalyzer,
+        QueryAnalyzer $queryAnalyzer,
         ExpressionValueResolver $expressionValueResolver
     ) {
-        $this->expressionTypeAnalyzer = $expressionTypeAnalyzer;
+        $this->queryAnalyzer = $queryAnalyzer;
         $this->expressionValueResolver = $expressionValueResolver;
     }
 
@@ -138,7 +130,7 @@ final class NoRedundantExistenceCheckRule implements Rule
             return false;
         }
 
-        return $this->expressionTypeAnalyzer->isTypeAnyOf($scope->getType($expr->var), self::QUERY_CLASSES);
+        return $this->queryAnalyzer->isQueryExpression($expr->var, $scope);
     }
 
     private function buildError(BinaryOp $node, string $sourceMethod, bool $negated): IdentifierRuleError

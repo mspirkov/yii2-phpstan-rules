@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace MSpirkov\Yii2\PHPStan\Rules;
 
-use MSpirkov\Yii2\PHPStan\Analyzers\ExpressionTypeAnalyzer;
+use MSpirkov\Yii2\PHPStan\Analyzers\QueryAnalyzer;
 use MSpirkov\Yii2\PHPStan\Resolvers\ExpressionValueResolver;
 use PhpParser\Node;
 use PhpParser\Node\Arg;
@@ -14,8 +14,6 @@ use PhpParser\Node\Identifier;
 use PHPStan\Analyser\Scope;
 use PHPStan\Rules\IdentifierRuleError;
 use PHPStan\Rules\Rule;
-use yii\db\ActiveQueryInterface;
-use yii\db\QueryInterface;
 
 /**
  * @implements Rule<MethodCall>
@@ -24,12 +22,6 @@ final class QueryConditionValidationRule implements Rule
 {
     /** @var list<string> */
     private const METHODS = ['where', 'andwhere', 'orwhere'];
-
-    /** @var list<class-string> */
-    private const QUERY_CLASSES = [
-        ActiveQueryInterface::class,
-        QueryInterface::class,
-    ];
 
     /** @var list<string> */
     private const CONJUNCTION_OPERATORS = ['AND', 'OR', 'NOT'];
@@ -58,15 +50,15 @@ final class QueryConditionValidationRule implements Rule
         '<=' => ['exact' => 2],
     ];
 
-    private ExpressionTypeAnalyzer $expressionTypeAnalyzer;
+    private QueryAnalyzer $queryAnalyzer;
 
     private ExpressionValueResolver $expressionValueResolver;
 
     public function __construct(
-        ExpressionTypeAnalyzer $expressionTypeAnalyzer,
+        QueryAnalyzer $queryAnalyzer,
         ExpressionValueResolver $expressionValueResolver
     ) {
-        $this->expressionTypeAnalyzer = $expressionTypeAnalyzer;
+        $this->queryAnalyzer = $queryAnalyzer;
         $this->expressionValueResolver = $expressionValueResolver;
     }
 
@@ -84,7 +76,7 @@ final class QueryConditionValidationRule implements Rule
             return [];
         }
 
-        if (!$this->expressionTypeAnalyzer->isTypeAnyOf($scope->getType($node->var), self::QUERY_CLASSES)) {
+        if (!$this->queryAnalyzer->isQueryExpression($node->var, $scope)) {
             return [];
         }
 

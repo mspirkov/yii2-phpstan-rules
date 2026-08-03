@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace MSpirkov\Yii2\PHPStan\Rules;
 
-use MSpirkov\Yii2\PHPStan\Analyzers\ExpressionTypeAnalyzer;
+use MSpirkov\Yii2\PHPStan\Analyzers\QueryAnalyzer;
 use PhpParser\Node;
 use PhpParser\Node\Arg;
 use PhpParser\Node\Expr;
@@ -16,25 +16,17 @@ use PhpParser\Node\Scalar\String_;
 use PHPStan\Analyser\Scope;
 use PHPStan\Rules\IdentifierRuleError;
 use PHPStan\Rules\Rule;
-use yii\db\ActiveQueryInterface;
-use yii\db\QueryInterface;
 
 /**
  * @implements Rule<MethodCall>
  */
 final class NoDynamicQueryWhereRule implements Rule
 {
-    /** @var list<class-string> */
-    private const QUERY_CLASSES = [
-        ActiveQueryInterface::class,
-        QueryInterface::class,
-    ];
+    private QueryAnalyzer $queryAnalyzer;
 
-    private ExpressionTypeAnalyzer $expressionTypeAnalyzer;
-
-    public function __construct(ExpressionTypeAnalyzer $expressionTypeAnalyzer)
+    public function __construct(QueryAnalyzer $queryAnalyzer)
     {
-        $this->expressionTypeAnalyzer = $expressionTypeAnalyzer;
+        $this->queryAnalyzer = $queryAnalyzer;
     }
 
     public function getNodeType(): string
@@ -55,7 +47,7 @@ final class NoDynamicQueryWhereRule implements Rule
             return [];
         }
 
-        if (!$this->expressionTypeAnalyzer->isTypeAnyOf($scope->getType($node->var), self::QUERY_CLASSES)) {
+        if (!$this->queryAnalyzer->isQueryExpression($node->var, $scope)) {
             return [];
         }
 
