@@ -137,19 +137,20 @@ Statically validate Yii2's loosely-typed config arrays and array-driven conventi
 
 Catch architectural drift, complexity, and other code-quality issues that are easy to miss without anyone noticing — business logic and database access staying out of controllers and views, actions calling other actions directly, superglobals, dynamic SQL, an `Application` object that anything can read from or write to, and calls that are provably redundant.
 
-| Rule                                                                   | Catches                                                                                                |
-| ---------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
-| [`noComplexActionClasses`](#complexity-limits)                         | Standalone `yii\base\Action` classes with too much branching/looping — logic that belongs in a service |
-| [`noComplexControllerActions`](#complexity-limits)                     | The same, for controller actions                                                                       |
-| [`noControllerActionCallsViaThis`](#no-calling-actions-via-this)       | `$this->actionFoo()` inside a controller instead of a redirect or shared method                        |
-| [`noDbQueriesInActions`](#no-database-access-outside-repositories)     | Direct DB/ActiveRecord access in `Action` classes                                                      |
-| [`noDbQueriesInControllers`](#no-database-access-outside-repositories) | Direct DB/ActiveRecord access in controllers                                                           |
-| [`noDbQueriesInViews`](#no-database-access-outside-repositories)       | Direct DB/ActiveRecord access in view files                                                            |
-| [`noDirectSuperglobals`](#no-raw-superglobals)                         | Direct use of `$_GET`, `$_POST`, `$_SESSION`, etc.                                                     |
-| [`noDynamicQueryWhere`](#no-dynamic-sql-strings)                       | String-concatenated conditions passed to `Query::where()` / `andWhere()`                               |
-| [`noForbiddenYiiAppProperties`](#no-forbidden-yiiapp-properties)       | Reads of arbitrary `yii\base\Application` components, including `Yii::$app->*`                         |
-| [`noRedundantHtmlEncode`](#no-redundant-htmlencode)                    | `Html::encode()` calls whose argument is always a `numeric-string`                                     |
-| [`noYiiAppPropertyMutation`](#no-yiiapp-property-mutation)             | Writes to `yii\base\Application` properties, including `setComponents()`                               |
+| Rule                                                                   | Catches                                                                                                 |
+| ---------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| [`noComplexActionClasses`](#complexity-limits)                         | Standalone `yii\base\Action` classes with too much branching/looping — logic that belongs in a service  |
+| [`noComplexControllerActions`](#complexity-limits)                     | The same, for controller actions                                                                        |
+| [`noControllerActionCallsViaThis`](#no-calling-actions-via-this)       | `$this->actionFoo()` inside a controller instead of a redirect or shared method                         |
+| [`noDbQueriesInActions`](#no-database-access-outside-repositories)     | Direct DB/ActiveRecord access in `Action` classes                                                       |
+| [`noDbQueriesInControllers`](#no-database-access-outside-repositories) | Direct DB/ActiveRecord access in controllers                                                            |
+| [`noDbQueriesInViews`](#no-database-access-outside-repositories)       | Direct DB/ActiveRecord access in view files                                                             |
+| [`noDirectSuperglobals`](#no-raw-superglobals)                         | Direct use of `$_GET`, `$_POST`, `$_SESSION`, etc.                                                      |
+| [`noDynamicQueryWhere`](#no-dynamic-sql-strings)                       | String-concatenated conditions passed to `Query::where()` / `andWhere()`                                |
+| [`noForbiddenYiiAppProperties`](#no-forbidden-yiiapp-properties)       | Reads of arbitrary `yii\base\Application` components, including `Yii::$app->*`                          |
+| [`noRedundantExistenceCheck`](#no-redundant-existence-check)           | `Query::one() !== null` / `Query::count()` compared against `0` or `1` where `Query::exists()` suffices |
+| [`noRedundantHtmlEncode`](#no-redundant-htmlencode)                    | `Html::encode()` calls whose argument is always a `numeric-string`                                      |
+| [`noYiiAppPropertyMutation`](#no-yiiapp-property-mutation)             | Writes to `yii\base\Application` properties, including `setComponents()`                                |
 
 ## Rule reference
 
@@ -694,6 +695,36 @@ $cache = Yii::$app->cache;
 
 // ✓ inject the component instead
 public function __construct(private CacheInterface $cache) {}
+```
+
+#### No redundant existence check
+
+`Query::exists()` runs a lighter `SELECT EXISTS(...)` query instead of fetching a row (`one()`) or counting every matching row (`count()`). This rule catches the common ways a record-existence check like this ends up written as one of those instead, on any expression typed as `yii\db\QueryInterface` / `yii\db\ActiveQueryInterface` — the comparison can be written with the query call on either side, and `count() > 0` / `count() !== 0` (or, negated, `count() < 1` / `count() === 0`) are flagged the same way as `one() !== null` / `one() === null`:
+
+```php
+// ✗ flagged: fetches a full row just to test whether one is there
+public function emailIsTaken(string $email): bool
+{
+    return User::find()->where(['email' => $email])->one() !== null;
+}
+
+// ✗ flagged: counts every matching row just to test whether one is there
+public function emailIsAvailable(string $email): bool
+{
+    return User::find()->where(['email' => $email])->count() < 1;
+}
+
+// ✓ exists() only asks the database whether a row is there
+public function emailIsTaken(string $email): bool
+{
+    return User::find()->where(['email' => $email])->exists();
+}
+
+// ✓ same, negated
+public function emailIsAvailable(string $email): bool
+{
+    return !User::find()->where(['email' => $email])->exists();
+}
 ```
 
 #### No redundant `Html::encode()`
