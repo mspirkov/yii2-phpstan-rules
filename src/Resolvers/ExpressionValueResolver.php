@@ -28,6 +28,16 @@ final class ExpressionValueResolver
         return null;
     }
 
+    public function getSingleIntValue(Expr $expr, Scope $scope): ?int
+    {
+        $values = $scope->getType($expr)->getConstantScalarValues();
+        if (count($values) !== 1 || !is_int($values[0])) {
+            return null;
+        }
+
+        return $values[0];
+    }
+
     public function getSingleStringValue(Expr $expr, Scope $scope): ?string
     {
         if ($expr instanceof String_) {

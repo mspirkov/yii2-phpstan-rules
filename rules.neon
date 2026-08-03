@@ -75,6 +75,8 @@ parameters:
 				- charset
 				- language
 				- timeZone
+		noRedundantExistenceCheck:
+			enabled: %mspirkovYii2Rules.enableAllRules%
 		noRedundantHtmlEncode:
 			enabled: %mspirkovYii2Rules.enableAllRules%
 		noYiiAppPropertyMutation:
@@ -182,6 +184,9 @@ parametersSchema:
 			enabled: bool()
 			allowedProperties: arrayOf(string())
 		])
+		noRedundantExistenceCheck: structure([
+			enabled: bool()
+		])
 		noRedundantHtmlEncode: structure([
 			enabled: bool()
 		])
@@ -243,6 +248,8 @@ conditionalTags:
 		phpstan.rules.rule: %mspirkovYii2Rules.noDynamicQueryWhere.enabled%
 	MSpirkov\Yii2\PHPStan\Rules\NoForbiddenYiiAppPropertiesRule:
 		phpstan.rules.rule: %mspirkovYii2Rules.noForbiddenYiiAppProperties.enabled%
+	MSpirkov\Yii2\PHPStan\Rules\NoRedundantExistenceCheckRule:
+		phpstan.rules.rule: %mspirkovYii2Rules.noRedundantExistenceCheck.enabled%
 	MSpirkov\Yii2\PHPStan\Rules\NoRedundantHtmlEncodeRule:
 		phpstan.rules.rule: %mspirkovYii2Rules.noRedundantHtmlEncode.enabled%
 	MSpirkov\Yii2\PHPStan\Rules\NoYiiAppPropertyMutationRule:
@@ -305,6 +312,8 @@ services:
 		class: MSpirkov\Yii2\PHPStan\Rules\NoForbiddenYiiAppPropertiesRule
 		arguments:
 			allowedProperties: %mspirkovYii2Rules.noForbiddenYiiAppProperties.allowedProperties%
+	-
+		class: MSpirkov\Yii2\PHPStan\Rules\NoRedundantExistenceCheckRule
 	-
 		class: MSpirkov\Yii2\PHPStan\Rules\NoRedundantHtmlEncodeRule
 	-

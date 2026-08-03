@@ -32,6 +32,7 @@ final class Identifiers
     public const NO_DIRECT_SUPERGLOBALS = self::PREFIX . 'noDirectSuperglobals';
     public const NO_DYNAMIC_QUERY_WHERE = self::PREFIX . 'noDynamicQueryWhere';
     public const NO_FORBIDDEN_YII_APP_PROPERTIES = self::PREFIX . 'noForbiddenYiiAppProperties';
+    public const NO_REDUNDANT_EXISTENCE_CHECK = self::PREFIX . 'noRedundantExistenceCheck';
     public const NO_REDUNDANT_HTML_ENCODE = self::PREFIX . 'noRedundantHtmlEncode';
     public const NO_YII_APP_PROPERTY_MUTATION = self::PREFIX . 'noYiiAppPropertyMutation';
 
@@ -63,6 +64,7 @@ final class Identifiers
         self::NO_DIRECT_SUPERGLOBALS,
         self::NO_DYNAMIC_QUERY_WHERE,
         self::NO_FORBIDDEN_YII_APP_PROPERTIES,
+        self::NO_REDUNDANT_EXISTENCE_CHECK,
         self::NO_REDUNDANT_HTML_ENCODE,
         self::NO_YII_APP_PROPERTY_MUTATION,
     ];
