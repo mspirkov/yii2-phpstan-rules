@@ -22,6 +22,9 @@ use PHPStan\Rules\Rule;
  */
 final class NoDynamicQueryWhereRule implements Rule
 {
+    /** @var list<string> */
+    private const METHODS = ['where', 'andwhere', 'orwhere'];
+
     private QueryAnalyzer $queryAnalyzer;
 
     public function __construct(QueryAnalyzer $queryAnalyzer)
@@ -43,7 +46,7 @@ final class NoDynamicQueryWhereRule implements Rule
             return [];
         }
 
-        if (strtolower($node->name->name) !== 'where') {
+        if (!in_array(strtolower($node->name->name), self::METHODS, true)) {
             return [];
         }
 
@@ -61,8 +64,11 @@ final class NoDynamicQueryWhereRule implements Rule
 
         return [
             ErrorBuilder::build(
-                'Dynamic string conditions in Query::where() are forbidden. Use array '
-                    . 'condition syntax, for example [\'column\' => $columnValue].',
+                sprintf(
+                    'Dynamic string conditions in Query::%s() are forbidden. Use array '
+                        . 'condition syntax, for example [\'column\' => $columnValue].',
+                    $node->name->name
+                ),
                 Identifiers::NO_DYNAMIC_QUERY_WHERE
             ),
         ];
