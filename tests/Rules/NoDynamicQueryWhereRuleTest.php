@@ -16,10 +16,15 @@ final class NoDynamicQueryWhereRuleTest extends AbstractTestCase
         $this->analyse(
             [self::getDataFilePath('code')],
             [
-                ['Dynamic string conditions in Query::where() are forbidden. Use array condition syntax, for example [\'column\' => $columnValue].', 11],
-                ['Dynamic string conditions in Query::where() are forbidden. Use array condition syntax, for example [\'column\' => $columnValue].', 13],
-                ['Dynamic string conditions in Query::where() are forbidden. Use array condition syntax, for example [\'column\' => $columnValue].', 15],
-                ['Dynamic string conditions in Query::where() are forbidden. Use array condition syntax, for example [\'column\' => $columnValue].', 38],
+                ['Dynamic string conditions in Query::where() are forbidden. Use array condition syntax, for example [\'column\' => $columnValue].', 14],
+                ['Dynamic string conditions in Query::where() are forbidden. Use array condition syntax, for example [\'column\' => $columnValue].', 16],
+                ['Dynamic string conditions in Query::where() are forbidden. Use array condition syntax, for example [\'column\' => $columnValue].', 18],
+                ['Dynamic string conditions in Query::andWhere() are forbidden. Use array condition syntax, for example [\'column\' => $columnValue].', 26],
+                ['Dynamic string conditions in Query::orWhere() are forbidden. Use array condition syntax, for example [\'column\' => $columnValue].', 28],
+                ['Dynamic string conditions in Query::andWhere() are forbidden. Use array condition syntax, for example [\'column\' => $columnValue].', 30],
+                ['Dynamic string conditions in Query::orWhere() are forbidden. Use array condition syntax, for example [\'column\' => $columnValue].', 32],
+                ['Dynamic string conditions in Query::where() are forbidden. Use array condition syntax, for example [\'column\' => $columnValue].', 51],
+                ['Dynamic string conditions in Query::andWhere() are forbidden. Use array condition syntax, for example [\'column\' => $columnValue].', 53],
             ],
         );
     }

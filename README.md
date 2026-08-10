@@ -146,7 +146,7 @@ Catch architectural drift, complexity, and other code-quality issues that are ea
 | [`noDbQueriesInControllers`](#no-database-access-outside-repositories) | Direct DB/ActiveRecord access in controllers                                                            |
 | [`noDbQueriesInViews`](#no-database-access-outside-repositories)       | Direct DB/ActiveRecord access in view files                                                             |
 | [`noDirectSuperglobals`](#no-raw-superglobals)                         | Direct use of `$_GET`, `$_POST`, `$_SESSION`, etc.                                                      |
-| [`noDynamicQueryWhere`](#no-dynamic-sql-strings)                       | String-concatenated conditions passed to `Query::where()` / `andWhere()`                                |
+| [`noDynamicQueryWhere`](#no-dynamic-sql-strings)                       | String-concatenated conditions passed to `Query::where()` / `andWhere()` / `orWhere()`                  |
 | [`noForbiddenYiiAppProperties`](#no-forbidden-yiiapp-properties)       | Reads of arbitrary `yii\base\Application` components, including `Yii::$app->*`                          |
 | [`noRedundantExistenceCheck`](#no-redundant-existence-check)           | `Query::one() !== null` / `Query::count()` compared against `0` or `1` where `Query::exists()` suffices |
 | [`noRedundantHtmlEncode`](#no-redundant-htmlencode)                    | `Html::encode()` calls whose argument is always a `numeric-string`                                      |
@@ -676,13 +676,17 @@ $id = $this->request->get('id');
 
 #### No dynamic SQL strings
 
+Applies to `where()`, `andWhere()`, and `orWhere()` alike. The check is purely structural — it flags any interpolated or concatenated string passed as the condition, regardless of what the string contains (an `IN (...)` list is just as flagged as a plain `=` comparison) — and leaves the array condition syntax, including its `['in', 'column', $values]` operator form, untouched.
+
 ```php
 // ✗ flagged: string-built condition, one step from SQL injection
 $query->where("status = $status");
-$query->where('status = ' . $status);
+$query->andWhere('status = ' . $status);
+$query->orWhere("id IN ($ids)");
 
 // ✓ array condition syntax — parameterized, and PHPStan can see the shape
 $query->where(['status' => $status]);
+$query->andWhere(['in', 'id', $ids]);
 ```
 
 #### No forbidden `Yii::$app` properties
