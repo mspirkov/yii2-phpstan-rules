@@ -353,12 +353,13 @@ new Pagination(['defaultPageSize' => '20']);             // ✗ wrong type — i
 `TimestampBehavior`, `BlameableBehavior`, `SluggableBehavior`, `AttributeTypecastBehavior`, and `mspirkov/yii2-db`'s `DateTimeBehavior` all fill in specific model attributes on their own — `createdAtAttribute`/`updatedAtAttribute`, `createdByAttribute`/`updatedByAttribute`, `attribute`/`slugAttribute`, `attributeTypes`, and the `attributes` event map every `AttributeBehavior` subclass inherits — and none of that is checked against the model until the behavior actually runs. This rule checks that every attribute name these options reference (a literal string, or an array of them) actually exists on the model declaring `behaviors()`, the same `@property`-aware resolution `modelRulesValidation` and `modelAttributeLabelsValidation` use. `yii\base\DynamicModel` instances are skipped, since their attributes are defined at runtime via `defineAttribute()` and can't be resolved statically.
 
 ```php
+/**
+ * @property string $title
+ * @property string $slug
+ * @property string $created_at
+ */
 final class Post extends ActiveRecord
 {
-    public $title;
-    public $slug;
-    public $created_at;
-
     public function behaviors(): array
     {
         return [
@@ -386,11 +387,12 @@ final class Post extends ActiveRecord
 `TimestampBehavior`, `BlameableBehavior`, `SluggableBehavior`, and `DateTimeBehavior` all extend `yii\behaviors\AttributeBehavior`, so instead of (or alongside) their own shorthand options, any of them can be configured directly through the inherited `attributes` event map — and this rule checks that map's attribute names the same way, on whichever of the four (or a custom `AttributeBehavior` subclass) it appears on:
 
 ```php
+/**
+ * @property string $created_at
+ * @property string|null $updated_at
+ */
 final class Article extends ActiveRecord
 {
-    public $created_at;
-    public $updated_at;
-
     public function behaviors(): array
     {
         return [
