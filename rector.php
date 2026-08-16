@@ -7,8 +7,6 @@ use Rector\CodeQuality\Rector\Empty_\SimplifyEmptyCheckOnEmptyArrayRector;
 use Rector\CodeQuality\Rector\FuncCall\SortCallLikeNamedArgsRector;
 use Rector\CodeQuality\Rector\FunctionLike\SimplifyUselessVariableRector;
 use Rector\CodeQuality\Rector\Identical\FlipTypeControlToUseExclusiveTypeRector;
-use Rector\CodeQuality\Rector\If_\ExplicitBoolCompareRector;
-use Rector\CodeQuality\Rector\If_\SimplifyIfElseToTernaryRector;
 use Rector\CodeQuality\Rector\If_\SimplifyIfReturnBoolRector;
 use Rector\CodeQuality\Rector\Isset_\IssetOnPropertyObjectToPropertyExistsRector;
 use Rector\Config\RectorConfig;
@@ -25,7 +23,7 @@ return RectorConfig::configure()
         __DIR__ . '/tests',
     ])
     ->withImportNames()
-    ->withPhp74Sets()
+    ->withPhpLevel(20)
     ->withSets([
         SetList::CODE_QUALITY,
         SetList::DEAD_CODE,
@@ -44,13 +42,11 @@ return RectorConfig::configure()
         // PHP 7.4
         ClosureToArrowFunctionRector::class,
         // Code Quality
-        ExplicitBoolCompareRector::class,
         FlipTypeControlToUseExclusiveTypeRector::class,
         IssetOnPropertyObjectToPropertyExistsRector::class,
         SimplifyEmptyArrayCheckRector::class,
         SimplifyEmptyCheckOnEmptyArrayRector::class,
         SortCallLikeNamedArgsRector::class,
-        SimplifyIfElseToTernaryRector::class,
         SimplifyIfReturnBoolRector::class,
         // Dead Code
         SimplifyUselessVariableRector::class,
