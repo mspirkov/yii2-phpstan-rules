@@ -121,6 +121,7 @@ Statically validate Yii2's loosely-typed config arrays and array-driven conventi
 | [`activeRecordRelationValidation`](#active-record-relations-validation)         | Invalid `hasOne()` / `hasMany()` link properties that do not exist on the current or related ActiveRecord model                                         |
 | [`activeRecordUpdateValuesValidation`](#active-record-update-values-validation) | `updateAll()` / `updateAllCounters()` attribute or counter values with an unknown attribute or a mismatched value type                                  |
 | [`baseObjectInstantiationValidation`](#baseobject-instantiation-validation)     | `new` on a `yii\base\BaseObject` subclass whose last constructor argument is a `$config` array, with bad config keys and bad option types               |
+| [`behaviorAttributesValidation`](#behavior-attributes-validation)               | `TimestampBehavior`/`BlameableBehavior`/`SluggableBehavior`/`AttributeTypecastBehavior`/`DateTimeBehavior` options naming an unknown model attribute    |
 | [`componentBehaviorsValidation`](#component-behaviors-validation)               | Malformed or invalid `behaviors()` in `yii\base\Component` — unknown behavior classes, bad config keys, and bad option types                            |
 | [`controllerActionsValidation`](#controller-actions-validation)                 | Malformed or invalid `actions()` in `yii\base\Controller` — unknown action classes, bad config keys, and bad option types                               |
 | [`htmlActiveAttributeValidation`](#html-active-attribute-validation)            | `Html::activeInput()` / `activeTextInput()` / etc. calls referencing an attribute that does not exist on the given model                                |
@@ -345,6 +346,83 @@ $countQuery = Article::find()->where(['status' => 1]);
 new Pagination(['totalCount' => $countQuery->count()]);  // ✓
 new Pagination(['totalCoutn' => 100]);                   // ✗ typo — unknown option "totalCoutn"
 new Pagination(['defaultPageSize' => '20']);             // ✗ wrong type — int expected
+```
+
+#### Behavior attributes validation
+
+`TimestampBehavior`, `BlameableBehavior`, `SluggableBehavior`, `AttributeTypecastBehavior`, and `mspirkov/yii2-db`'s `DateTimeBehavior` all fill in specific model attributes on their own — `createdAtAttribute`/`updatedAtAttribute`, `createdByAttribute`/`updatedByAttribute`, `attribute`/`slugAttribute`, `attributeTypes`, and the `attributes` event map every `AttributeBehavior` subclass inherits — and none of that is checked against the model until the behavior actually runs. This rule checks that every attribute name these options reference (a literal string, or an array of them) actually exists on the model declaring `behaviors()`, the same `@property`-aware resolution `modelRulesValidation` and `modelAttributeLabelsValidation` use. `yii\base\DynamicModel` instances are skipped, since their attributes are defined at runtime via `defineAttribute()` and can't be resolved statically.
+
+```php
+/**
+ * @property string $title
+ * @property string $slug
+ * @property string $created_at
+ */
+final class Post extends ActiveRecord
+{
+    public function behaviors(): array
+    {
+        return [
+            [
+                'class' => TimestampBehavior::class,
+                'createdAtAttribute' => 'created_at',   // ✓
+                'updatedAtAttribute' => 'udpated_at',   // ✗ typo — unknown attribute
+            ],
+            [
+                'class' => SluggableBehavior::class,
+                'attribute' => 'titel',                 // ✗ typo — unknown attribute
+                'slugAttribute' => 'slug',              // ✓
+            ],
+            [
+                'class' => AttributeTypecastBehavior::class,
+                'attributeTypes' => [
+                    'created_at' => AttributeTypecastBehavior::TYPE_STRING, // ✓
+                ],
+            ],
+        ];
+    }
+}
+```
+
+`TimestampBehavior`, `BlameableBehavior`, `SluggableBehavior`, and `DateTimeBehavior` all extend `yii\behaviors\AttributeBehavior`, so instead of (or alongside) their own shorthand options, any of them can be configured directly through the inherited `attributes` event map — and this rule checks that map's attribute names the same way, on whichever of the four (or a custom `AttributeBehavior` subclass) it appears on:
+
+```php
+/**
+ * @property string $created_at
+ * @property string|null $updated_at
+ */
+final class Article extends ActiveRecord
+{
+    public function behaviors(): array
+    {
+        return [
+            [
+                'class' => TimestampBehavior::class,
+                'attributes' => [
+                    self::EVENT_BEFORE_INSERT => ['created_at', 'updated_at'], // ✓
+                ],
+            ],
+            [
+                'class' => BlameableBehavior::class,
+                'attributes' => [
+                    self::EVENT_BEFORE_INSERT => ['created_by', 'updated_by'], // ✗ neither attribute exists
+                ],
+            ],
+            [
+                'class' => SluggableBehavior::class,
+                'attributes' => [
+                    self::EVENT_BEFORE_VALIDATE => 'slug',     // ✗ unknown attribute
+                ],
+            ],
+            [
+                'class' => DateTimeBehavior::class,
+                'attributes' => [
+                    self::EVENT_BEFORE_UPDATE => 'updated_at', // ✓
+                ],
+            ],
+        ];
+    }
+}
 ```
 
 #### Component behaviors validation
@@ -650,7 +728,7 @@ public function actionEdit(int $id): Response
 
 #### No database access outside repositories
 
-Fires on `ActiveRecord::find()`/`findOne()`/`save()`, `Yii::$app->db`, `Yii::$app->db->createCommand()`, creating or configuring a `Query`, transactions, and friends — wherever they turn up in a controller, an `Action`, or a view file.
+Fires on `self::find()`/`findOne()`/`save()`, `Yii::$app->db`, `Yii::$app->db->createCommand()`, creating or configuring a `Query`, transactions, and friends — wherever they turn up in a controller, an `Action`, or a view file.
 
 ```php
 // ✗ flagged in a view: queries the database instead of just rendering data
