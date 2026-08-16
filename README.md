@@ -399,25 +399,25 @@ final class Article extends ActiveRecord
             [
                 'class' => TimestampBehavior::class,
                 'attributes' => [
-                    ActiveRecord::EVENT_BEFORE_INSERT => ['created_at', 'updated_at'], // ✓
+                    self::EVENT_BEFORE_INSERT => ['created_at', 'updated_at'], // ✓
                 ],
             ],
             [
                 'class' => BlameableBehavior::class,
                 'attributes' => [
-                    ActiveRecord::EVENT_BEFORE_INSERT => ['created_by', 'updated_by'], // ✗ neither attribute exists
+                    self::EVENT_BEFORE_INSERT => ['created_by', 'updated_by'], // ✗ neither attribute exists
                 ],
             ],
             [
                 'class' => SluggableBehavior::class,
                 'attributes' => [
-                    ActiveRecord::EVENT_BEFORE_VALIDATE => 'slug',   // ✗ unknown attribute
+                    self::EVENT_BEFORE_VALIDATE => 'slug',   // ✗ unknown attribute
                 ],
             ],
             [
                 'class' => DateTimeBehavior::class,
                 'attributes' => [
-                    ActiveRecord::EVENT_BEFORE_UPDATE => 'updated_at', // ✓
+                    self::EVENT_BEFORE_UPDATE => 'updated_at', // ✓
                 ],
             ],
         ];
@@ -728,7 +728,7 @@ public function actionEdit(int $id): Response
 
 #### No database access outside repositories
 
-Fires on `ActiveRecord::find()`/`findOne()`/`save()`, `Yii::$app->db`, `Yii::$app->db->createCommand()`, creating or configuring a `Query`, transactions, and friends — wherever they turn up in a controller, an `Action`, or a view file.
+Fires on `self::find()`/`findOne()`/`save()`, `Yii::$app->db`, `Yii::$app->db->createCommand()`, creating or configuring a `Query`, transactions, and friends — wherever they turn up in a controller, an `Action`, or a view file.
 
 ```php
 // ✗ flagged in a view: queries the database instead of just rendering data
