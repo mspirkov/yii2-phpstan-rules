@@ -38,7 +38,8 @@
         "shipmonk/phpstan-rules": "^4.2",
         "spaze/phpstan-disallowed-calls": "^4.7",
         "ergebnis/phpstan-rules": "^2.13",
-        "kubawerlos/php-cs-fixer-custom-fixers": "^3.37"
+        "kubawerlos/php-cs-fixer-custom-fixers": "^3.37",
+        "mspirkov/yii2-db": "^0.3"
     },
     "repositories": [
         {
