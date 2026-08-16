@@ -371,7 +371,7 @@ final class Post extends ActiveRecord
             [
                 'class' => SluggableBehavior::class,
                 'attribute' => 'titel',                 // ✗ typo — unknown attribute
-                'slugAttribute' => 'slug',               // ✓
+                'slugAttribute' => 'slug',              // ✓
             ],
             [
                 'class' => AttributeTypecastBehavior::class,
@@ -411,7 +411,7 @@ final class Article extends ActiveRecord
             [
                 'class' => SluggableBehavior::class,
                 'attributes' => [
-                    self::EVENT_BEFORE_VALIDATE => 'slug',   // ✗ unknown attribute
+                    self::EVENT_BEFORE_VALIDATE => 'slug',     // ✗ unknown attribute
                 ],
             ],
             [
