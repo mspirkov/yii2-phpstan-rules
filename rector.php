@@ -17,7 +17,6 @@ use Rector\DeadCode\Rector\PropertyProperty\RemoveNullPropertyInitializationRect
 use Rector\Instanceof_\Rector\Ternary\FlipNegatedTernaryInstanceofRector;
 use Rector\Php74\Rector\Closure\ClosureToArrowFunctionRector;
 use Rector\Set\ValueObject\SetList;
-use Rector\Strict\Rector\Empty_\DisallowedEmptyRuleFixerRector;
 use Rector\TypeDeclaration\Rector\Empty_\EmptyOnNullableObjectToInstanceOfRector;
 
 return RectorConfig::configure()
@@ -45,7 +44,6 @@ return RectorConfig::configure()
         // PHP 7.4
         ClosureToArrowFunctionRector::class,
         // Code Quality
-        DisallowedEmptyRuleFixerRector::class,
         ExplicitBoolCompareRector::class,
         FlipTypeControlToUseExclusiveTypeRector::class,
         IssetOnPropertyObjectToPropertyExistsRector::class,
