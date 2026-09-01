@@ -54,6 +54,9 @@
             ]
         }
     },
+    "suggest": {
+        "mspirkov/yii2-rector": "for automatic refactoring of Yii2 projects"
+    },
     "autoload": {
         "psr-4": {
             "MSpirkov\\Yii2\\PHPStan\\": "src/"
