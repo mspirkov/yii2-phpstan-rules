@@ -7,6 +7,8 @@ use Rector\CodeQuality\Rector\Empty_\SimplifyEmptyCheckOnEmptyArrayRector;
 use Rector\CodeQuality\Rector\FuncCall\SortCallLikeNamedArgsRector;
 use Rector\CodeQuality\Rector\FunctionLike\SimplifyUselessVariableRector;
 use Rector\CodeQuality\Rector\Identical\FlipTypeControlToUseExclusiveTypeRector;
+use Rector\CodeQuality\Rector\If_\ArrayExplicitBoolCompareRector;
+use Rector\CodeQuality\Rector\If_\ObjectExplicitBoolCompareRector;
 use Rector\CodeQuality\Rector\If_\SimplifyIfReturnBoolRector;
 use Rector\CodeQuality\Rector\Isset_\IssetOnPropertyObjectToPropertyExistsRector;
 use Rector\Config\RectorConfig;
@@ -33,9 +35,6 @@ return RectorConfig::configure()
     ->withPHPStanConfigs([
         __DIR__ . '/phpstan.dist.neon',
     ])
-    ->withRules([
-        FlipNegatedTernaryInstanceofRector::class,
-    ])
     ->withSkip([
         __DIR__ . '/tests/Rules/Data',
         __DIR__ . '/tests/Rules/Source',
@@ -48,6 +47,8 @@ return RectorConfig::configure()
         SimplifyEmptyCheckOnEmptyArrayRector::class,
         SortCallLikeNamedArgsRector::class,
         SimplifyIfReturnBoolRector::class,
+        ArrayExplicitBoolCompareRector::class,
+        ObjectExplicitBoolCompareRector::class,
         // Dead Code
         SimplifyUselessVariableRector::class,
         RemoveNullPropertyInitializationRector::class,
