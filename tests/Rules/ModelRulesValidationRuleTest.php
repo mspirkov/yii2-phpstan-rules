@@ -59,12 +59,6 @@ final class ModelRulesValidationRuleTest extends AbstractTestCase
             ['Unknown attribute " nickname " for model MSpirkov\Yii2\PHPStan\Tests\Rules\Source\ModelRulesValidation\AttributeNameShapeModel.', 316],
         ];
 
-        // For versions 7.4 and 8.0, we simply do not display this error because PHPStan
-        // cannot infer types with such precision.
-        if (PHP_VERSION_ID >= 80100) {
-            $errors[] = ['Model validation rule attributes must be a string or array of strings.', 265];
-        }
-
         $this->analyse([self::getDataFilePath('code')], $errors);
     }
 
