@@ -10,9 +10,11 @@ use PhpParser\Node;
 use PhpParser\Node\Expr;
 use PhpParser\Node\Expr\BinaryOp;
 use PhpParser\Node\Expr\BinaryOp\Greater;
+use PhpParser\Node\Expr\BinaryOp\GreaterOrEqual;
 use PhpParser\Node\Expr\BinaryOp\Identical;
 use PhpParser\Node\Expr\BinaryOp\NotIdentical;
 use PhpParser\Node\Expr\BinaryOp\Smaller;
+use PhpParser\Node\Expr\BinaryOp\SmallerOrEqual;
 use PhpParser\Node\Expr\MethodCall;
 use PhpParser\Node\Identifier;
 use PHPStan\Analyser\Scope;
@@ -50,7 +52,12 @@ final class NoRedundantExistenceCheckRule implements Rule
             return $this->processEqualityComparison($node, $scope);
         }
 
-        if ($node instanceof Greater || $node instanceof Smaller) {
+        if (
+            $node instanceof Greater
+            || $node instanceof Smaller
+            || $node instanceof GreaterOrEqual
+            || $node instanceof SmallerOrEqual
+        ) {
             return $this->processRelationalComparison($node, $scope);
         }
 
@@ -82,7 +89,7 @@ final class NoRedundantExistenceCheckRule implements Rule
      */
     private function processRelationalComparison(BinaryOp $node, Scope $scope): array
     {
-        if ($node instanceof Greater) {
+        if ($node instanceof Greater || $node instanceof GreaterOrEqual) {
             $greaterSide = $node->left;
             $lesserSide = $node->right;
         } else {
@@ -90,15 +97,19 @@ final class NoRedundantExistenceCheckRule implements Rule
             $lesserSide = $node->left;
         }
 
+        $orEqual = $node instanceof GreaterOrEqual || $node instanceof SmallerOrEqual;
+        $existsThreshold = $orEqual ? 1 : 0;
+        $notExistsThreshold = $orEqual ? 0 : 1;
+
         if (
             $this->isQueryMethodCall($greaterSide, 'count', $scope)
-            && $this->expressionValueResolver->getSingleIntValue($lesserSide, $scope) === 0
+            && $this->expressionValueResolver->getSingleIntValue($lesserSide, $scope) === $existsThreshold
         ) {
             return [$this->buildError($node, 'count', false)];
         }
 
         if (
-            $this->expressionValueResolver->getSingleIntValue($greaterSide, $scope) === 1
+            $this->expressionValueResolver->getSingleIntValue($greaterSide, $scope) === $notExistsThreshold
             && $this->isQueryMethodCall($lesserSide, 'count', $scope)
         ) {
             return [$this->buildError($node, 'count', true)];
