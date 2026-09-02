@@ -32,28 +32,28 @@ final class InvalidExistenceChecks
         $activeQuery = ActiveRecord::find();
 
         $activeQuery->where(['status' => 1])->one() !== null;
-
         null !== $activeQuery->where(['status' => 1])->one();
 
         $activeQuery->where(['status' => 1])->one() === null;
-
         null === $activeQuery->where(['status' => 1])->one();
 
         $activeQuery->where(['status' => 1])->count() > 0;
-
         0 < $activeQuery->where(['status' => 1])->count();
 
-        $activeQuery->where(['status' => 1])->count() !== 0;
+        $activeQuery->where(['status' => 1])->count() >= 1;
+        1 <= $activeQuery->where(['status' => 1])->count();
 
+        $activeQuery->where(['status' => 1])->count() !== 0;
         0 !== $activeQuery->where(['status' => 1])->count();
 
         $activeQuery->where(['status' => 1])->count() < 1;
-
         1 > $activeQuery->where(['status' => 1])->count();
 
         $activeQuery->where(['status' => 1])->count() === 0;
-
         0 === $activeQuery->where(['status' => 1])->count();
+
+        $activeQuery->where(['status' => 1])->count() <= 0;
+        0 >= $activeQuery->where(['status' => 1])->count();
     }
 }
 
@@ -77,6 +77,10 @@ final class SkippedExistenceChecks
         $activeQuery->where(['status' => 1])->count() !== 5;
         $activeQuery->where(['status' => 1])->count() > 5;
         5 > $activeQuery->where(['status' => 1])->count();
+        $activeQuery->where(['status' => 1])->count() >= 5;
+        5 <= $activeQuery->where(['status' => 1])->count();
+        $activeQuery->where(['status' => 1])->count() <= 5;
+        5 >= $activeQuery->where(['status' => 1])->count();
 
         // wrong method name
         $activeQuery->where(['status' => 1])->all() !== null;
