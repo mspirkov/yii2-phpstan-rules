@@ -16,8 +16,10 @@ final class NoDbQueriesInActionsRuleTest extends AbstractTestCase
         $this->analyse(
             [self::getDataFilePath('code')],
             [
-                ['Database queries in actions are forbidden. Move queries to repositories.', 13],
                 ['Database queries in actions are forbidden. Move queries to repositories.', 15],
+                ['Database queries in actions are forbidden. Move queries to repositories.', 17],
+                ['Database queries in actions are forbidden. Move queries to repositories.', 25],
+                ['Database queries in actions are forbidden. Move queries to repositories.', 33],
             ],
         );
     }

@@ -3,10 +3,14 @@
 namespace MSpirkov\Yii2\PHPStan\Tests\Rules\Data\ActiveRecordRelationValidation;
 
 use MSpirkov\Yii2\PHPStan\Tests\Rules\Source\ActiveRecordRelationValidation\Country;
+use MSpirkov\Yii2\PHPStan\Tests\Rules\Source\ActiveRecordRelationValidation\MongoCountry;
 use MSpirkov\Yii2\PHPStan\Tests\Rules\Source\ActiveRecordRelationValidation\Order;
+use MSpirkov\Yii2\PHPStan\Tests\Rules\Source\ActiveRecordRelationValidation\RedisOrder;
 use MSpirkov\Yii2\PHPStan\Tests\Rules\Source\ActiveRecordRelationValidation\RelationFactory;
 use stdClass;
 use yii\db\ActiveRecord;
+use yii\mongodb\ActiveRecord as MongoActiveRecord;
+use yii\redis\ActiveRecord as RedisActiveRecord;
 
 /**
  * @property int $id
@@ -60,5 +64,67 @@ final class Customer extends ActiveRecord
     private function getDynamicRelatedClassName(): string
     {
         return Country::class;
+    }
+}
+
+/**
+ * @property string $_id
+ * @property string $country_code
+ */
+final class MongoCustomer extends MongoActiveRecord
+{
+    public static function collectionName(): string
+    {
+        return 'customer';
+    }
+
+    /**
+     * @return string[]
+     */
+    public function attributes(): array
+    {
+        return ['_id', 'country_code'];
+    }
+
+    public function validRelations(): void
+    {
+        $this->hasOne(MongoCountry::class, ['code' => 'country_code']);
+    }
+
+    public function invalidRelations(): void
+    {
+        $this->hasOne(MongoCountry::class, ['missing_code' => 'country_code']);
+    }
+}
+
+/**
+ * @property int $id
+ */
+final class RedisCustomer extends RedisActiveRecord
+{
+    /**
+     * @return string[]
+     */
+    public static function primaryKey(): array
+    {
+        return ['id'];
+    }
+
+    /**
+     * @return string[]
+     */
+    public function attributes(): array
+    {
+        return ['id'];
+    }
+
+    public function validRelations(): void
+    {
+        $this->hasMany(RedisOrder::class, ['customer_id' => 'id']);
+    }
+
+    public function invalidRelations(): void
+    {
+        $this->hasMany(RedisOrder::class, ['missing_customer_id' => 'id']);
     }
 }

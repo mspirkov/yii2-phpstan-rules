@@ -19,13 +19,13 @@ final class ActiveQueryWithValidationRuleTest extends AbstractTestCase
         $this->analyse(
             [self::getDataFilePath('code')],
             [
-                [sprintf('Unknown relation "bogus" for %s in with() call.', Customer::class), 54],
-                [sprintf('Unknown relation "displayName" for %s in with() call.', Customer::class), 59],
-                [sprintf('Unknown relation "bogus" for %s in with() call.', Order::class), 64],
-                [sprintf('Unknown relation "bogus" for %s in with() call.', Customer::class), 69],
-                [sprintf('Unknown relation "bogus" for %s in joinWith() call.', Customer::class), 75],
-                [sprintf('Unknown relation "bogus" for %s in with() call.', Customer::class), 80],
-                [sprintf('Unknown relation "bogus" for %s in with() call.', Tag::class), 85],
+                [sprintf('Unknown relation "bogus" for %s in with() call.', Customer::class), 56],
+                [sprintf('Unknown relation "displayName" for %s in with() call.', Customer::class), 61],
+                [sprintf('Unknown relation "bogus" for %s in with() call.', Order::class), 66],
+                [sprintf('Unknown relation "bogus" for %s in with() call.', Customer::class), 71],
+                [sprintf('Unknown relation "bogus" for %s in joinWith() call.', Customer::class), 77],
+                [sprintf('Unknown relation "bogus" for %s in with() call.', Customer::class), 82],
+                [sprintf('Unknown relation "bogus" for %s in with() call.', Tag::class), 87],
             ],
         );
     }

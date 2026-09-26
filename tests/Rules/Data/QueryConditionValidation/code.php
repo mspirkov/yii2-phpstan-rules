@@ -4,6 +4,8 @@ namespace MSpirkov\Yii2\PHPStan\Tests\Rules\Data\QueryConditionValidation;
 
 use MSpirkov\Yii2\PHPStan\Tests\Rules\Source\QueryConditionValidation\NotQuery;
 use yii\db\Query;
+use yii\mongodb\Query as MongoQuery;
+use yii\redis\ActiveQuery as RedisActiveQuery;
 
 final class ValidQueryUsage
 {
@@ -26,6 +28,23 @@ final class ValidQueryUsage
         $query->where(['>=', 'age', 18]);
         $query->where(['status' => 1]);
     }
+
+    // yii\mongodb\Query implements yii\db\QueryInterface and its QueryBuilder translates the
+    // same operator-format condition arrays, so this rule applies to it unchanged.
+    public function runMongo(MongoQuery $query): void
+    {
+        $query->where(['in', 'status', [1, 2]]);
+        $query->andWhere(['between', 'age', 18, 65]);
+        $query->orWhere(['exists', 'phone']);
+    }
+
+    // yii\redis\ActiveQuery implements yii\db\ActiveQueryInterface directly.
+    public function runRedis(RedisActiveQuery $query): void
+    {
+        $query->where(['in', 'status', [1, 2]]);
+        $query->andWhere(['between', 'age', 18, 65]);
+        $query->orWhere(['>=', 'age', 18]);
+    }
 }
 
 final class InvalidQueryUsage
@@ -40,6 +59,18 @@ final class InvalidQueryUsage
         $query->where(['>=', 'age', 18, 30]);
         $query->where(['not', ['in', 'status']]);
         $query->where(['and']);
+    }
+
+    public function runMongo(MongoQuery $query): void
+    {
+        $query->where(['in', 'status']);
+        $query->where(['exists']);
+    }
+
+    public function runRedis(RedisActiveQuery $query): void
+    {
+        $query->where(['between', 'age', 18]);
+        $query->where(['not', 'a', 'b']);
     }
 }
 

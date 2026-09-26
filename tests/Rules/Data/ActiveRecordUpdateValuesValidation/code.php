@@ -3,7 +3,9 @@
 namespace MSpirkov\Yii2\PHPStan\Tests\Rules\Data\ActiveRecordUpdateValuesValidation;
 
 use MSpirkov\Yii2\PHPStan\Tests\Rules\Source\ActiveRecordUpdateValuesValidation\Customer;
+use MSpirkov\Yii2\PHPStan\Tests\Rules\Source\ActiveRecordUpdateValuesValidation\MongoCustomer;
 use MSpirkov\Yii2\PHPStan\Tests\Rules\Source\ActiveRecordUpdateValuesValidation\NotActiveRecord;
+use MSpirkov\Yii2\PHPStan\Tests\Rules\Source\ActiveRecordUpdateValuesValidation\RedisCustomer;
 use yii\db\Expression;
 
 final class ValidCustomerUsage
@@ -12,6 +14,18 @@ final class ValidCustomerUsage
     {
         Customer::updateAll(['status' => 1], ['id' => 5]);
         Customer::updateAllCounters(['age' => 1]);
+    }
+
+    // yii\mongodb\ActiveRecord extends yii\db\BaseActiveRecord, so this rule applies to it unchanged.
+    public function runMongo(): void
+    {
+        MongoCustomer::updateAll(['status' => 1]);
+    }
+
+    // yii\redis\ActiveRecord extends yii\db\BaseActiveRecord, so this rule applies to it unchanged.
+    public function runRedis(): void
+    {
+        RedisCustomer::updateAll(['status' => 1]);
     }
 }
 
@@ -24,6 +38,18 @@ final class InvalidCustomerUsage
         Customer::updateAll(['status' => [1, 2, 3]]);
         Customer::updateAllCounters(['agee' => 1]);
         Customer::updateAllCounters(['age' => 'one']);
+    }
+
+    public function runMongo(): void
+    {
+        MongoCustomer::updateAll(['statuss' => 1]);
+        MongoCustomer::updateAllCounters(['age' => 'one']);
+    }
+
+    public function runRedis(): void
+    {
+        RedisCustomer::updateAll(['statuss' => 1]);
+        RedisCustomer::updateAllCounters(['age' => 'one']);
     }
 }
 
