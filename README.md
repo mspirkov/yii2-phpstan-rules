@@ -40,6 +40,10 @@ includes:
     - vendor/mspirkov/yii2-phpstan-rules/rules.neon
 ```
 
+## Supported extensions
+
+Recognized out of the box, no configuration needed: [`yiisoft/yii2-mongodb`](https://github.com/yiisoft/yii2-mongodb) and [`yiisoft/yii2-redis`](https://github.com/yiisoft/yii2-redis) (their `ActiveRecord`/`Query`/`ActiveQuery`/`Connection` are treated the same as `yii\db`'s, except by `activeQueryWithValidation` — see its section below), and [`mspirkov/yii2-db`](https://github.com/mspirkov/yii2-db) (its `DateTimeBehavior` is recognized by `behaviorAttributesValidation`).
+
 ## Configuration
 
 All rules are on by default. Turn the whole set off, turn off just one of the two rule groups, or tune individual rules, under `parameters.mspirkovYii2Rules`:
@@ -196,6 +200,8 @@ ActiveForm::end();
 `with()`, `joinWith()`, and `innerJoinWith()` take relation names as plain strings, so a typo (or a relation that got renamed) silently returns no related data instead of failing. This rule checks that every relation name passed to these methods — including a `joinWith()`/`innerJoinWith()` alias (`'orders o'` or `'orders AS o'`) and a dotted sub-relation path (`'orders.items'`) — resolves to an actual relation (a `getXxx()` method returning something compatible with `yii\db\ActiveQueryInterface`) on the queried model.
 
 Validating a sub-relation requires knowing which model the parent relation points to. This rule can work that out two ways: from the relation getter's own `@return ActiveQuery<T>` PHPDoc, or from a `@property-read T` / `@property-read T[]` PHPDoc property of the same name on the model (the same resolution `activeFormFieldValidation` and friends already rely on). A relation whose target model can't be determined either way is still checked for existence at its own level, but any further sub-relation path past it is left unchecked rather than guessed at.
+
+This "which model does the relation point to" resolution relies on the `T` in `yii\db\ActiveQuery<T>`, so it's specific to `yii\db\ActiveRecord`. `yii\mongodb\ActiveRecord::find()` and `yii\redis\ActiveRecord::find()` return their own `ActiveQuery` classes, which don't extend `yii\db\ActiveQuery` and carry no such generic — so `with()`/`joinWith()`/`innerJoinWith()` calls on a Mongo or Redis query aren't checked by this rule at all.
 
 ```php
 /**

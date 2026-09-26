@@ -8,6 +8,9 @@ use yii\db\Command;
 use yii\db\Connection;
 use yii\db\Query;
 use yii\db\Transaction;
+use yii\mongodb\ActiveRecord as MongoActiveRecord;
+use yii\mongodb\Query as MongoQuery;
+use yii\redis\ActiveRecord as RedisActiveRecord;
 
 $title = 'Users';
 $db = \Yii::$app->db;
@@ -63,3 +66,15 @@ function inspectDatabaseAccess(
 }
 
 (new ViewHelper())->passthrough()->render();
+
+$mongoRows = (new MongoQuery())->from('users')->all();
+
+$mongoUser = MongoActiveRecord::findOne(1);
+$mongoActiveQuery = MongoActiveRecord::find();
+
+$mongoActiveQuery->count();
+
+$redisUser = RedisActiveRecord::findOne(1);
+$redisActiveQuery = RedisActiveRecord::find();
+
+$redisActiveQuery->count();

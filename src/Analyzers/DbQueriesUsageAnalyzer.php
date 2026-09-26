@@ -22,6 +22,10 @@ use yii\db\Command;
 use yii\db\Connection;
 use yii\db\QueryInterface;
 use yii\db\Transaction;
+use yii\mongodb\Command as MongoCommand;
+use yii\mongodb\Connection as MongoConnection;
+use yii\mongodb\Transaction as MongoTransaction;
+use yii\redis\Connection as RedisConnection;
 
 final class DbQueriesUsageAnalyzer
 {
@@ -53,7 +57,11 @@ final class DbQueriesUsageAnalyzer
         ActiveQueryInterface::class,
         Command::class,
         Connection::class,
+        MongoCommand::class,
+        MongoConnection::class,
+        MongoTransaction::class,
         QueryInterface::class,
+        RedisConnection::class,
         Transaction::class,
     ];
 

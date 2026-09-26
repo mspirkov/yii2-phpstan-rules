@@ -19,6 +19,10 @@ final class NoDbQueriesInViewsRuleCustomDbPropertiesTest extends AbstractTestCas
                 ['Database queries in views are forbidden. Move queries to repositories.', 3],
                 ['Database queries in views are forbidden. Move queries to repositories.', 5],
                 ['Database queries in views are forbidden. Move queries to repositories.', 7],
+                ['Database queries in views are forbidden. Move queries to repositories.', 13],
+                ['Database queries in views are forbidden. Move queries to repositories.', 15],
+                ['Database queries in views are forbidden. Move queries to repositories.', 17],
+                ['Database queries in views are forbidden. Move queries to repositories.', 19],
             ],
         );
     }

@@ -16,14 +16,18 @@ final class QueryConditionValidationRuleTest extends AbstractTestCase
         $this->analyse(
             [self::getDataFilePath('code')],
             [
-                ["Operator 'IN' in where() requires at least 2 operands, 1 given.", 35],
-                ["Operator 'BETWEEN' in andWhere() requires at least 3 operands, 2 given.", 36],
-                ["Operator 'NOT' in orWhere() requires exactly 1 operand, 2 given.", 37],
-                ["Operator 'LIKE' in where() requires at least 2 operands, 1 given.", 38],
-                ["Operator 'EXISTS' in where() requires at least 1 operand, 0 given.", 39],
-                ["Operator '>=' in where() requires exactly 2 operands, 3 given.", 40],
-                ["Operator 'IN' in where() requires at least 2 operands, 1 given.", 41],
-                ["Operator 'AND' in where() requires at least 1 operand, 0 given.", 42],
+                ["Operator 'IN' in where() requires at least 2 operands, 1 given.", 54],
+                ["Operator 'BETWEEN' in andWhere() requires at least 3 operands, 2 given.", 55],
+                ["Operator 'NOT' in orWhere() requires exactly 1 operand, 2 given.", 56],
+                ["Operator 'LIKE' in where() requires at least 2 operands, 1 given.", 57],
+                ["Operator 'EXISTS' in where() requires at least 1 operand, 0 given.", 58],
+                ["Operator '>=' in where() requires exactly 2 operands, 3 given.", 59],
+                ["Operator 'IN' in where() requires at least 2 operands, 1 given.", 60],
+                ["Operator 'AND' in where() requires at least 1 operand, 0 given.", 61],
+                ["Operator 'IN' in where() requires at least 2 operands, 1 given.", 66],
+                ["Operator 'EXISTS' in where() requires at least 1 operand, 0 given.", 67],
+                ["Operator 'BETWEEN' in where() requires at least 3 operands, 2 given.", 72],
+                ["Operator 'NOT' in where() requires exactly 1 operand, 2 given.", 73],
             ],
         );
     }

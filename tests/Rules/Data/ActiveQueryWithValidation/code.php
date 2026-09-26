@@ -3,6 +3,8 @@
 namespace MSpirkov\Yii2\PHPStan\Tests\Rules\Data\ActiveQueryWithValidation;
 
 use MSpirkov\Yii2\PHPStan\Tests\Rules\Source\ActiveQueryWithValidation\Customer;
+use MSpirkov\Yii2\PHPStan\Tests\Rules\Source\ActiveQueryWithValidation\MongoCustomer;
+use MSpirkov\Yii2\PHPStan\Tests\Rules\Source\ActiveQueryWithValidation\RedisCustomer;
 use yii\db\ActiveQuery;
 
 function validVariadicArgs(): void
@@ -88,6 +90,21 @@ function invalidNestedViaPropertyReadArray(): void
 function skippedUnresolvedBaseClass(ActiveQuery $query): void
 {
     $query->with('bogus')->all();
+}
+
+function skippedMongoActiveQueryRelation(): void
+{
+    // yii\mongodb\ActiveRecord::find() returns a plain yii\mongodb\ActiveQuery, which doesn't
+    // extend the generic yii\db\ActiveQuery<T> this rule reads the queried model from — so the
+    // relation name can't be resolved and checked here.
+    MongoCustomer::find()->with('bogus')->all();
+}
+
+function skippedRedisActiveQueryRelation(): void
+{
+    // Same limitation as above: yii\redis\ActiveRecord::find() returns a plain
+    // yii\redis\ActiveQuery, not a yii\db\ActiveQuery<T>.
+    RedisCustomer::find()->with('bogus')->all();
 }
 
 function skippedUnresolvedNestedRelation(): void

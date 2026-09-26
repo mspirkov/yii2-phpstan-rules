@@ -8,6 +8,7 @@ use MSpirkov\Yii2\PHPStan\Analyzers\ActiveRecordRelationAnalyzer;
 use MSpirkov\Yii2\PHPStan\Resolvers\ExpressionValueResolver;
 use PhpParser\Node;
 use PhpParser\Node\Arg;
+use PhpParser\Node\ArgPlaceholder;
 use PhpParser\Node\Expr\Array_;
 use PhpParser\Node\Expr\MethodCall;
 use PhpParser\Node\Identifier;
@@ -80,7 +81,7 @@ final class ActiveQueryWithValidationRule implements Rule
     }
 
     /**
-     * @param array<Arg|VariadicPlaceholder> $args
+     * @param array<Arg|ArgPlaceholder|VariadicPlaceholder> $args
      *
      * @return list<array{name: string, node: Node}>
      */

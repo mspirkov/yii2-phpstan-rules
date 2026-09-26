@@ -3,7 +3,9 @@
 namespace MSpirkov\Yii2\PHPStan\Tests\Rules\Data\ActiveRecordConditionValidation;
 
 use MSpirkov\Yii2\PHPStan\Tests\Rules\Source\ActiveRecordConditionValidation\Customer;
+use MSpirkov\Yii2\PHPStan\Tests\Rules\Source\ActiveRecordConditionValidation\MongoCustomer;
 use MSpirkov\Yii2\PHPStan\Tests\Rules\Source\ActiveRecordConditionValidation\NotActiveRecord;
+use MSpirkov\Yii2\PHPStan\Tests\Rules\Source\ActiveRecordConditionValidation\RedisCustomer;
 use yii\db\Expression;
 
 final class ValidCustomerUsage
@@ -16,6 +18,18 @@ final class ValidCustomerUsage
         Customer::deleteAll(['status' => 1]);
         Customer::updateAll(['status' => 1], ['id' => 5]);
         Customer::updateAllCounters(['age' => 1], ['id' => 5]);
+    }
+
+    // yii\mongodb\ActiveRecord extends yii\db\BaseActiveRecord, so this rule applies to it unchanged.
+    public function runMongo(): void
+    {
+        MongoCustomer::findOne(['status' => 1]);
+    }
+
+    // yii\redis\ActiveRecord extends yii\db\BaseActiveRecord, so this rule applies to it unchanged.
+    public function runRedis(): void
+    {
+        RedisCustomer::findOne(['status' => 1]);
     }
 }
 
@@ -30,6 +44,18 @@ final class InvalidCustomerUsage
         Customer::deleteAll(['statuss' => 1]);
         Customer::updateAll(['status' => 1], ['idd' => 5]);
         Customer::updateAllCounters(['age' => 1], ['statuss' => 1]);
+    }
+
+    public function runMongo(): void
+    {
+        MongoCustomer::findOne(['statuss' => 1]);
+        MongoCustomer::findOne(['status' => '1']);
+    }
+
+    public function runRedis(): void
+    {
+        RedisCustomer::findOne(['statuss' => 1]);
+        RedisCustomer::findOne(['status' => '1']);
     }
 }
 

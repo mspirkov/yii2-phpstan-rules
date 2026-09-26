@@ -16,12 +16,23 @@ final class NoDbQueriesInControllersRuleTest extends AbstractTestCase
         $this->analyse(
             [self::getDataFilePath('code')],
             [
-                ['Database queries in controllers are forbidden. Move queries to repositories.', 13],
-                ['Database queries in controllers are forbidden. Move queries to repositories.', 15],
-                ['Database queries in controllers are forbidden. Move queries to repositories.', 17],
-                ['Database queries in controllers are forbidden. Move queries to repositories.', 19],
-                ['Database queries in controllers are forbidden. Move queries to repositories.', 21],
+                ['Database queries in controllers are forbidden. Move queries to repositories.', 20],
+                ['Database queries in controllers are forbidden. Move queries to repositories.', 22],
+                ['Database queries in controllers are forbidden. Move queries to repositories.', 24],
+                ['Database queries in controllers are forbidden. Move queries to repositories.', 26],
                 ['Database queries in controllers are forbidden. Move queries to repositories.', 28],
+                ['Database queries in controllers are forbidden. Move queries to repositories.', 35],
+                ['Database queries in controllers are forbidden. Move queries to repositories.', 40],
+                ['Database queries in controllers are forbidden. Move queries to repositories.', 42],
+                ['Database queries in controllers are forbidden. Move queries to repositories.', 44],
+                ['Database queries in controllers are forbidden. Move queries to repositories.', 49],
+                ['Database queries in controllers are forbidden. Move queries to repositories.', 51],
+                ['Database queries in controllers are forbidden. Move queries to repositories.', 56],
+                ['Database queries in controllers are forbidden. Move queries to repositories.', 61],
+                ['Database queries in controllers are forbidden. Move queries to repositories.', 69],
+                ['Database queries in controllers are forbidden. Move queries to repositories.', 70],
+                ['Database queries in controllers are forbidden. Move queries to repositories.', 71],
+                ['Database queries in controllers are forbidden. Move queries to repositories.', 76],
             ],
         );
     }
