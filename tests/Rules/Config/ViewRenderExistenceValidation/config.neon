@@ -1,0 +1,5 @@
+# Paths are relative to the working directory, which is the project root when PHPUnit runs.
+parameters:
+	mspirkovYii2Rules:
+		aliases:
+			'@app': tests/Rules/Data/ViewRenderExistenceValidation

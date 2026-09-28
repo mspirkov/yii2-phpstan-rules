@@ -12,12 +12,20 @@ final class ErrorBuilder
     /**
      * @param value-of<Identifiers::LIST> $identifier
      */
-    public static function build(string $message, string $identifier, ?int $line = null): IdentifierRuleError
-    {
+    public static function build(
+        string $message,
+        string $identifier,
+        ?int $line = null,
+        ?string $tip = null
+    ): IdentifierRuleError {
         $builder = RuleErrorBuilder::message($message)->identifier($identifier);
 
         if ($line !== null) {
             $builder = $builder->line($line);
+        }
+
+        if ($tip !== null) {
+            $builder = $builder->tip($tip);
         }
 
         return $builder->build();

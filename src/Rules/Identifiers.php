@@ -16,13 +16,16 @@ final class Identifiers
     public const COMPONENT_BEHAVIORS_VALIDATION = self::PREFIX . 'componentBehaviorsValidation';
     public const CONTROLLER_ACTIONS_VALIDATION = self::PREFIX . 'controllerActionsValidation';
     public const CONTROLLER_BEHAVIOR_ACTIONS_VALIDATION = self::PREFIX . 'controllerBehaviorActionsValidation';
+    public const CONTROLLER_VIEW_EXISTENCE_VALIDATION = self::PREFIX . 'controllerViewExistenceValidation';
     public const HTML_ACTIVE_ATTRIBUTE_VALIDATION = self::PREFIX . 'htmlActiveAttributeValidation';
     public const MODEL_ATTRIBUTE_HINTS_VALIDATION = self::PREFIX . 'modelAttributeHintsValidation';
     public const MODEL_ATTRIBUTE_LABELS_VALIDATION = self::PREFIX . 'modelAttributeLabelsValidation';
     public const MODEL_RULES_VALIDATION = self::PREFIX . 'modelRulesValidation';
     public const MODEL_SCENARIOS_VALIDATION = self::PREFIX . 'modelScenariosValidation';
+    public const NESTED_VIEW_EXISTENCE_VALIDATION = self::PREFIX . 'nestedViewExistenceValidation';
     public const QUERY_CONDITION_VALIDATION = self::PREFIX . 'queryConditionValidation';
     public const UPLOADED_FILE_INSTANCE_VALIDATION = self::PREFIX . 'uploadedFileInstanceValidation';
+    public const VIEW_RENDER_EXISTENCE_VALIDATION = self::PREFIX . 'viewRenderExistenceValidation';
     public const WIDGET_PROPERTIES_VALIDATION = self::PREFIX . 'widgetPropertiesValidation';
     public const YII_CREATE_OBJECT_VALIDATION = self::PREFIX . 'yiiCreateObjectValidation';
     public const NO_COMPLEX_ACTION_CLASSES = self::PREFIX . 'noComplexActionClasses';
@@ -50,13 +53,16 @@ final class Identifiers
         self::COMPONENT_BEHAVIORS_VALIDATION,
         self::CONTROLLER_ACTIONS_VALIDATION,
         self::CONTROLLER_BEHAVIOR_ACTIONS_VALIDATION,
+        self::CONTROLLER_VIEW_EXISTENCE_VALIDATION,
         self::HTML_ACTIVE_ATTRIBUTE_VALIDATION,
         self::MODEL_ATTRIBUTE_HINTS_VALIDATION,
         self::MODEL_ATTRIBUTE_LABELS_VALIDATION,
         self::MODEL_RULES_VALIDATION,
         self::MODEL_SCENARIOS_VALIDATION,
+        self::NESTED_VIEW_EXISTENCE_VALIDATION,
         self::QUERY_CONDITION_VALIDATION,
         self::UPLOADED_FILE_INSTANCE_VALIDATION,
+        self::VIEW_RENDER_EXISTENCE_VALIDATION,
         self::WIDGET_PROPERTIES_VALIDATION,
         self::YII_CREATE_OBJECT_VALIDATION,
         self::NO_COMPLEX_ACTION_CLASSES,

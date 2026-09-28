@@ -60,6 +60,21 @@ parameters:
         # static config validation on while the `no*` code-quality rules stay off.
         enableValidationRules: true
 
+        # Aliases used to resolve view names in the view existence rules
+        # (controllerViewExistenceValidation, nestedViewExistenceValidation, viewRenderExistenceValidation):
+        # `@alias/...` names are resolved through this map and `//...` names through `@app/views`.
+        # A name that uses an alias missing from this map is reported, asking to add it. Only root aliases
+        # (`@app`, not `@app/modules`) are supported. A value may refer to another alias, but a leading `@` must be doubled there
+        # because NEON treats a single one as a service reference.
+        aliases:
+            '@app': %currentWorkingDirectory%
+            '@shared': '@@app/modules/shared'
+
+        # Extensions tried for view names without one, in order
+        viewExtensions:
+            - php
+            - twig
+
         # Component IDs treated as "the database" by the DB-access rules
         yiiAppDbProperties:
             - db
@@ -130,13 +145,16 @@ Statically validate Yii2's loosely-typed config arrays and array-driven conventi
 | [`componentBehaviorsValidation`](#component-behaviors-validation)                | Malformed or invalid `behaviors()` in `yii\base\Component` — unknown behavior classes, bad config keys, and bad option types                            |
 | [`controllerActionsValidation`](#controller-actions-validation)                  | Malformed or invalid `actions()` in `yii\base\Controller` — unknown action classes, bad config keys, and bad option types                               |
 | [`controllerBehaviorActionsValidation`](#controller-behavior-actions-validation) | `only` / `except` / `optional`, `AccessControl` rules and `VerbFilter` keys in `behaviors()` that name a non-existent controller action                 |
+| [`controllerViewExistenceValidation`](#controller-view-existence-validation)     | `render()` / `renderPartial()` / `renderAjax()` calls in a controller naming a view file that does not exist                                            |
 | [`htmlActiveAttributeValidation`](#html-active-attribute-validation)             | `Html::activeInput()` / `activeTextInput()` / etc. calls referencing an attribute that does not exist on the given model                                |
 | [`modelAttributeHintsValidation`](#model-attribute-hints-validation)             | `attributeHints()` entries in `yii\base\Model` that target attributes that don't exist, or use an empty attribute name                                  |
 | [`modelAttributeLabelsValidation`](#model-attribute-labels-validation)           | `attributeLabels()` entries in `yii\base\Model` that target attributes that don't exist, or use an empty attribute name                                 |
 | [`modelRulesValidation`](#model-validation-rules-validation)                     | Malformed or invalid `rules()` in `yii\base\Model` — unknown validators, missing required options, bad regexes, unknown attributes, and more            |
 | [`modelScenariosValidation`](#model-scenarios-validation)                        | `scenarios()` entries in `yii\base\Model` with an empty name, a non-array attribute list, or an unknown attribute                                       |
+| [`nestedViewExistenceValidation`](#nested-view-existence-validation)             | `$this->render()` calls in a view file naming another view file that does not exist                                                                     |
 | [`queryConditionValidation`](#query-condition-validation)                        | `where()` / `andWhere()` / `orWhere()` operator-format conditions (`in`, `between`, `like`, etc.) with the wrong number of operands                     |
 | [`uploadedFileInstanceValidation`](#uploadedfile-instance-validation)            | `UploadedFile::getInstance()` / `getInstances()` calls referencing an attribute that does not exist on the given model                                  |
+| [`viewRenderExistenceValidation`](#viewrender-existence-validation)              | `View::render()` calls outside view files naming an aliased view file (`@alias/...`, `//...`) that does not exist                                       |
 | [`widgetPropertiesValidation`](#widget-properties-validation)                    | Unknown or mistyped option keys and bad option types in `Widget::begin()` / `Widget::widget()` config arrays                                            |
 | [`yiiCreateObjectValidation`](#yiicreateobject-validation)                       | `Yii::createObject()` config arrays missing `class`/`__class`, bad config keys, and bad option types                                                    |
 
@@ -520,6 +538,30 @@ public function behaviors(): array
 }
 ```
 
+#### Controller view existence validation
+
+`Controller::render()`, `renderPartial()` and `renderAjax()` take a view name that Yii only resolves when the action runs, so a typo surfaces as a `ViewNotFoundException` on that request. This rule checks that the view file exists for every call whose view name is a constant string, resolving the name the way Yii does: a relative name (`index`) against the controller's view directory, `/site/index` against the module's `views` directory, `//layouts/main` against `@app/views`, and `@alias/...` through the `aliases` you configure. The `views` directory and the controller ID are derived from where the controller lives (`<module>/controllers/[<prefix>/]<Name>Controller.php`; `controllers` / `Controllers` and `views` / `Views` are both accepted), and a name without an extension is tried with each of `viewExtensions`. Dynamic names, abstract controllers, controllers that override `getViewPath()` and controllers that don't follow the location convention are skipped. Layouts are not checked, and a view that exists only as a theme replacement (`View::$theme`) is still reported. A name that relies on an alias missing from `aliases` (including `@app` for `//...` names) is reported with a request to add it, since the file can't be looked up otherwise; and when the alias is configured but the file is still missing, the error carries a tip that the alias may point to the wrong directory.
+
+```php
+final class SiteController extends Controller  // app/controllers/SiteController.php
+{
+    public function actionIndex(): string
+    {
+        $this->render('index');                  // ✓ app/views/site/index.php exists
+        $this->render('/site/_form');            // ✓ module views directory
+        $this->render('@app/views/shared/menu'); // ✓ through the "@app" alias
+        $this->render($name);                    // skipped — not a constant string
+
+        $this->render('idnex');                  // ✗ app/views/site/idnex.php does not exist
+        $this->renderPartial('_missing');        // ✗
+        $this->render('//layouts/missing');      // ✗ app/views/layouts/missing.php does not exist
+        $this->render('@theme/menu');            // ✗ the "@theme" alias is not in `aliases`
+
+        return $this->render('index');
+    }
+}
+```
+
 #### `Html` active attribute validation
 
 `Html::activeInput()`, `activeTextInput()`, and the rest of the `active*()` family (`activeHiddenInput`, `activePasswordInput`, `activeFileInput`, `activeTextarea`, `activeRadio`, `activeCheckbox`, `activeDropDownList`, `activeListBox`, `activeCheckboxList`, `activeRadioList`, `activeLabel`, `activeHint`) all take a model and a plain attribute-name string, the same as `ActiveForm::field()`. This rule checks that the attribute exists on the given model, the same `@property`-aware resolution used by `activeFormFieldValidation` and `uploadedFileInstanceValidation`. `yii\base\DynamicModel` instances are skipped, since their attributes are defined at runtime via `defineAttribute()` and can't be resolved statically.
@@ -649,6 +691,22 @@ final class ContactModel extends Model
 }
 ```
 
+#### Nested view existence validation
+
+A view file that renders another view with `$this->render()` has the same problem as a controller: the name is only resolved when the page is rendered. This rule checks calls to `yii\base\View::render()` made from a view file (any file inside a `views` / `Views` directory) whose view name is a constant string. A relative name (`_form`) is resolved against the directory of the file the call is in, `/site/_form` against the nearest enclosing `views` directory, `//layouts/main` against `@app/views`, and `@alias/...` through the `aliases` you configure; names without an extension are tried with each of `viewExtensions`. Dynamic names and calls that pass an explicit `$context` argument (which changes what a relative name is resolved against) are skipped. As with `controllerViewExistenceValidation`, an alias missing from `aliases` is reported with a request to add it, and a missing file behind a configured alias comes with a tip that the alias may point to the wrong directory.
+
+```php
+// app/views/site/index.php
+/** @var yii\web\View $this */
+
+echo $this->render('_form');              // ✓ app/views/site/_form.php exists
+echo $this->render('/layouts/_footer');   // ✓ app/views/layouts/_footer.php exists
+echo $this->render($partial);             // skipped — not a constant string
+
+echo $this->render('_fromm');             // ✗ app/views/site/_fromm.php does not exist
+echo $this->render('//layouts/missing');  // ✗ app/views/layouts/missing.php does not exist
+```
+
 #### Query condition validation
 
 `Query::where()` / `andWhere()` / `orWhere()` accept an "operator format" array (`[operator, operand1, operand2, ...]`), and Yii only discovers a missing operand at query-build time — each `yii\db\conditions\*Condition::fromArrayDefinition()` throws an `InvalidArgumentException` if its required operands aren't present. This rule checks the operand count against those same rules: `not`, `between` / `not between`, `in` / `not in`, `like` and its variants, and `exists` / `not exists` each need a specific minimum (or, for `not`, an exact) number of operands, and the standard comparison operators (`=`, `!=`, `<>`, `>`, `>=`, `<`, `<=`) need exactly 2, Yii's documented "arbitrary operator" case. `and` / `or` operands are recursed into, since they typically wrap further operator-format sub-conditions; `yii\db\conditions\ConjunctionCondition` itself never validates their count, but a zero-operand `and`/`or` can never produce a meaningful condition, so this rule still requires at least one. Any other operator string — a genuinely custom one registered via `QueryBuilder::setConditionClasses()` — is left unchecked rather than guessed at, and so is anything built dynamically or in hash format (`['status' => 1]`, never operator-format to begin with).
@@ -687,6 +745,24 @@ $model->imageFile = UploadedFile::getInstance($model, 'imageFile');    // ✓
 $model->imageFiles = UploadedFile::getInstances($model, 'imageFiles'); // ✓
 $model->imageFile = UploadedFile::getInstance($model, 'imagefile');    // ✗ typo — "imagefile" is not a property on UploadForm
 $files = UploadedFile::getInstances($model, 'imagefiles');             // ✗ typo — "imagefiles" is not a property on UploadForm
+```
+
+#### `View::render()` existence validation
+
+`yii\base\View::render()` is also called outside views — from widgets, services and components, or through `$this->view->render()` and `Yii::$app->view->render()`. Without a "current view file" there is nothing a relative name could be resolved against, so this rule only checks the names that stand on their own: `@alias/...` (through the `aliases` you configure) and `//...` (against `@app/views`), when the name is a constant string; names without an extension are tried with each of `viewExtensions`. Relative names, `/...` names and dynamic names are skipped, and calls made from view files are left to `nestedViewExistenceValidation`. As with the other view rules, an alias missing from `aliases` is reported with a request to add it, and a missing file behind a configured alias comes with a tip that the alias may point to the wrong directory.
+
+```php
+final class Mailer extends Component
+{
+    public function render(View $view): string
+    {
+        $view->render('@app/mail/layouts/html');   // ✓ file exists
+        $view->render('//mail/welcome');           // ✓ app/views/mail/welcome.php exists
+        $view->render('_relative');                // skipped — no current view file to resolve against
+
+        return $view->render('@app/mail/missing'); // ✗ file does not exist
+    }
+}
 ```
 
 #### Widget properties validation

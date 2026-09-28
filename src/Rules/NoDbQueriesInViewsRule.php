@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace MSpirkov\Yii2\PHPStan\Rules;
 
 use MSpirkov\Yii2\PHPStan\Analyzers\DbQueriesUsageAnalyzer;
+use MSpirkov\Yii2\PHPStan\Analyzers\ViewFileAnalyzer;
 use PhpParser\Node;
 use PHPStan\Analyser\Scope;
 use PHPStan\Rules\IdentifierRuleError;
@@ -17,9 +18,14 @@ final class NoDbQueriesInViewsRule implements Rule
 {
     private DbQueriesUsageAnalyzer $dbQueriesUsageAnalyzer;
 
-    public function __construct(DbQueriesUsageAnalyzer $dbQueriesUsageAnalyzer)
-    {
+    private ViewFileAnalyzer $viewFileAnalyzer;
+
+    public function __construct(
+        DbQueriesUsageAnalyzer $dbQueriesUsageAnalyzer,
+        ViewFileAnalyzer $viewFileAnalyzer
+    ) {
         $this->dbQueriesUsageAnalyzer = $dbQueriesUsageAnalyzer;
+        $this->viewFileAnalyzer = $viewFileAnalyzer;
     }
 
     public function getNodeType(): string
@@ -32,7 +38,7 @@ final class NoDbQueriesInViewsRule implements Rule
      */
     public function processNode(Node $node, Scope $scope): array
     {
-        if (!$this->isViewFile($scope->getFile())) {
+        if (!$this->viewFileAnalyzer->isViewFile($scope->getFile())) {
             return [];
         }
 
@@ -46,10 +52,5 @@ final class NoDbQueriesInViewsRule implements Rule
                 Identifiers::NO_DB_QUERIES_IN_VIEWS
             ),
         ];
-    }
-
-    private function isViewFile(string $file): bool
-    {
-        return preg_match('~(?:^|/)views/~', str_replace('\\', '/', $file)) === 1;
     }
 }
