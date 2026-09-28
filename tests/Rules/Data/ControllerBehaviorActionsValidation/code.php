@@ -270,7 +270,7 @@ final class DynamicSpreadActionsController extends Controller
 
     public function actions(): array
     {
-        return array_merge(parent::actions(), $this->dynamicActions(), [...$this->dynamicActions()]);
+        return array_merge(parent::actions(), $this->dynamicActions(), [...$this->dynamicActions()], ...[$this->dynamicActions()]);
     }
 
     private function dynamicActions(): array
