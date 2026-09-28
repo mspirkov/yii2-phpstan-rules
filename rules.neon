@@ -6,6 +6,9 @@ parameters:
 			- db
 		baseObjectConfigValidation:
 			skippedClasses: []
+		aliases: []
+		viewExtensions:
+			- php
 		actionComplexity:
 			ifCount: 3
 			foreachCount: 0
@@ -36,6 +39,8 @@ parameters:
 			enabled: %mspirkovYii2Rules.enableValidationRules%
 		controllerBehaviorActionsValidation:
 			enabled: %mspirkovYii2Rules.enableValidationRules%
+		controllerViewExistenceValidation:
+			enabled: %mspirkovYii2Rules.enableValidationRules%
 		htmlActiveAttributeValidation:
 			enabled: %mspirkovYii2Rules.enableValidationRules%
 		modelAttributeHintsValidation:
@@ -47,9 +52,13 @@ parameters:
 			customValidators: []
 		modelScenariosValidation:
 			enabled: %mspirkovYii2Rules.enableValidationRules%
+		nestedViewExistenceValidation:
+			enabled: %mspirkovYii2Rules.enableValidationRules%
 		queryConditionValidation:
 			enabled: %mspirkovYii2Rules.enableValidationRules%
 		uploadedFileInstanceValidation:
+			enabled: %mspirkovYii2Rules.enableValidationRules%
+		viewRenderExistenceValidation:
 			enabled: %mspirkovYii2Rules.enableValidationRules%
 		widgetPropertiesValidation:
 			enabled: %mspirkovYii2Rules.enableValidationRules%
@@ -97,6 +106,8 @@ parametersSchema:
 				?attributes: listOf(string())
 			]))
 		])
+		aliases: arrayOf(string())
+		viewExtensions: listOf(string())
 		actionComplexity: structure([
 			ifCount: int()
 			foreachCount: int()
@@ -138,6 +149,9 @@ parametersSchema:
 		controllerBehaviorActionsValidation: structure([
 			enabled: bool()
 		])
+		controllerViewExistenceValidation: structure([
+			enabled: bool()
+		])
 		htmlActiveAttributeValidation: structure([
 			enabled: bool()
 		])
@@ -154,10 +168,16 @@ parametersSchema:
 		modelScenariosValidation: structure([
 			enabled: bool()
 		])
+		nestedViewExistenceValidation: structure([
+			enabled: bool()
+		])
 		queryConditionValidation: structure([
 			enabled: bool()
 		])
 		uploadedFileInstanceValidation: structure([
+			enabled: bool()
+		])
+		viewRenderExistenceValidation: structure([
 			enabled: bool()
 		])
 		widgetPropertiesValidation: structure([
@@ -226,6 +246,8 @@ conditionalTags:
 		phpstan.rules.rule: %mspirkovYii2Rules.controllerActionsValidation.enabled%
 	MSpirkov\Yii2\PHPStan\Rules\ControllerBehaviorActionsValidationRule:
 		phpstan.rules.rule: %mspirkovYii2Rules.controllerBehaviorActionsValidation.enabled%
+	MSpirkov\Yii2\PHPStan\Rules\ControllerViewExistenceValidationRule:
+		phpstan.rules.rule: %mspirkovYii2Rules.controllerViewExistenceValidation.enabled%
 	MSpirkov\Yii2\PHPStan\Rules\HtmlActiveAttributeValidationRule:
 		phpstan.rules.rule: %mspirkovYii2Rules.htmlActiveAttributeValidation.enabled%
 	MSpirkov\Yii2\PHPStan\Rules\ModelAttributeHintsValidationRule:
@@ -236,10 +258,14 @@ conditionalTags:
 		phpstan.rules.rule: %mspirkovYii2Rules.modelRulesValidation.enabled%
 	MSpirkov\Yii2\PHPStan\Rules\ModelScenariosValidationRule:
 		phpstan.rules.rule: %mspirkovYii2Rules.modelScenariosValidation.enabled%
+	MSpirkov\Yii2\PHPStan\Rules\NestedViewExistenceValidationRule:
+		phpstan.rules.rule: %mspirkovYii2Rules.nestedViewExistenceValidation.enabled%
 	MSpirkov\Yii2\PHPStan\Rules\QueryConditionValidationRule:
 		phpstan.rules.rule: %mspirkovYii2Rules.queryConditionValidation.enabled%
 	MSpirkov\Yii2\PHPStan\Rules\UploadedFileInstanceValidationRule:
 		phpstan.rules.rule: %mspirkovYii2Rules.uploadedFileInstanceValidation.enabled%
+	MSpirkov\Yii2\PHPStan\Rules\ViewRenderExistenceValidationRule:
+		phpstan.rules.rule: %mspirkovYii2Rules.viewRenderExistenceValidation.enabled%
 	MSpirkov\Yii2\PHPStan\Rules\WidgetPropertiesValidationRule:
 		phpstan.rules.rule: %mspirkovYii2Rules.widgetPropertiesValidation.enabled%
 	MSpirkov\Yii2\PHPStan\Rules\YiiCreateObjectValidationRule:
@@ -291,6 +317,8 @@ services:
 	-
 		class: MSpirkov\Yii2\PHPStan\Rules\ControllerBehaviorActionsValidationRule
 	-
+		class: MSpirkov\Yii2\PHPStan\Rules\ControllerViewExistenceValidationRule
+	-
 		class: MSpirkov\Yii2\PHPStan\Rules\HtmlActiveAttributeValidationRule
 	-
 		class: MSpirkov\Yii2\PHPStan\Rules\ModelAttributeHintsValidationRule
@@ -303,9 +331,13 @@ services:
 	-
 		class: MSpirkov\Yii2\PHPStan\Rules\ModelScenariosValidationRule
 	-
+		class: MSpirkov\Yii2\PHPStan\Rules\NestedViewExistenceValidationRule
+	-
 		class: MSpirkov\Yii2\PHPStan\Rules\QueryConditionValidationRule
 	-
 		class: MSpirkov\Yii2\PHPStan\Rules\UploadedFileInstanceValidationRule
+	-
+		class: MSpirkov\Yii2\PHPStan\Rules\ViewRenderExistenceValidationRule
 	-
 		class: MSpirkov\Yii2\PHPStan\Rules\WidgetPropertiesValidationRule
 	-
@@ -379,6 +411,11 @@ services:
 		class: MSpirkov\Yii2\PHPStan\Analyzers\ModelAnalyzer
 	-
 		class: MSpirkov\Yii2\PHPStan\Analyzers\QueryAnalyzer
+	-
+		class: MSpirkov\Yii2\PHPStan\Analyzers\ViewFileAnalyzer
+		arguments:
+			aliases: %mspirkovYii2Rules.aliases%
+			extensions: %mspirkovYii2Rules.viewExtensions%
 	-
 		class: MSpirkov\Yii2\PHPStan\Finders\MethodReturnExpressionFinder
 	-

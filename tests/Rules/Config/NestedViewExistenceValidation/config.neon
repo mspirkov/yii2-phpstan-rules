@@ -1,0 +1,4 @@
+parameters:
+	mspirkovYii2Rules:
+		aliases:
+			'@app': tests/Rules/Data/NestedViewExistenceValidation
