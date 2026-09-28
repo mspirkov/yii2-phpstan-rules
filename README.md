@@ -118,26 +118,27 @@ parameters:
 
 Statically validate Yii2's loosely-typed config arrays and array-driven conventions — shapes PHPStan can't check on its own because they only take effect at runtime. Toggle all of them at once with `enableValidationRules`.
 
-| Rule                                                                            | Catches                                                                                                                                                 |
-| ------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [`activeFormFieldValidation`](#active-form-field-validation)                    | `ActiveForm::field()` calls targeting an attribute that is missing, read-only, or write-only on the given model                                         |
-| [`activeQueryWithValidation`](#activequery-with-validation)                     | `with()` / `joinWith()` / `innerJoinWith()` calls referencing a relation that doesn't exist on the queried ActiveRecord model                           |
-| [`activeRecordConditionValidation`](#active-record-condition-validation)        | `findOne()` / `findAll()` / `deleteAll()` / `updateAll()` / `updateAllCounters()` WHERE conditions with an unknown attribute or a mismatched value type |
-| [`activeRecordRelationValidation`](#active-record-relations-validation)         | Invalid `hasOne()` / `hasMany()` link properties that do not exist on the current or related ActiveRecord model                                         |
-| [`activeRecordUpdateValuesValidation`](#active-record-update-values-validation) | `updateAll()` / `updateAllCounters()` attribute or counter values with an unknown attribute or a mismatched value type                                  |
-| [`baseObjectInstantiationValidation`](#baseobject-instantiation-validation)     | `new` on a `yii\base\BaseObject` subclass whose last constructor argument is a `$config` array, with bad config keys and bad option types               |
-| [`behaviorAttributesValidation`](#behavior-attributes-validation)               | `TimestampBehavior`/`BlameableBehavior`/`SluggableBehavior`/`AttributeTypecastBehavior`/`DateTimeBehavior` options naming an unknown model attribute    |
-| [`componentBehaviorsValidation`](#component-behaviors-validation)               | Malformed or invalid `behaviors()` in `yii\base\Component` — unknown behavior classes, bad config keys, and bad option types                            |
-| [`controllerActionsValidation`](#controller-actions-validation)                 | Malformed or invalid `actions()` in `yii\base\Controller` — unknown action classes, bad config keys, and bad option types                               |
-| [`htmlActiveAttributeValidation`](#html-active-attribute-validation)            | `Html::activeInput()` / `activeTextInput()` / etc. calls referencing an attribute that does not exist on the given model                                |
-| [`modelAttributeHintsValidation`](#model-attribute-hints-validation)            | `attributeHints()` entries in `yii\base\Model` that target attributes that don't exist, or use an empty attribute name                                  |
-| [`modelAttributeLabelsValidation`](#model-attribute-labels-validation)          | `attributeLabels()` entries in `yii\base\Model` that target attributes that don't exist, or use an empty attribute name                                 |
-| [`modelRulesValidation`](#model-validation-rules-validation)                    | Malformed or invalid `rules()` in `yii\base\Model` — unknown validators, missing required options, bad regexes, unknown attributes, and more            |
-| [`modelScenariosValidation`](#model-scenarios-validation)                       | `scenarios()` entries in `yii\base\Model` with an empty name, a non-array attribute list, or an unknown attribute                                       |
-| [`queryConditionValidation`](#query-condition-validation)                       | `where()` / `andWhere()` / `orWhere()` operator-format conditions (`in`, `between`, `like`, etc.) with the wrong number of operands                     |
-| [`uploadedFileInstanceValidation`](#uploadedfile-instance-validation)           | `UploadedFile::getInstance()` / `getInstances()` calls referencing an attribute that does not exist on the given model                                  |
-| [`widgetPropertiesValidation`](#widget-properties-validation)                   | Unknown or mistyped option keys and bad option types in `Widget::begin()` / `Widget::widget()` config arrays                                            |
-| [`yiiCreateObjectValidation`](#yiicreateobject-validation)                      | `Yii::createObject()` config arrays missing `class`/`__class`, bad config keys, and bad option types                                                    |
+| Rule                                                                             | Catches                                                                                                                                                 |
+| -------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [`activeFormFieldValidation`](#active-form-field-validation)                     | `ActiveForm::field()` calls targeting an attribute that is missing, read-only, or write-only on the given model                                         |
+| [`activeQueryWithValidation`](#activequery-with-validation)                      | `with()` / `joinWith()` / `innerJoinWith()` calls referencing a relation that doesn't exist on the queried ActiveRecord model                           |
+| [`activeRecordConditionValidation`](#active-record-condition-validation)         | `findOne()` / `findAll()` / `deleteAll()` / `updateAll()` / `updateAllCounters()` WHERE conditions with an unknown attribute or a mismatched value type |
+| [`activeRecordRelationValidation`](#active-record-relations-validation)          | Invalid `hasOne()` / `hasMany()` link properties that do not exist on the current or related ActiveRecord model                                         |
+| [`activeRecordUpdateValuesValidation`](#active-record-update-values-validation)  | `updateAll()` / `updateAllCounters()` attribute or counter values with an unknown attribute or a mismatched value type                                  |
+| [`baseObjectInstantiationValidation`](#baseobject-instantiation-validation)      | `new` on a `yii\base\BaseObject` subclass whose last constructor argument is a `$config` array, with bad config keys and bad option types               |
+| [`behaviorAttributesValidation`](#behavior-attributes-validation)                | `TimestampBehavior`/`BlameableBehavior`/`SluggableBehavior`/`AttributeTypecastBehavior`/`DateTimeBehavior` options naming an unknown model attribute    |
+| [`componentBehaviorsValidation`](#component-behaviors-validation)                | Malformed or invalid `behaviors()` in `yii\base\Component` — unknown behavior classes, bad config keys, and bad option types                            |
+| [`controllerActionsValidation`](#controller-actions-validation)                  | Malformed or invalid `actions()` in `yii\base\Controller` — unknown action classes, bad config keys, and bad option types                               |
+| [`controllerBehaviorActionsValidation`](#controller-behavior-actions-validation) | `only` / `except` / `optional`, `AccessControl` rules and `VerbFilter` keys in `behaviors()` that name a non-existent controller action                 |
+| [`htmlActiveAttributeValidation`](#html-active-attribute-validation)             | `Html::activeInput()` / `activeTextInput()` / etc. calls referencing an attribute that does not exist on the given model                                |
+| [`modelAttributeHintsValidation`](#model-attribute-hints-validation)             | `attributeHints()` entries in `yii\base\Model` that target attributes that don't exist, or use an empty attribute name                                  |
+| [`modelAttributeLabelsValidation`](#model-attribute-labels-validation)           | `attributeLabels()` entries in `yii\base\Model` that target attributes that don't exist, or use an empty attribute name                                 |
+| [`modelRulesValidation`](#model-validation-rules-validation)                     | Malformed or invalid `rules()` in `yii\base\Model` — unknown validators, missing required options, bad regexes, unknown attributes, and more            |
+| [`modelScenariosValidation`](#model-scenarios-validation)                        | `scenarios()` entries in `yii\base\Model` with an empty name, a non-array attribute list, or an unknown attribute                                       |
+| [`queryConditionValidation`](#query-condition-validation)                        | `where()` / `andWhere()` / `orWhere()` operator-format conditions (`in`, `between`, `like`, etc.) with the wrong number of operands                     |
+| [`uploadedFileInstanceValidation`](#uploadedfile-instance-validation)            | `UploadedFile::getInstance()` / `getInstances()` calls referencing an attribute that does not exist on the given model                                  |
+| [`widgetPropertiesValidation`](#widget-properties-validation)                    | Unknown or mistyped option keys and bad option types in `Widget::begin()` / `Widget::widget()` config arrays                                            |
+| [`yiiCreateObjectValidation`](#yiicreateobject-validation)                       | `Yii::createObject()` config arrays missing `class`/`__class`, bad config keys, and bad option types                                                    |
 
 ### Code quality rules
 
@@ -483,6 +484,37 @@ public function actions(): array
         'download' => [
             'class' => DownloadAction::class,
             'path' => '@app/uploads',      // ✓
+        ],
+    ];
+}
+```
+
+#### Controller behavior actions validation
+
+Filters attached in `Controller::behaviors()` refer to actions by ID, and a stale or misspelled ID is silently ignored at runtime: the filter simply never applies to the action you meant. This rule checks that the action IDs named in a controller's `behaviors()` exist, whether they come from an `actionXxx()` method or from `actions()` (including entries inherited through `parent::actions()`). It covers the `only`, `except` and `optional` options of `yii\base\ActionFilter` subclasses (`ContentNegotiator`, `HttpBearerAuth`, `Cors`, `PageCache`, ...), the `actions` of each `AccessControl` rule, and the keys of `VerbFilter::$actions`. Wildcard patterns such as `index*` and the `*` key of `VerbFilter` are skipped, and so are abstract controllers and controllers whose `actions()` can't be resolved statically.
+
+```php
+public function behaviors(): array
+{
+    return [
+        'verbs' => [
+            'class' => VerbFilter::class,
+            'actions' => [
+                'delet' => ['POST'],                   // ✗ typo — no such action
+                'view-post' => ['GET'],                // ✓ actionViewPost()
+            ],
+        ],
+        'access' => [
+            'class' => AccessControl::class,
+            'only' => ['index', 'logout', 'signup'],   // ✗ "signup" does not exist
+            'rules' => [
+                ['allow' => true, 'actions' => ['index', 'logout'], 'roles' => ['@']],
+                ['allow' => true, 'actions' => ['captcha']],     // ✓ declared in actions()
+            ],
+        ],
+        'negotiator' => [
+            'class' => ContentNegotiator::class,
+            'only' => ['not-found'],                   // ✗ no such action
         ],
     ];
 }
