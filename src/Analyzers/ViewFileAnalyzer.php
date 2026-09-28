@@ -116,7 +116,11 @@ final class ViewFileAnalyzer
     /**
      * @param array{viewsDirectory: string, directory: string}|null $location
      *
-     * @return array{path: string|null, alias: string|null, unresolvedAlias: string|null}
+     * @return array{
+     *     path: string|null,
+     *     alias: string|null,
+     *     unresolvedAlias: string|null,
+     * }
      */
     private function resolveViewPath(string $view, ?array $location): array
     {
@@ -141,7 +145,11 @@ final class ViewFileAnalyzer
             ? $location['viewsDirectory'] . '/' . ltrim($view, '/')
             : $location['directory'] . '/' . $view;
 
-        return ['path' => $path, 'alias' => null, 'unresolvedAlias' => null];
+        return [
+            'path' => $path,
+            'alias' => null,
+            'unresolvedAlias' => null,
+        ];
     }
 
     /**
@@ -247,8 +255,14 @@ final class ViewFileAnalyzer
     private function locateViewFileViews(string $viewFile): ?array
     {
         $viewsDirectory = $this->findViewsDirectory($viewFile);
+        if ($viewsDirectory === null) {
+            return null;
+        }
 
-        return $viewsDirectory === null ? null : ['viewsDirectory' => $viewsDirectory, 'directory' => dirname($viewFile)];
+        return [
+            'viewsDirectory' => $viewsDirectory,
+            'directory' => dirname($viewFile),
+        ];
     }
 
     private function findViewsDirectory(string $file): ?string
