@@ -15,6 +15,7 @@ final class Identifiers
     public const BEHAVIOR_ATTRIBUTES_VALIDATION = self::PREFIX . 'behaviorAttributesValidation';
     public const COMPONENT_BEHAVIORS_VALIDATION = self::PREFIX . 'componentBehaviorsValidation';
     public const CONTROLLER_ACTIONS_VALIDATION = self::PREFIX . 'controllerActionsValidation';
+    public const CONTROLLER_BEHAVIOR_ACTIONS_VALIDATION = self::PREFIX . 'controllerBehaviorActionsValidation';
     public const HTML_ACTIVE_ATTRIBUTE_VALIDATION = self::PREFIX . 'htmlActiveAttributeValidation';
     public const MODEL_ATTRIBUTE_HINTS_VALIDATION = self::PREFIX . 'modelAttributeHintsValidation';
     public const MODEL_ATTRIBUTE_LABELS_VALIDATION = self::PREFIX . 'modelAttributeLabelsValidation';
@@ -48,6 +49,7 @@ final class Identifiers
         self::BEHAVIOR_ATTRIBUTES_VALIDATION,
         self::COMPONENT_BEHAVIORS_VALIDATION,
         self::CONTROLLER_ACTIONS_VALIDATION,
+        self::CONTROLLER_BEHAVIOR_ACTIONS_VALIDATION,
         self::HTML_ACTIVE_ATTRIBUTE_VALIDATION,
         self::MODEL_ATTRIBUTE_HINTS_VALIDATION,
         self::MODEL_ATTRIBUTE_LABELS_VALIDATION,
