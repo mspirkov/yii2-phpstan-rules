@@ -218,7 +218,7 @@ final class ViewFileAnalyzer
             static fn(string $segment): bool => in_array($segment, self::CONTROLLERS_DIRECTORIES, true)
         ));
 
-        if (!$controllersIndexes) {
+        if ($controllersIndexes === []) {
             return null;
         }
 
