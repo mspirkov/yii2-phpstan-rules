@@ -42,7 +42,7 @@ includes:
 
 ## Supported extensions
 
-Recognized out of the box, no configuration needed: [`yiisoft/yii2-mongodb`](https://github.com/yiisoft/yii2-mongodb) and [`yiisoft/yii2-redis`](https://github.com/yiisoft/yii2-redis) (their `ActiveRecord`/`Query`/`ActiveQuery`/`Connection` are treated the same as `yii\db`'s, except by `activeQueryWithValidation` — see its section below), and [`mspirkov/yii2-db`](https://github.com/mspirkov/yii2-db) (its `DateTimeBehavior` is recognized by `behaviorAttributesValidation`).
+Recognized out of the box, no configuration needed: [yiisoft/yii2-mongodb](https://github.com/yiisoft/yii2-mongodb) and [yiisoft/yii2-redis](https://github.com/yiisoft/yii2-redis) (their `ActiveRecord`/`Query`/`ActiveQuery`/`Connection` are treated the same as `yii\db`'s, except by `activeQueryWithValidation` — see its section below), and [mspirkov/yii2-db](https://github.com/mspirkov/yii2-db) (its `DateTimeBehavior` is recognized by `behaviorAttributesValidation`).
 
 ## Configuration
 
