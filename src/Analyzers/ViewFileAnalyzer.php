@@ -164,7 +164,7 @@ final class ViewFileAnalyzer
     {
         $separatorPosition = strpos($alias, '/');
 
-        return $separatorPosition === false ? $alias : substr($alias, 0, $separatorPosition);
+        return $separatorPosition === false ? $alias : substr($alias, 0, $separatorPosition) . '';
     }
 
     /**
@@ -222,7 +222,7 @@ final class ViewFileAnalyzer
             return null;
         }
 
-        $name = substr($shortName, 0, -strlen(self::CONTROLLER_SUFFIX));
+        $name = substr($shortName, 0, -strlen(self::CONTROLLER_SUFFIX)) . '';
         if ($name === '') {
             return null;
         }
