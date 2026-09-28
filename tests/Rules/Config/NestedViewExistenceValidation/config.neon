@@ -2,3 +2,6 @@ parameters:
 	mspirkovYii2Rules:
 		aliases:
 			'@app': tests/Rules/Data/NestedViewExistenceValidation
+		viewPaths:
+			'App\Templates': tests/Rules/Data/NestedViewExistenceValidation/templates
+			'App\Gone': tests/Rules/Data/NestedViewExistenceValidation/gone

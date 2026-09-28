@@ -34,7 +34,6 @@ final class SiteController extends Controller
         $this->render('@shared/missing');
         $this->render('//layouts/missing');
         $this->render('@unknown/missing');
-        $this->render('@loop/missing');
         $controller->render('missing');
 
         $view = 'missing';

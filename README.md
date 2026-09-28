@@ -60,20 +60,22 @@ parameters:
         # static config validation on while the `no*` code-quality rules stay off.
         enableValidationRules: true
 
-        # Aliases used to resolve view names in the view existence rules
-        # (controllerViewExistenceValidation, nestedViewExistenceValidation, viewRenderExistenceValidation):
-        # `@alias/...` names are resolved through this map and `//...` names through `@app/views`.
-        # A name that uses an alias missing from this map is reported, asking to add it. Only root aliases
-        # (`@app`, not `@app/modules`) are supported. A value may refer to another alias, but a leading `@` must be doubled there
-        # because NEON treats a single one as a service reference.
+        # Root aliases (`@app`, not `@app/modules`) mapped to plain directory paths, used by the view existence
+        # rules to resolve `@alias/...` names; `//...` names go through `@app/views`
+        # A name that uses an alias missing here is reported.
         aliases:
             '@app': %currentWorkingDirectory%
-            '@shared': '@@app/modules/shared'
+            '@shared': %currentWorkingDirectory%/modules/shared
 
         # Extensions tried for view names without one, in order
         viewExtensions:
             - php
             - twig
+
+        # Views directory for controllers in a namespace (and its sub-namespaces), the most specific one wins.
+        # The controller ID is appended: `SiteController` reads `resources/views/frontend/site/*`.
+        viewPaths:
+            'App\Frontend\Controllers': %currentWorkingDirectory%/resources/views/frontend
 
         # Component IDs treated as "the database" by the DB-access rules
         yiiAppDbProperties:
@@ -540,7 +542,7 @@ public function behaviors(): array
 
 #### Controller view existence validation
 
-`Controller::render()`, `renderPartial()` and `renderAjax()` take a view name that Yii only resolves when the action runs, so a typo surfaces as a `ViewNotFoundException` on that request. This rule checks that the view file exists for every call whose view name is a constant string, resolving the name the way Yii does: a relative name (`index`) against the controller's view directory, `/site/index` against the module's `views` directory, `//layouts/main` against `@app/views`, and `@alias/...` through the `aliases` you configure. The `views` directory and the controller ID are derived from where the controller lives (`<module>/controllers/[<prefix>/]<Name>Controller.php`; `controllers` / `Controllers` and `views` / `Views` are both accepted), and a name without an extension is tried with each of `viewExtensions`. Dynamic names, abstract controllers, controllers that override `getViewPath()` and controllers that don't follow the location convention are skipped. Layouts are not checked, and a view that exists only as a theme replacement (`View::$theme`) is still reported. A name that relies on an alias missing from `aliases` (including `@app` for `//...` names) is reported with a request to add it, since the file can't be looked up otherwise; and when the alias is configured but the file is still missing, the error carries a tip that the alias may point to the wrong directory.
+`Controller::render()`, `renderPartial()` and `renderAjax()` take a view name that Yii only resolves when the action runs, so a typo surfaces as a `ViewNotFoundException` on that request. This rule checks that the view file exists for every call whose view name is a constant string, resolving the name the way Yii does: a relative name (`index`) against the controller's view directory, `/site/index` against the module's `views` directory, `//layouts/main` against `@app/views`, and `@alias/...` through the `aliases` you configure. The `views` directory and the controller ID are derived from where the controller lives (`<module>/controllers/[<prefix>/]<Name>Controller.php`; `controllers` / `Controllers` and `views` / `Views` are both accepted), so for a module the views are expected in the module's own `views` directory, next to its `controllers`. A controller whose namespace is listed in `viewPaths` (or is nested inside a listed one) uses that directory instead, wherever the controller file is, and its ID is built from the sub-namespaces below the listed one. A name without an extension is tried with each of `viewExtensions`. Dynamic names, abstract controllers, controllers that override `getViewPath()` and controllers that don't follow the location convention are skipped. A module that changes its `viewPath` at runtime can't be detected, so give its namespace a `viewPaths` entry. Layouts are not checked, and a view that exists only as a theme replacement (`View::$theme`) is still reported. A name that relies on an alias missing from `aliases` (including `@app` for `//...` names) is reported with a request to add it, since the file can't be looked up otherwise; and when the alias is configured but the file is still missing, the error carries a tip that the alias may point to the wrong directory.
 
 ```php
 final class SiteController extends Controller  // app/controllers/SiteController.php
@@ -693,7 +695,7 @@ final class ContactModel extends Model
 
 #### Nested view existence validation
 
-A view file that renders another view with `$this->render()` has the same problem as a controller: the name is only resolved when the page is rendered. This rule checks calls to `yii\base\View::render()` made from a view file (any file inside a `views` / `Views` directory) whose view name is a constant string. A relative name (`_form`) is resolved against the directory of the file the call is in, `/site/_form` against the nearest enclosing `views` directory, `//layouts/main` against `@app/views`, and `@alias/...` through the `aliases` you configure; names without an extension are tried with each of `viewExtensions`. Dynamic names and calls that pass an explicit `$context` argument (which changes what a relative name is resolved against) are skipped. As with `controllerViewExistenceValidation`, an alias missing from `aliases` is reported with a request to add it, and a missing file behind a configured alias comes with a tip that the alias may point to the wrong directory.
+A view file that renders another view with `$this->render()` has the same problem as a controller: the name is only resolved when the page is rendered. This rule checks calls to `yii\base\View::render()` made from a view file (any file inside a `views` / `Views` directory or a `viewPaths` directory) whose view name is a constant string. A relative name (`_form`) is resolved against the directory of the file the call is in, `/site/_form` against the nearest enclosing `views` directory (or the `viewPaths` directory the file is in), `//layouts/main` against `@app/views`, and `@alias/...` through the `aliases` you configure; names without an extension are tried with each of `viewExtensions`. Dynamic names and calls that pass an explicit `$context` argument (which changes what a relative name is resolved against) are skipped. As with `controllerViewExistenceValidation`, an alias missing from `aliases` is reported with a request to add it, and a missing file behind a configured alias comes with a tip that the alias may point to the wrong directory.
 
 ```php
 // app/views/site/index.php

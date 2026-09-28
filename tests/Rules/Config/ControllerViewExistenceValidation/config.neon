@@ -2,8 +2,11 @@ parameters:
 	mspirkovYii2Rules:
 		aliases:
 			'@app': tests/Rules/Data/ControllerViewExistenceValidation
-			'@shared': '@@app/views/shared'
-			'@loop': '@@loop/next'
+			'@shared': tests/Rules/Data/ControllerViewExistenceValidation/views/shared
 		viewExtensions:
 			- twig
 			- php
+		viewPaths:
+			'MSpirkov\Yii2\PHPStan\Tests\Rules\Data\ControllerViewExistenceValidation\Themed': tests/Rules/Data/ControllerViewExistenceValidation/resources/views/themed
+			'MSpirkov\Yii2\PHPStan\Tests\Rules\Data\ControllerViewExistenceValidation\Themed\Special': tests/Rules/Data/ControllerViewExistenceValidation/resources/views/special/
+			'\MSpirkov\Yii2\PHPStan\Tests\Rules\Data\ControllerViewExistenceValidation\Plain\': tests/Rules/Data/ControllerViewExistenceValidation/resources/views/plain

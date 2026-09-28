@@ -32,6 +32,11 @@ final class ControllerViewExistenceValidationRuleTest extends AbstractTestCase
                 self::getDataFilePath('misplaced/MisplacedController'),
                 self::getDataFilePath('custom/LegacyController'),
                 self::getDataFilePath('CasedModule/Controllers/PageController'),
+                self::getDataFilePath('Themed/HomeController'),
+                self::getDataFilePath('Themed/admin/UserController'),
+                self::getDataFilePath('Themed/Special/ReportController'),
+                self::getDataFilePath('ThemedOther/FooController'),
+                self::getDataFilePath('Plain/PageController'),
             ],
             [
                 [$this->message('missing'), 12],
@@ -49,9 +54,12 @@ final class ControllerViewExistenceValidationRuleTest extends AbstractTestCase
                 [$this->message('@shared/missing'), 34, $this->tip('@shared')],
                 [$this->message('//layouts/missing'), 35, $this->tip('@app')],
                 [$this->unresolved('@unknown/missing', '@unknown'), 36],
-                [$this->unresolved('@loop/missing', '@loop'), 37],
-                [$this->message('missing'), 38],
-                [$this->message('missing'), 41],
+                [$this->message('missing'), 37],
+                [$this->message('missing'), 40],
+                [$this->message('missing'), 12],
+                [$this->message('missing'), 12],
+                [$this->message('missing'), 12],
+                [$this->message('missing'), 12],
             ],
         );
     }
