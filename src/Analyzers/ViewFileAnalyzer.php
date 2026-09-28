@@ -208,11 +208,6 @@ final class ViewFileAnalyzer
             return null;
         }
 
-        $fileName = $controller->getFileName();
-        if ($fileName === null) {
-            return null;
-        }
-
         $segments = explode('\\', $controller->getName());
         $shortName = array_pop($segments);
         if (substr($shortName, -strlen(self::CONTROLLER_SUFFIX)) !== self::CONTROLLER_SUFFIX) {
@@ -238,7 +233,7 @@ final class ViewFileAnalyzer
         }
 
         $prefixSegments = array_slice($segments, end($controllersIndexes) + 1);
-        $controllersDirectory = dirname($fileName, count($prefixSegments) + 1);
+        $controllersDirectory = dirname($controller->getFileName(), count($prefixSegments) + 1);
         if (!in_array(basename($controllersDirectory), self::CONTROLLERS_DIRECTORIES, true)) {
             return null;
         }
