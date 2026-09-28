@@ -18,15 +18,15 @@ final class NestedViewExistenceValidationRuleTest extends AbstractTestCase
         $this->analyse(
             [self::getDataFilePath('views/site/index')],
             [
-                [$this->message('_missing'), 18],
-                [$this->message('_missing.php'), 19],
-                [$this->message('sub/missing'), 20],
-                [$this->message('/layouts/missing'), 21],
-                [$this->message('//layouts/missing'), 22, self::TIP],
-                [$this->message('@app/views/layouts/missing'), 23, self::TIP],
-                [$this->message('_missing'), 24],
+                [$this->message('_missing', 'views/site/_missing'), 18],
+                [$this->message('_missing.php', 'views/site/_missing'), 19],
+                [$this->message('sub/missing', 'views/site/sub/missing'), 20],
+                [$this->message('/layouts/missing', 'views/layouts/missing'), 21],
+                [$this->message('//layouts/missing', 'views/layouts/missing', true), 22, self::TIP],
+                [$this->message('@app/views/layouts/missing', 'views/layouts/missing', true), 23, self::TIP],
+                [$this->message('_missing', 'views/site/_missing'), 24],
                 [$this->unresolved('@unknown/missing', '@unknown'), 25],
-                [$this->message('_missing'), 28],
+                [$this->message('_missing', 'views/site/_missing'), 28],
             ],
         );
     }
@@ -36,7 +36,7 @@ final class NestedViewExistenceValidationRuleTest extends AbstractTestCase
         $this->analyse(
             [self::getDataFilePath('cased/Views/page/index')],
             [
-                [$this->message('_missing'), 6],
+                [$this->message('_missing', 'cased/Views/page/_missing'), 6],
             ],
         );
     }
@@ -46,9 +46,9 @@ final class NestedViewExistenceValidationRuleTest extends AbstractTestCase
         $this->analyse(
             [self::getDataFilePath('templates/site/index')],
             [
-                [$this->message('_missing'), 9],
-                [$this->message('/site/_missing'), 10],
-                [$this->message('/layouts/missing'), 11],
+                [$this->message('_missing', 'templates/site/_missing'), 9],
+                [$this->message('/site/_missing', 'templates/site/_missing'), 10],
+                [$this->message('/layouts/missing', 'templates/layouts/missing'), 11],
             ],
         );
     }
@@ -73,9 +73,16 @@ final class NestedViewExistenceValidationRuleTest extends AbstractTestCase
         return NestedViewExistenceValidationRule::class;
     }
 
-    private function message(string $view): string
+    /**
+     * @param bool $relative whether the path is built from an alias, which the test config sets relative to the project root
+     */
+    private function message(string $view, string $file, bool $relative = false): string
     {
-        return sprintf('View "%s" does not exist. Check the view name or create the view file.', $view);
+        $path = $relative
+            ? 'tests/Rules/Data/NestedViewExistenceValidation/' . $file . '.php'
+            : self::getDataFilePath($file);
+
+        return sprintf('View "%s" does not exist at "%s". Check the view name or create the view file.', $view, $path);
     }
 
     private function unresolved(string $view, string $alias): string

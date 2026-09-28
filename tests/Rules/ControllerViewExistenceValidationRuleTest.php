@@ -39,27 +39,27 @@ final class ControllerViewExistenceValidationRuleTest extends AbstractTestCase
                 self::getDataFilePath('Plain/PageController'),
             ],
             [
-                [$this->message('missing'), 12],
-                [$this->message('missing'), 12],
-                [$this->message('missing'), 12],
-                [$this->message('missing'), 13],
-                [$this->message('index'), 11],
-                [$this->message('missing'), 27],
-                [$this->message('_missing'), 28],
-                [$this->message('missing'), 29],
-                [$this->message('/site/missing'), 30],
-                [$this->message('missing.php'), 31],
-                [$this->message('sub/missing'), 32],
-                [$this->message('@app/views/shared/missing'), 33, $this->tip('@app')],
-                [$this->message('@shared/missing'), 34, $this->tip('@shared')],
-                [$this->message('//layouts/missing'), 35, $this->tip('@app')],
+                [$this->message('index', 'NoViewsModule/views/empty/index'), 11],
+                [$this->message('missing', 'CasedModule/Views/page/missing'), 12],
+                [$this->message('missing', 'views/admin/user/missing'), 12],
+                [$this->message('missing', 'views/user-profile/missing'), 12],
+                [$this->message('missing', 'resources/views/plain/page/missing', true), 12],
+                [$this->message('missing', 'resources/views/special/report/missing', true), 12],
+                [$this->message('missing', 'resources/views/themed/admin/user/missing', true), 12],
+                [$this->message('missing', 'resources/views/themed/home/missing', true), 12],
+                [$this->message('missing', 'views/twig/missing'), 13],
+                [$this->message('missing', 'views/site/missing'), 27],
+                [$this->message('_missing', 'views/site/_missing'), 28],
+                [$this->message('missing', 'views/site/missing'), 29],
+                [$this->message('/site/missing', 'views/site/missing'), 30],
+                [$this->message('missing.php', 'views/site/missing'), 31],
+                [$this->message('sub/missing', 'views/site/sub/missing'), 32],
+                [$this->message('@app/views/shared/missing', 'views/shared/missing', true), 33, $this->tip('@app')],
+                [$this->message('@shared/missing', 'views/shared/missing', true), 34, $this->tip('@shared')],
+                [$this->message('//layouts/missing', 'views/layouts/missing', true), 35, $this->tip('@app')],
                 [$this->unresolved('@unknown/missing', '@unknown'), 36],
-                [$this->message('missing'), 37],
-                [$this->message('missing'), 40],
-                [$this->message('missing'), 12],
-                [$this->message('missing'), 12],
-                [$this->message('missing'), 12],
-                [$this->message('missing'), 12],
+                [$this->message('missing', 'views/site/missing'), 37],
+                [$this->message('missing', 'views/site/missing'), 40],
             ],
         );
     }
@@ -76,9 +76,16 @@ final class ControllerViewExistenceValidationRuleTest extends AbstractTestCase
         return ControllerViewExistenceValidationRule::class;
     }
 
-    private function message(string $view): string
+    /**
+     * @param bool $relative whether the path comes from the test config (an alias or `viewPaths`), where it is relative to the project root
+     */
+    private function message(string $view, string $file, bool $relative = false): string
     {
-        return sprintf('View "%s" does not exist. Check the view name or create the view file.', $view);
+        $path = $relative
+            ? 'tests/Rules/Data/ControllerViewExistenceValidation/' . $file . '.php'
+            : self::getDataFilePath($file);
+
+        return sprintf('View "%s" does not exist at "%s". Check the view name or create the view file.', $view, $path);
     }
 
     private function tip(string $alias): string
