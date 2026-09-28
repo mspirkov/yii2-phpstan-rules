@@ -35,8 +35,11 @@ final class ViewFileAnalyzer
      * @param array<string, string> $aliases
      * @param list<string> $extensions
      */
-    public function __construct(array $aliases, array $extensions, ExpressionValueResolver $expressionValueResolver)
-    {
+    public function __construct(
+        array $aliases,
+        array $extensions,
+        ExpressionValueResolver $expressionValueResolver
+    ) {
         $this->aliases = $aliases;
         $this->extensions = $extensions;
         $this->expressionValueResolver = $expressionValueResolver;
@@ -66,13 +69,16 @@ final class ViewFileAnalyzer
     }
 
     /**
-     * @param string|null $viewFile the view file the call is made from, or null when relative names can't be resolved
+     * @param string|null $viewFile
      *
      * @return array{message: string, tip: string|null}|null
      */
     public function findRenderedViewProblem(?string $viewFile, string $view): ?array
     {
-        return $this->findViewProblem($view, $viewFile === null ? null : $this->locateViewFileViews($viewFile));
+        return $this->findViewProblem(
+            $view,
+            $viewFile === null ? null : $this->locateViewFileViews($viewFile)
+        );
     }
 
     /**
@@ -192,25 +198,36 @@ final class ViewFileAnalyzer
      */
     private function locateControllerViews(ClassReflection $controller): ?array
     {
+        if ($controller->isAbstract()) {
+            return null;
+        }
+
         $fileName = $controller->getFileName();
+        if ($fileName === null) {
+            return null;
+        }
+
         $segments = explode('\\', $controller->getName());
         $shortName = array_pop($segments);
+        if (substr($shortName, -strlen(self::CONTROLLER_SUFFIX)) !== self::CONTROLLER_SUFFIX) {
+            return null;
+        }
 
         $controllersIndexes = array_keys(array_filter(
             $segments,
             static fn(string $segment): bool => in_array($segment, self::CONTROLLERS_DIRECTORIES, true)
         ));
 
-        $name = substr($shortName, 0, -strlen(self::CONTROLLER_SUFFIX));
+        if (!$controllersIndexes) {
+            return null;
+        }
 
-        if (
-            $fileName === null
-            || $controllersIndexes === []
-            || $controller->isAbstract()
-            || substr($shortName, -strlen(self::CONTROLLER_SUFFIX)) !== self::CONTROLLER_SUFFIX
-            || $name === ''
-            || $controller->getNativeMethod('getViewPath')->getDeclaringClass()->getName() !== Controller::class
-        ) {
+        $name = substr($shortName, 0, -strlen(self::CONTROLLER_SUFFIX));
+        if ($name === '') {
+            return null;
+        }
+
+        if ($controller->getNativeMethod('getViewPath')->getDeclaringClass()->getName() !== Controller::class) {
             return null;
         }
 
@@ -251,9 +268,6 @@ final class ViewFileAnalyzer
         return null;
     }
 
-    /**
-     * Returns the `views` (or `Views`) directory inside the given one, defaulting to `views` when neither exists.
-     */
     private function findViewsDirectoryIn(string $parent): string
     {
         foreach (self::VIEWS_DIRECTORIES as $name) {
