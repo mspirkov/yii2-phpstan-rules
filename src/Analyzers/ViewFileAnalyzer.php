@@ -69,8 +69,6 @@ final class ViewFileAnalyzer
     }
 
     /**
-     * @param string|null $viewFile
-     *
      * @return array{message: string, tip: string|null}|null
      */
     public function findRenderedViewProblem(?string $viewFile, string $view): ?array
