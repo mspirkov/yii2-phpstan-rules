@@ -73,9 +73,9 @@ parameters:
             - twig
 
         # Views directory for controllers in a namespace (and its sub-namespaces), the most specific one wins.
-        # The controller ID is appended: `SiteController` reads `resources/views/frontend/site/*`.
+        # The controller ID is appended: `SiteController` reads `resources/frontend/views/site/*`.
         viewPaths:
-            'App\Frontend\Controllers': %currentWorkingDirectory%/resources/views/frontend
+            'App\Frontend\Controllers': %currentWorkingDirectory%/resources/frontend/views
 
         # Component IDs treated as "the database" by the DB-access rules
         yiiAppDbProperties:

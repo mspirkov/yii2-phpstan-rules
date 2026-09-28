@@ -18,9 +18,9 @@ final class ViewRenderExistenceValidationRuleTest extends AbstractTestCase
         $this->analyse(
             [self::getDataFilePath('code')],
             [
-                [$this->message('@app/views/layouts/missing'), 13, self::TIP],
-                [$this->message('//layouts/missing'), 14, self::TIP],
-                [$this->message('@app/views/layouts/missing'), 15, self::TIP],
+                [$this->message('@app/views/layouts/missing', 'views/layouts/missing'), 13, self::TIP],
+                [$this->message('//layouts/missing', 'views/layouts/missing'), 14, self::TIP],
+                [$this->message('@app/views/layouts/missing', 'views/layouts/missing'), 15, self::TIP],
                 [$this->unresolved('@unknown/missing', '@unknown'), 16],
             ],
         );
@@ -46,9 +46,13 @@ final class ViewRenderExistenceValidationRuleTest extends AbstractTestCase
         return ViewRenderExistenceValidationRule::class;
     }
 
-    private function message(string $view): string
+    private function message(string $view, string $file): string
     {
-        return sprintf('View "%s" does not exist. Check the view name or create the view file.', $view);
+        return sprintf(
+            'View "%s" does not exist at "tests/Rules/Data/ViewRenderExistenceValidation/%s.php". Check the view name or create the view file.',
+            $view,
+            $file
+        );
     }
 
     private function unresolved(string $view, string $alias): string

@@ -110,7 +110,11 @@ final class ViewFileAnalyzer
         }
 
         return [
-            'message' => sprintf('View "%s" does not exist. Check the view name or create the view file.', $view),
+            'message' => sprintf(
+                'View "%s" does not exist at "%s". Check the view name or create the view file.',
+                $view,
+                $this->getExpectedViewFile($resolution['path'])
+            ),
             'tip' => $resolution['alias'] === null
                 ? null
                 : sprintf(
@@ -355,6 +359,15 @@ final class ViewFileAnalyzer
         }
 
         return $parent . '/' . self::VIEWS_DIRECTORIES[0];
+    }
+
+    private function getExpectedViewFile(string $viewPath): string
+    {
+        if (pathinfo($viewPath, PATHINFO_EXTENSION) !== '' || $this->extensions === []) {
+            return $viewPath;
+        }
+
+        return $viewPath . '.' . $this->extensions[0];
     }
 
     private function viewFileExists(string $viewPath): bool
