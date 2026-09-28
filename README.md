@@ -508,8 +508,8 @@ public function behaviors(): array
             'class' => AccessControl::class,
             'only' => ['index', 'logout', 'signup'],   // ✗ "signup" does not exist
             'rules' => [
-                ['allow' => true, 'actions' => ['index', 'logout'], 'roles' => ['@']],
-                ['allow' => true, 'actions' => ['captcha']],     // ✓ declared in actions()
+                ['allow' => true, 'actions' => ['index', 'logot'], 'roles' => ['@']],   // ✗ typo — no such action
+                ['allow' => true, 'actions' => ['captcha']],                            // ✓ declared in actions()
             ],
         ],
         'negotiator' => [
