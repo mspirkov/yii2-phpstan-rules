@@ -2,13 +2,14 @@
 
 namespace MSpirkov\Yii2\PHPStan\Tests\Rules\Data\ControllerViewExistenceValidation\controllers;
 
-use yii\web\Controller;
+use yii\console\Controller as ConsoleController;
+use yii\web\Controller as WebController;
 use yii\web\View;
 
-final class SkippedController extends Controller
+final class SkippedController extends WebController
 {
     /**
-     * @param \yii\web\Controller|\yii\console\Controller $unionController
+     * @param Controller|ConsoleController $unionController
      */
     public function actionSkipped(
         string $dynamic,
