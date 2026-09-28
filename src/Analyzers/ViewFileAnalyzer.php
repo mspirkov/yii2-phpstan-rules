@@ -21,27 +21,34 @@ final class ViewFileAnalyzer
     /** @var list<string> */
     private const VIEWS_DIRECTORIES = ['views', 'Views'];
 
-    private const MAX_ALIAS_DEPTH = 10;
-
     /** @var array<string, string> */
     private array $aliases;
 
     /** @var list<string> */
     private array $extensions;
 
+    /** @var array<string, string> */
+    private array $viewPaths;
+
+    /** @var array<string, string>|null */
+    private ?array $viewDirectories = null;
+
     private ExpressionValueResolver $expressionValueResolver;
 
     /**
      * @param array<string, string> $aliases
      * @param list<string> $extensions
+     * @param array<string, string> $viewPaths
      */
     public function __construct(
         array $aliases,
         array $extensions,
+        array $viewPaths,
         ExpressionValueResolver $expressionValueResolver
     ) {
         $this->aliases = $aliases;
         $this->extensions = $extensions;
+        $this->viewPaths = $viewPaths;
         $this->expressionValueResolver = $expressionValueResolver;
     }
 
@@ -176,28 +183,10 @@ final class ViewFileAnalyzer
     /**
      * @return array{path: string|null, unresolvedRoot: string|null}
      */
-    private function resolveAlias(string $alias, int $depth = 0): array
+    private function resolveAlias(string $alias): array
     {
         $root = $this->getAliasRoot($alias);
-        $rest = substr($alias, strlen($root));
-
         $path = $this->aliases[$root] ?? null;
-        if ($path !== null && strncmp($path, '@', 1) === 0) {
-            if ($depth >= self::MAX_ALIAS_DEPTH) {
-                return [
-                    'path' => null,
-                    'unresolvedRoot' => $root,
-                ];
-            }
-
-            $resolved = $this->resolveAlias($path, $depth + 1);
-            if ($resolved['path'] === null) {
-                return $resolved;
-            }
-
-            $path = $resolved['path'];
-        }
-
         if ($path === null) {
             return [
                 'path' => null,
@@ -206,7 +195,7 @@ final class ViewFileAnalyzer
         }
 
         return [
-            'path' => rtrim($path, '/\\') . $rest,
+            'path' => rtrim($path, '/\\') . substr($alias, strlen($root)),
             'unresolvedRoot' => null,
         ];
     }
@@ -226,21 +215,30 @@ final class ViewFileAnalyzer
             return null;
         }
 
-        $controllersIndexes = array_keys(array_filter(
-            $segments,
-            static fn(string $segment): bool => in_array($segment, self::CONTROLLERS_DIRECTORIES, true)
-        ));
-
-        if ($controllersIndexes === []) {
-            return null;
-        }
-
         $name = substr($shortName, 0, -strlen(self::CONTROLLER_SUFFIX)) . '';
         if ($name === '') {
             return null;
         }
 
         if ($controller->getNativeMethod('getViewPath')->getDeclaringClass()->getName() !== Controller::class) {
+            return null;
+        }
+
+        $configuredNamespace = $this->findConfiguredNamespace($segments);
+        if ($configuredNamespace !== null) {
+            return $this->createControllerLocation(
+                $this->getViewDirectories()[$configuredNamespace],
+                array_slice($segments, substr_count($configuredNamespace, '\\') + 1),
+                $name
+            );
+        }
+
+        $controllersIndexes = array_keys(array_filter(
+            $segments,
+            static fn(string $segment): bool => in_array($segment, self::CONTROLLERS_DIRECTORIES, true)
+        ));
+
+        if ($controllersIndexes === []) {
             return null;
         }
 
@@ -252,7 +250,39 @@ final class ViewFileAnalyzer
             return null;
         }
 
-        $viewsDirectory = $this->findViewsDirectoryIn(dirname($controllersDirectory));
+        return $this->createControllerLocation(
+            $this->findViewsDirectoryIn(dirname($controllersDirectory)),
+            $prefixSegments,
+            $name
+        );
+    }
+
+    /**
+     * @param list<string> $namespaceSegments
+     */
+    private function findConfiguredNamespace(array $namespaceSegments): ?string
+    {
+        $namespace = implode('\\', $namespaceSegments);
+
+        foreach (array_keys($this->getViewDirectories()) as $configuredNamespace) {
+            if (
+                $namespace === $configuredNamespace
+                || strncmp($namespace, $configuredNamespace . '\\', strlen($configuredNamespace) + 1) === 0
+            ) {
+                return $configuredNamespace;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * @param list<string> $prefixSegments
+     *
+     * @return array{viewsDirectory: string, directory: string}
+     */
+    private function createControllerLocation(string $viewsDirectory, array $prefixSegments, string $name): array
+    {
         $controllerId = implode('/', array_merge($prefixSegments, [Inflector::camel2id($name)]));
 
         return ['viewsDirectory' => $viewsDirectory, 'directory' => $viewsDirectory . '/' . $controllerId];
@@ -276,6 +306,13 @@ final class ViewFileAnalyzer
 
     private function findViewsDirectory(string $file): ?string
     {
+        foreach ($this->getViewDirectories() as $configuredDirectory) {
+            $realDirectory = realpath($configuredDirectory);
+            if ($realDirectory !== false && strncmp($file, $realDirectory . '/', strlen($realDirectory) + 1) === 0) {
+                return $realDirectory;
+            }
+        }
+
         $directory = dirname($file);
 
         while (dirname($directory) !== $directory) {
@@ -287,6 +324,26 @@ final class ViewFileAnalyzer
         }
 
         return null;
+    }
+
+    /**
+     * Configured view directories keyed by namespace, the most specific namespace first.
+     *
+     * @return array<string, string>
+     */
+    private function getViewDirectories(): array
+    {
+        if ($this->viewDirectories === null) {
+            $directories = [];
+            foreach ($this->viewPaths as $namespace => $path) {
+                $directories[trim($namespace, '\\')] = rtrim($path, '/\\');
+            }
+
+            uksort($directories, static fn(string $a, string $b): int => strlen($b) <=> strlen($a));
+            $this->viewDirectories = $directories;
+        }
+
+        return $this->viewDirectories;
     }
 
     private function findViewsDirectoryIn(string $parent): string

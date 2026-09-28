@@ -41,6 +41,18 @@ final class NestedViewExistenceValidationRuleTest extends AbstractTestCase
         );
     }
 
+    public function testRuleTreatsConfiguredViewPathAsViewsDirectory(): void
+    {
+        $this->analyse(
+            [self::getDataFilePath('templates/site/index')],
+            [
+                [$this->message('_missing'), 9],
+                [$this->message('/site/_missing'), 10],
+                [$this->message('/layouts/missing'), 11],
+            ],
+        );
+    }
+
     public function testRuleSkipsNonViewFiles(): void
     {
         $this->analyse(
