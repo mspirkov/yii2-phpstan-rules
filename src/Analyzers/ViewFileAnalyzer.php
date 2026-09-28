@@ -183,10 +183,14 @@ final class ViewFileAnalyzer
 
         $path = $this->aliases[$root] ?? null;
         if ($path !== null && strncmp($path, '@', 1) === 0) {
-            $resolved = $depth < self::MAX_ALIAS_DEPTH
-                ? $this->resolveAlias($path, $depth + 1)
-                : ['path' => null, 'unresolvedRoot' => $root];
+            if ($depth >= self::MAX_ALIAS_DEPTH) {
+                return [
+                    'path' => null,
+                    'unresolvedRoot' => $root,
+                ];
+            }
 
+            $resolved = $this->resolveAlias($path, $depth + 1);
             if ($resolved['path'] === null) {
                 return $resolved;
             }
@@ -194,9 +198,17 @@ final class ViewFileAnalyzer
             $path = $resolved['path'];
         }
 
-        return $path === null
-            ? ['path' => null, 'unresolvedRoot' => $root]
-            : ['path' => rtrim($path, '/\\') . $rest, 'unresolvedRoot' => null];
+        if ($path === null) {
+            return [
+                'path' => null,
+                'unresolvedRoot' => $root,
+            ];
+        }
+
+        return [
+            'path' => rtrim($path, '/\\') . $rest,
+            'unresolvedRoot' => null,
+        ];
     }
 
     /**
@@ -232,8 +244,10 @@ final class ViewFileAnalyzer
             return null;
         }
 
+        /** @var string $controllerFilename */
+        $controllerFilename = $controller->getFileName();
         $prefixSegments = array_slice($segments, end($controllersIndexes) + 1);
-        $controllersDirectory = dirname($controller->getFileName(), count($prefixSegments) + 1);
+        $controllersDirectory = dirname($controllerFilename, count($prefixSegments) + 1);
         if (!in_array(basename($controllersDirectory), self::CONTROLLERS_DIRECTORIES, true)) {
             return null;
         }
